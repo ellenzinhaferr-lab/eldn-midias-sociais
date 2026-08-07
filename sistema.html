@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELDN Digital — Sistema de Mídias Sociais</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{--cor-primaria:#7C3AED;--cor-secundaria:#A78BFA;--cor-acento:#F59E0B;--cor-fundo:#0F0A1E;--cor-card:#1A1030;--cor-borda:#2D1F5E;--cor-texto:#E2D9F3;--cor-texto-suave:#9D8EC4;--cor-verde:#10B981;--cor-vermelho:#EF4444;--cor-azul:#3B82F6}
+body.modo-claro{--cor-fundo:#F3F0FF;--cor-card:#FFFFFF;--cor-borda:#DDD6FE;--cor-texto:#1E1B4B;--cor-texto-suave:#6B7280;--cor-secundaria:#5B21B6;--cor-acento:#B45309;--cor-verde:#047857;--cor-vermelho:#B91C1C;--cor-azul:#1D4ED8}
+body{background:var(--cor-fundo);color:var(--cor-texto);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;margin:0}
+.sidebar{width:240px;height:100vh;background:var(--cor-card);border-right:1px solid var(--cor-borda);position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:100;overflow:hidden}
+.sidebar-brand{padding:24px 20px 16px;border-bottom:1px solid var(--cor-borda)}
+.sidebar-brand h6{color:var(--cor-secundaria);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 4px}
+.sidebar-brand h5{margin:0;font-size:16px}
+.sidebar-nav{padding:16px 12px;flex:1;overflow-y:auto}
+.nav-item{margin-bottom:2px}
+.nav-link{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:10px;color:var(--cor-texto-suave);cursor:pointer;font-size:14px;border:none;background:none;width:100%;text-align:left;transition:all .15s}
+.nav-link:hover{background:rgba(124,58,237,.15);color:var(--cor-secundaria)}
+.nav-link.active{background:rgba(124,58,237,.2);color:#fff}
+.sidebar-footer{padding:14px 20px;border-top:1px solid var(--cor-borda);font-size:12px;color:var(--cor-texto-suave)}
+.main{margin-left:240px}
+.topbar{background:var(--cor-card);border-bottom:1px solid var(--cor-borda);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-sub{font-size:12px;color:var(--cor-texto-suave);margin-top:2px}
+.conteudo{padding:24px 28px}
+.table-card{background:var(--cor-card);border:1px solid var(--cor-borda);border-radius:14px;overflow:clip;margin-bottom:24px}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--cor-borda)}
+table.gestao{width:100%;border-collapse:collapse}
+table.gestao th{padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--cor-texto-suave);white-space:nowrap;border-bottom:1px solid var(--cor-borda)}
+table.gestao td{padding:10px 14px;border-bottom:1px solid rgba(45,31,94,.5);color:var(--cor-texto);vertical-align:middle}
+.modal-content{background:var(--cor-card);border:1px solid var(--cor-borda);color:var(--cor-texto);border-radius:16px}
+.modal-header{border-bottom:1px solid var(--cor-borda)}
+.modal-footer{border-top:1px solid var(--cor-borda)}
+.form-control,.form-select{background:rgba(255,255,255,.04);border:1px solid var(--cor-borda);color:var(--cor-texto);border-radius:8px}
+.form-control:focus,.form-select:focus{background:rgba(124,58,237,.08);border-color:var(--cor-primaria);color:var(--cor-texto);box-shadow:0 0 0 3px rgba(124,58,237,.2)}
+.form-label{font-size:13px;color:var(--cor-texto-suave);margin-bottom:6px}
+.btn-primary{background:var(--cor-primaria);border:none;border-radius:8px;font-size:13px;font-weight:600}
+.btn-outline-secondary{border-color:var(--cor-borda);color:var(--cor-texto-suave);border-radius:8px;font-size:13px}
+.btn-outline-secondary:hover{background:rgba(255,255,255,.05);color:var(--cor-texto);border-color:var(--cor-borda)}
+.btn-sm-action{background:none;border:none;font-size:15px;padding:4px 8px;cursor:pointer}
+.btn-edit{color:var(--cor-secundaria)}
+.btn-delete{color:var(--cor-vermelho)}
+.empty-state{text-align:center;padding:48px 20px;color:var(--cor-texto-suave)}
+.empty-state i{font-size:40px;display:block;margin-bottom:12px;color:var(--cor-borda)}
+.badge-ativo{background:rgba(16,185,129,.15);color:var(--cor-verde);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.badge-inativo{background:rgba(239,68,68,.12);color:var(--cor-vermelho);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.badge-status-ok{background:rgba(16,185,129,.15);color:var(--cor-verde);padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-status-erro{background:rgba(239,68,68,.12);color:var(--cor-vermelho);padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-status-espera{background:rgba(245,158,11,.15);color:var(--cor-acento);padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.post-card{border:2px solid var(--cor-borda);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .15s;position:relative}
+.post-card:hover{border-color:var(--cor-secundaria)}
+.post-card.selecionado{border-color:var(--cor-primaria);box-shadow:0 0 0 2px rgba(124,58,237,.3)}
+.post-card img{width:100%;height:110px;object-fit:cover;display:block}
+.post-card .legenda{font-size:10px;color:var(--cor-texto-suave);padding:6px;line-height:1.3;max-height:44px;overflow:hidden}
+.toast-msg{position:fixed;bottom:24px;right:24px;background:#1A1030;border:1px solid var(--cor-borda);border-radius:12px;padding:14px 18px;color:var(--cor-texto);font-size:13px;z-index:9999;display:none;align-items:center;gap:10px;box-shadow:0 4px 24px rgba(0,0,0,.5);max-width:360px}
+.spinner-sm{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:girar .7s linear infinite;display:inline-block}
+@keyframes girar{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div id="tela-login" style="display:flex;min-height:100vh;background:var(--cor-fundo);align-items:center;justify-content:center;">
+  <div style="background:var(--cor-card);border:1px solid var(--cor-borda);border-radius:20px;padding:40px;width:100%;max-width:380px;margin:20px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <i class="bi bi-instagram" style="font-size:32px;color:var(--cor-secundaria)"></i>
+      <h5 style="margin:10px 0 2px;">ELDN Digital</h5>
+      <p style="color:var(--cor-texto-suave);font-size:13px;margin:0;">Sistema de Mídias Sociais</p>
+    </div>
+    <div id="login-erro" style="display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:10px 14px;color:#FCA5A5;font-size:13px;margin-bottom:16px;"></div>
+    <div class="mb-3">
+      <label class="form-label">E-mail</label>
+      <input type="email" id="login-email" class="form-control" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')fazLogin()">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Senha</label>
+      <input type="password" id="login-senha" class="form-control" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazLogin()">
+    </div>
+    <button id="btn-login" class="btn btn-primary w-100" style="padding:12px;" onclick="fazLogin()">Entrar</button>
+    <p style="text-align:center;font-size:11px;color:var(--cor-borda);margin-top:20px;margin-bottom:0;">Acesso restrito — ELDN Digital</p>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <h6>ELDN Digital</h6>
+      <h5>Mídias Sociais</h5>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-item"><button class="nav-link active" onclick="showPage('instaauto')"><i class="bi bi-instagram"></i> Automação Instagram</button></div>
+    </div>
+    <div class="sidebar-footer">
+      <div style="font-size:11px;color:var(--cor-texto-suave);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="usuario-nome"></div>
+      <button class="btn btn-outline-secondary btn-sm w-100" onclick="fazLogout()"><i class="bi bi-box-arrow-right"></i> Sair</button>
+      <div style="font-size:11px;text-align:center;color:var(--cor-borda);margin-top:8px;">v1.0 · Meu Lugar de Cura</div>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <h4 style="margin:0;font-size:18px;">Automação Instagram</h4>
+        <div class="topbar-sub">Comentário → DM automática, por palavra-chave e por post</div>
+      </div>
+    </div>
+
+    <div class="conteudo">
+
+      <div class="table-card">
+        <div class="table-header">
+          <h6 style="margin:0"><i class="bi bi-chat-left-quote-fill me-2" style="color:var(--cor-secundaria)"></i>Regras de Automação</h6>
+          <button class="btn btn-primary btn-sm" onclick="abrirModalRegra()"><i class="bi bi-plus-lg"></i> Nova Regra</button>
+        </div>
+        <div class="table-responsive">
+          <table class="gestao" id="tabela-regras">
+            <thead><tr>
+              <th>Palavra(s)-chave</th>
+              <th>Aplica a</th>
+              <th>Mensagem da DM</th>
+              <th>Resposta pública</th>
+              <th>Status</th>
+              <th></th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <h6 style="margin:0"><i class="bi bi-clock-history me-2" style="color:var(--cor-acento)"></i>Histórico de Comentários Atendidos</h6>
+          <button class="btn btn-outline-secondary btn-sm" onclick="carregarLog()"><i class="bi bi-arrow-clockwise"></i> Atualizar</button>
+        </div>
+        <div class="table-responsive">
+          <table class="gestao" id="tabela-log">
+            <thead><tr>
+              <th>Data/Hora</th>
+              <th>Usuário</th>
+              <th>Comentário</th>
+              <th>Regra aplicada</th>
+              <th>Status</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL REGRA -->
+<div class="modal fade" id="modalRegra" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title" id="modalRegraTitulo">Nova Regra</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body">
+    <input type="hidden" id="rg-idx">
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label">Palavra(s)-chave *</label>
+        <input class="form-control" id="rg-keywords" placeholder="Ex: cura, quero curar (separe por vírgula)">
+      </div>
+      <div class="col-12">
+        <label class="form-label">Esta regra vale para</label>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="rg-escopo" id="rg-escopo-qualquer" value="qualquer" checked onchange="alternarEscopoRegra()">
+            <label class="form-check-label" for="rg-escopo-qualquer">Qualquer post</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="rg-escopo" id="rg-escopo-especifico" value="especifico" onchange="alternarEscopoRegra()">
+            <label class="form-check-label" for="rg-escopo-especifico">Um post específico</label>
+          </div>
+        </div>
+      </div>
+      <div class="col-12" id="bloco-post-especifico" style="display:none;">
+        <input type="hidden" id="rg-mediaId">
+        <input type="hidden" id="rg-thumbnail">
+        <input type="hidden" id="rg-legenda">
+        <div id="post-selecionado-preview" style="display:none;background:rgba(124,58,237,.08);border:1px solid var(--cor-borda);border-radius:10px;padding:10px;margin-bottom:10px;display:flex;gap:10px;align-items:center;">
+          <img id="post-selecionado-img" style="width:50px;height:50px;object-fit:cover;border-radius:6px;">
+          <div style="font-size:12px;color:var(--cor-texto-suave);flex:1" id="post-selecionado-legenda"></div>
+        </div>
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="buscarPostsRecentes()"><i class="bi bi-search"></i> Buscar posts recentes</button>
+        <div id="posts-loading" style="display:none;margin-top:10px;"><span class="spinner-sm"></span> Buscando posts...</div>
+        <div id="posts-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px;max-height:260px;overflow-y:auto;"></div>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Mensagem da DM privada *</label>
+        <textarea class="form-control" id="rg-dmMessage" rows="3" placeholder="Ex: Oi! Que alegria seu interesse 💛 Aqui está o link: https://..."></textarea>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Resposta pública no comentário (opcional)</label>
+        <input class="form-control" id="rg-publicReply" placeholder="Ex: Te mandei no Direct! 💌">
+      </div>
+      <div class="col-12">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="rg-ativo" checked>
+          <label class="form-check-label" for="rg-ativo">Regra ativa</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" onclick="salvarRegra()">Salvar</button></div>
+</div></div></div>
+
+<div id="toast-msg" class="toast-msg"></div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCgnmQMG8CV6xxr5fYjRF5nFYxABL28tjY",
+  authDomain: "eldn-gestao.firebaseapp.com",
+  projectId: "eldn-gestao",
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const IG_PROXY_URL = 'https://app.eldndigital.com/instagram-webhook/proxy.php';
+
+let dados = { instagram_automacao: [] };
+let unsubscribers = [];
+let postsEncontrados = [];
+
+// ============================================================
+// LOGIN
+// ============================================================
+function fazLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  const btn = document.getElementById('btn-login');
+  const err = document.getElementById('login-erro');
+  err.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Entrando...';
+  auth.signInWithEmailAndPassword(email, senha).catch(() => {
+    err.textContent = 'E-mail ou senha incorretos. Verifique e tente novamente.';
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Entrar';
+  });
+}
+
+function fazLogout() {
+  if (!confirm('Deseja sair do sistema?')) return;
+  unsubscribers.forEach(u => u());
+  unsubscribers = [];
+  auth.signOut();
+}
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById('tela-login').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('usuario-nome').textContent = user.email;
+    setupListeners();
+    carregarLog();
+  } else {
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('tela-login').style.display = 'flex';
+  }
+});
+
+function setupListeners() {
+  unsubscribers.push(db.collection('instagram_automacao').onSnapshot(snap => {
+    dados.instagram_automacao = snap.docs.map(d => ({ ...d.data(), _docId: d.id }));
+    renderRegras();
+  }));
+}
+
+function showPage(id) { /* só existe uma página por enquanto */ }
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer;
+function mostrarToast(msg, tipo) {
+  const t = document.getElementById('toast-msg');
+  const icone = tipo === 'erro' ? 'bi-x-circle-fill' : 'bi-check-circle-fill';
+  const cor = tipo === 'erro' ? 'var(--cor-vermelho)' : 'var(--cor-verde)';
+  t.innerHTML = `<i class="bi ${icone}" style="color:${cor};font-size:18px;"></i> ${msg}`;
+  t.style.display = 'flex';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.style.display = 'none', 4000);
+}
+
+// ============================================================
+// REGRAS
+// ============================================================
+function renderRegras() {
+  const lista = dados.instagram_automacao;
+  const tbody = document.querySelector('#tabela-regras tbody');
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="bi bi-chat-left-quote"></i>Nenhuma regra cadastrada ainda</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map((r, i) => {
+    const aplicaA = r.escopo === 'especifico'
+      ? `<div style="display:flex;align-items:center;gap:6px;">${r.thumbnail ? `<img src="${escHtml(r.thumbnail)}" style="width:28px;height:28px;object-fit:cover;border-radius:4px;">` : ''}<span style="font-size:12px;">${escHtml((r.legenda || 'Post específico').slice(0, 30))}</span></div>`
+      : '<span style="color:var(--cor-texto-suave);font-size:12px;">Qualquer post</span>';
+    const dmPreview = escHtml((r.dmMessage || '').slice(0, 60)) + ((r.dmMessage || '').length > 60 ? '...' : '');
+    return `<tr>
+      <td><strong>${escHtml((r.keywords || []).join(', '))}</strong></td>
+      <td>${aplicaA}</td>
+      <td style="font-size:12px;color:var(--cor-texto-suave);">${dmPreview}</td>
+      <td style="font-size:12px;color:var(--cor-texto-suave);">${escHtml(r.publicReply || '—')}</td>
+      <td>${r.ativo ? '<span class="badge-ativo">Ativa</span>' : '<span class="badge-inativo">Inativa</span>'}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn-sm-action btn-edit" onclick="editarRegra(${i})"><i class="bi bi-pencil-fill"></i></button>
+        <button class="btn-sm-action btn-delete" onclick="excluirRegra(${i})"><i class="bi bi-trash-fill"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function escHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function limparModalRegra() {
+  document.getElementById('rg-idx').value = '';
+  document.getElementById('rg-keywords').value = '';
+  document.getElementById('rg-dmMessage').value = '';
+  document.getElementById('rg-publicReply').value = '';
+  document.getElementById('rg-ativo').checked = true;
+  document.getElementById('rg-escopo-qualquer').checked = true;
+  document.getElementById('rg-mediaId').value = '';
+  document.getElementById('rg-thumbnail').value = '';
+  document.getElementById('rg-legenda').value = '';
+  document.getElementById('post-selecionado-preview').style.display = 'none';
+  document.getElementById('posts-grid').innerHTML = '';
+  alternarEscopoRegra();
+}
+
+function abrirModalRegra() {
+  limparModalRegra();
+  document.getElementById('modalRegraTitulo').textContent = 'Nova Regra';
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalRegra')).show();
+}
+
+function editarRegra(i) {
+  const r = dados.instagram_automacao[i];
+  limparModalRegra();
+  document.getElementById('modalRegraTitulo').textContent = 'Editar Regra';
+  document.getElementById('rg-idx').value = i;
+  document.getElementById('rg-keywords').value = (r.keywords || []).join(', ');
+  document.getElementById('rg-dmMessage').value = r.dmMessage || '';
+  document.getElementById('rg-publicReply').value = r.publicReply || '';
+  document.getElementById('rg-ativo').checked = !!r.ativo;
+  if (r.escopo === 'especifico') {
+    document.getElementById('rg-escopo-especifico').checked = true;
+    document.getElementById('rg-mediaId').value = r.mediaId || '';
+    document.getElementById('rg-thumbnail').value = r.thumbnail || '';
+    document.getElementById('rg-legenda').value = r.legenda || '';
+    if (r.thumbnail) {
+      document.getElementById('post-selecionado-preview').style.display = 'flex';
+      document.getElementById('post-selecionado-img').src = r.thumbnail;
+      document.getElementById('post-selecionado-legenda').textContent = r.legenda || '';
+    }
+  }
+  alternarEscopoRegra();
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalRegra')).show();
+}
+
+async function salvarRegra() {
+  const keywordsRaw = document.getElementById('rg-keywords').value.trim();
+  const dmMessage = document.getElementById('rg-dmMessage').value.trim();
+  if (!keywordsRaw || !dmMessage) return alert('Preencha ao menos a palavra-chave e a mensagem da DM.');
+
+  const escopo = document.querySelector('input[name="rg-escopo"]:checked').value;
+  if (escopo === 'especifico' && !document.getElementById('rg-mediaId').value) {
+    return alert('Escolha um post específico (use "Buscar posts recentes") ou selecione "Qualquer post".');
+  }
+
+  const obj = {
+    keywords: keywordsRaw.split(',').map(k => k.trim().toLowerCase()).filter(Boolean),
+    escopo,
+    mediaId: escopo === 'especifico' ? document.getElementById('rg-mediaId').value : null,
+    thumbnail: escopo === 'especifico' ? document.getElementById('rg-thumbnail').value : null,
+    legenda: escopo === 'especifico' ? document.getElementById('rg-legenda').value : null,
+    dmMessage,
+    publicReply: document.getElementById('rg-publicReply').value.trim(),
+    ativo: document.getElementById('rg-ativo').checked,
+  };
+
+  const idx = document.getElementById('rg-idx').value;
+  if (idx === '') {
+    obj.criadoEm = firebase.firestore.FieldValue.serverTimestamp();
+    await db.collection('instagram_automacao').add(obj);
+  } else {
+    await db.collection('instagram_automacao').doc(dados.instagram_automacao[parseInt(idx)]._docId).set(obj, { merge: true });
+  }
+  bootstrap.Modal.getInstance(document.getElementById('modalRegra')).hide();
+  mostrarToast('Regra salva com sucesso!');
+}
+
+async function excluirRegra(i) {
+  if (!confirm('Excluir esta regra? Essa ação não pode ser desfeita.')) return;
+  await db.collection('instagram_automacao').doc(dados.instagram_automacao[i]._docId).delete();
+  mostrarToast('Regra excluída.');
+}
+
+function alternarEscopoRegra() {
+  const especifico = document.getElementById('rg-escopo-especifico').checked;
+  document.getElementById('bloco-post-especifico').style.display = especifico ? 'block' : 'none';
+}
+
+// ============================================================
+// BUSCAR POSTS RECENTES (via proxy PHP — usa o token do Meta que fica só no servidor)
+// ============================================================
+async function buscarPostsRecentes() {
+  const loading = document.getElementById('posts-loading');
+  const grid = document.getElementById('posts-grid');
+  loading.style.display = 'block';
+  grid.innerHTML = '';
+  try {
+    const resp = await fetch(IG_PROXY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ acao: 'list_posts' }) });
+    const data = await resp.json();
+    if (!data.ok) throw new Error('Falha ao buscar posts');
+    postsEncontrados = data.posts;
+    grid.innerHTML = postsEncontrados.map((p, i) => `
+      <div class="post-card" id="post-card-${i}" onclick="selecionarPost(${i})">
+        <img src="${escHtml(p.thumbnail)}" loading="lazy">
+        <div class="legenda">${escHtml(p.legenda)}</div>
+      </div>
+    `).join('');
+  } catch (e) {
+    mostrarToast('Não consegui buscar os posts agora. Tente novamente.', 'erro');
+  }
+  loading.style.display = 'none';
+}
+
+function selecionarPost(i) {
+  const p = postsEncontrados[i];
+  document.getElementById('rg-mediaId').value = p.id;
+  document.getElementById('rg-thumbnail').value = p.thumbnail;
+  document.getElementById('rg-legenda').value = p.legenda;
+  document.getElementById('post-selecionado-preview').style.display = 'flex';
+  document.getElementById('post-selecionado-img').src = p.thumbnail;
+  document.getElementById('post-selecionado-legenda').textContent = p.legenda;
+  document.querySelectorAll('.post-card').forEach(el => el.classList.remove('selecionado'));
+  document.getElementById(`post-card-${i}`).classList.add('selecionado');
+}
+
+// ============================================================
+// LOG DE COMENTÁRIOS ATENDIDOS
+// ============================================================
+async function carregarLog() {
+  const tbody = document.querySelector('#tabela-log tbody');
+  tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><span class="spinner-sm"></span> Carregando...</div></td></tr>';
+  try {
+    const snap = await db.collection('instagram_automacao_log').orderBy('criadoEm', 'desc').limit(50).get();
+    const itens = snap.docs.map(d => d.data());
+    if (!itens.length) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><i class="bi bi-clock-history"></i>Nenhum comentário atendido ainda</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = itens.map(l => {
+      const data = l.criadoEm ? (l.criadoEm.toDate ? l.criadoEm.toDate() : new Date(l.criadoEm)).toLocaleString('pt-BR') : '—';
+      let statusBadge = '<span class="badge-status-espera">Sem regra</span>';
+      if (l.status === 'concluido') statusBadge = '<span class="badge-status-ok">Enviado</span>';
+      else if (l.status === 'processando') statusBadge = '<span class="badge-status-espera">Processando</span>';
+      else if (l.status === 'erro_dm') statusBadge = '<span class="badge-status-erro">Erro ao enviar</span>';
+      return `<tr>
+        <td style="font-size:12px;">${data}</td>
+        <td>${escHtml(l.usuario || '—')}</td>
+        <td style="font-size:12px;color:var(--cor-texto-suave);">${escHtml((l.texto || '').slice(0, 50))}</td>
+        <td>${escHtml(l.regraAplicada || '—')}</td>
+        <td>${statusBadge}</td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">Erro ao carregar o histórico.</div></td></tr>';
+  }
+}
+</script>
+</body>
+</html>
