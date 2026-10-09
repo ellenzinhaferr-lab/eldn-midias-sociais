@@ -1597,7 +1597,7 @@ function renderMetricas() {
   const melhor = Object.entries(porTipo).map(([t, ps]) => [t, ps.reduce((s, p) => s + (p.taxa || 0), 0) / ps.length]).sort((a, b) => b[1] - a[1])[0];
   const kpis = [
     ['Posts', fmtNum(lista.length), 'no filtro atual'],
-    [R.nomeBase + ' média', fmtNum(Math.round(media(R.base) || 0)), 'por post'],
+    ['Média de ' + R.nomeBase.toLowerCase(), fmtNum(Math.round(media(R.base) || 0)), 'por post'],
     ['Interações médias', fmtNum(Math.round(media('interacoes') || 0)), 'por post'],
   ];
   if (rede === 'instagram') kpis.push(['Taxa de salvamento', somaBase ? pct(somaSalvos / somaBase * 100) : '—', 'salvos ÷ alcance'], ['Formato campeão', melhor ? melhor[0] : '—', melhor ? `${pct(melhor[1])} de engajamento médio` : '']);
