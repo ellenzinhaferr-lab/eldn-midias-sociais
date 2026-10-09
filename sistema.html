@@ -20,6 +20,9 @@ body.modo-claro .form-select option{background:#fff;color:var(--cor-texto)}
 body.modo-claro .btn-close-white{filter:invert(1) brightness(0) opacity(.6)}
 body.modo-claro .toast-msg{background:#fff}
 body.modo-claro .cal-dia{background:#fff}
+body.modo-claro table.gestao td{border-bottom-color:#EDE9FE}
+body.modo-claro .toast-msg{color:var(--cor-texto)}
+body.modo-claro .passo-card,body.modo-claro .fluxo-stats div{background:#F9F7FF}
 *{box-sizing:border-box}
 body{background:var(--cor-fundo);color:var(--cor-texto);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;margin:0}
 .sidebar{width:240px;height:100vh;background:var(--cor-card);border-right:1px solid var(--cor-borda);position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:1040;overflow:hidden;transition:transform .2s}
@@ -38,6 +41,8 @@ body{background:var(--cor-fundo);color:var(--cor-texto);font-family:'Segoe UI',s
 .topbar{background:var(--cor-card);border-bottom:1px solid var(--cor-borda);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:50}
 .topbar h4{margin:0;font-size:18px;font-weight:700;color:var(--cor-titulo)}
 .topbar-sub{font-size:12px;color:var(--cor-texto-suave);margin-top:2px}
+.btn-tema{display:inline-flex;align-items:center;gap:6px;background:rgba(124,58,237,.12);border:1px solid var(--cor-borda);color:var(--cor-texto);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer}
+.btn-tema:hover{border-color:var(--cor-primaria)}
 .btn-menu{display:none;background:none;border:none;color:var(--cor-texto);font-size:24px;padding:0 6px 0 0}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1030}
 .page-content{padding:28px;flex:1}
@@ -152,7 +157,9 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
   body.menu-aberto .sidebar{transform:none}
   body.menu-aberto .sidebar-overlay{display:block}
   .main-content{margin-left:0}
-  .btn-menu{display:inline-block}
+  .btn-tema{display:inline-flex;align-items:center;gap:6px;background:rgba(124,58,237,.12);border:1px solid var(--cor-borda);color:var(--cor-texto);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer}
+.btn-tema:hover{border-color:var(--cor-primaria)}
+.btn-menu{display:inline-block}
   .topbar{padding:12px 16px}
   .page-content{padding:16px}
 }
@@ -202,7 +209,6 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
     <div class="sidebar-footer">
       <div style="font-size:11px;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="usuario-nome"></div>
       <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary btn-sm flex-fill" onclick="alternarTema()" title="Modo claro/escuro"><i class="bi bi-circle-half"></i></button>
         <button class="btn btn-outline-secondary btn-sm flex-fill" onclick="fazLogout()"><i class="bi bi-box-arrow-right"></i> Sair</button>
       </div>
       <div style="font-size:11px;text-align:center;margin-top:8px;opacity:.6">v2.0 · Meu Lugar de Cura</div>
@@ -215,7 +221,10 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
         <button class="btn-menu" onclick="abrirMenu()"><i class="bi bi-list"></i></button>
         <div><h4 id="topbar-titulo">Dashboard</h4><div class="topbar-sub" id="topbar-sub"></div></div>
       </div>
-      <div id="topbar-acoes" class="d-flex gap-2"></div>
+      <div class="d-flex gap-2 align-items-center">
+        <div id="topbar-acoes" class="d-flex gap-2"></div>
+        <button class="btn-tema" id="btn-tema" onclick="alternarTema()" title="Trocar entre tema claro e escuro"></button>
+      </div>
     </div>
 
     <div class="page-content">
@@ -653,10 +662,16 @@ function fazLogout() {
 function alternarTema() {
   document.body.classList.toggle('modo-claro');
   try { localStorage.setItem('ms-tema', document.body.classList.contains('modo-claro') ? 'claro' : 'escuro'); } catch (e) {}
+  atualizarBotaoTema();
   if (paginaAtual === 'dashboard') renderDashboard();
   if (paginaAtual === 'metricas') renderMetricas();
 }
+function atualizarBotaoTema() {
+  const claro = document.body.classList.contains('modo-claro');
+  $('btn-tema').innerHTML = claro ? '<i class="bi bi-moon-stars-fill"></i><span class="d-none d-sm-inline"> Tema escuro</span>' : '<i class="bi bi-sun-fill" style="color:#F59E0B"></i><span class="d-none d-sm-inline"> Tema claro</span>';
+}
 try { if (localStorage.getItem('ms-tema') === 'claro') document.body.classList.add('modo-claro'); } catch (e) {}
+atualizarBotaoTema();
 function abrirMenu() { document.body.classList.add('menu-aberto'); }
 function fecharMenu() { document.body.classList.remove('menu-aberto'); }
 
