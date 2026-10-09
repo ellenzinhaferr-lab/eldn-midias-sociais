@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ELDN Digital · Mídias Sociais</title>
+<link rel="icon" href="Azul.png">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
@@ -146,6 +147,8 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
 .disc-card .thumb{height:170px;background:rgba(124,58,237,.1);display:flex;align-items:center;justify-content:center;color:var(--cor-texto-suave);font-size:30px}
 .disc-card .thumb img{width:100%;height:100%;object-fit:cover}
 .disc-card .info{padding:8px;font-size:12px;display:flex;flex-direction:column;gap:4px;flex:1}
+.pin-bloco{background:rgba(230,0,35,.06);border:1px solid rgba(230,0,35,.3);border-radius:12px;padding:16px}
+.pin-preview{width:90px;height:130px;object-fit:cover;border-radius:8px;background:rgba(124,58,237,.1)}
 .thumb-mini{width:42px;height:42px;object-fit:cover;border-radius:6px;background:rgba(124,58,237,.1)}
 .conta-card{display:flex;gap:14px;align-items:center}
 .conta-card img{width:52px;height:52px;border-radius:50%;object-fit:cover;background:rgba(124,58,237,.15)}
@@ -176,8 +179,8 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
 <div id="tela-login" style="display:flex;min-height:100vh;align-items:center;justify-content:center;">
   <div style="background:var(--cor-card);border:1px solid var(--cor-borda);border-radius:20px;padding:40px;width:100%;max-width:380px;margin:16px;">
     <div style="text-align:center;margin-bottom:24px;">
-      <i class="bi bi-instagram" style="font-size:32px;color:var(--cor-secundaria)"></i>
-      <h5 style="margin:10px 0 2px;">ELDN Digital</h5>
+      <img src="Azul.png" alt="ELDN Digital" style="width:64px;height:64px;object-fit:contain;display:block;margin:0 auto 14px;border-radius:14px;background:#fff;padding:6px">
+      <h5 style="margin:0 0 2px;">ELDN Digital</h5>
       <p style="color:var(--cor-texto-suave);font-size:13px;margin:0;">Sistema de Mídias Sociais</p>
     </div>
     <div id="login-erro" style="display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:10px 14px;color:#FCA5A5;font-size:13px;margin-bottom:16px;"></div>
@@ -191,7 +194,10 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
 <div id="app" style="display:none;">
   <div class="sidebar-overlay" onclick="fecharMenu()"></div>
   <nav class="sidebar">
-    <div class="sidebar-brand"><h6>ELDN Digital</h6><h5>Mídias Sociais</h5></div>
+    <div class="sidebar-brand">
+      <img src="Azul.png" alt="ELDN Digital" style="width:48px;height:48px;object-fit:contain;display:block;margin-bottom:8px;border-radius:8px;background:#fff;padding:4px">
+      <h6>Sistema de Mídias Sociais</h6><h5>ELDN Digital</h5>
+    </div>
     <div class="sidebar-nav">
       <div class="nav-item"><button class="nav-link" data-page="dashboard" onclick="showPage('dashboard')"><i class="bi bi-speedometer2"></i> Dashboard</button></div>
       <div class="nav-grupo">Conteúdo</div>
@@ -243,6 +249,7 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
         </div>
         <div id="dash-aviso"></div>
         <div class="kpi-grid" id="dash-kpis"></div>
+        <div id="dash-redes"></div>
         <div class="row g-3">
           <div class="col-lg-7"><div class="chart-card"><h6>Alcance por dia</h6><div style="height:260px"><canvas id="ch-alcance"></canvas></div></div></div>
           <div class="col-lg-5"><div class="chart-card"><h6>Novos seguidores por dia</h6><div style="height:260px"><canvas id="ch-seguidores"></canvas></div></div></div>
@@ -359,9 +366,9 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
 
       <!-- ======================= CONFIGURAÇÕES ======================= -->
       <div class="page" id="page-configuracoes">
-        <div class="bloco"><h6><i class="bi bi-instagram me-2"></i>Perfis conectados</h6><div id="contas-lista"></div></div>
+        <div class="bloco"><h6><i class="bi bi-instagram me-2" style="color:#E1306C"></i>Instagram: perfis conectados</h6><div id="contas-lista"></div></div>
         <div class="bloco">
-          <h6><i class="bi bi-plug me-2"></i>Conectar ou atualizar perfis</h6>
+          <h6><i class="bi bi-plug me-2"></i>Conectar ou atualizar perfis do Instagram</h6>
           <ol style="font-size:13px;line-height:1.8;padding-left:18px">
             <li>Abra <a href="https://developers.facebook.com/apps/1606206847626520/use_cases/" target="_blank" style="color:var(--cor-secundaria)">o App "ELDN Automação Redes Socias"</a> → <b>Casos de uso</b> → <b>Personalizar</b> em "Gerenciar mensagens e conteúdo no Instagram"</li>
             <li>No menu da esquerda, clique em <b>"Configuração da API com login do Facebook"</b></li>
@@ -373,6 +380,8 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
           <div id="cfg-resultado" class="mt-3"></div>
           <div class="form-text mt-2"><i class="bi bi-shield-lock"></i> O token fica guardado só no servidor (Hostgator), nunca aqui no navegador nem no GitHub.</div>
         </div>
+        <div class="bloco" id="cfg-tiktok"></div>
+        <div class="bloco" id="cfg-pinterest"></div>
         <div class="bloco">
           <h6><i class="bi bi-info-circle me-2"></i>O que o Instagram permite nas automações</h6>
           <div class="row g-3" style="font-size:13px">
@@ -406,11 +415,13 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
       <div class="col-12"><label class="form-label">Título / tema *</label><input class="form-control" id="mc-titulo" placeholder="Ex: 3 sinais de que você está se afastando de Deus sem perceber"></div>
       <div class="col-6 col-md-3"><label class="form-label">Data</label><input type="date" class="form-control" id="mc-data"></div>
       <div class="col-6 col-md-3"><label class="form-label">Horário</label><input type="time" class="form-control" id="mc-hora"></div>
-      <div class="col-6 col-md-3"><label class="form-label">Perfil</label><select class="form-select" id="mc-perfil"></select></div>
-      <div class="col-6 col-md-3"><label class="form-label">Formato</label><select class="form-select" id="mc-formato"></select></div>
+      <div class="col-6 col-md-3"><label class="form-label">Perfil / marca</label><select class="form-select" id="mc-perfil"></select></div>
+      <div class="col-6 col-md-3"><label class="form-label">Rede</label><select class="form-select" id="mc-rede" onchange="alternarRedeConteudo()"></select></div>
+      <div class="col-6 col-md-4"><label class="form-label">Formato</label><select class="form-select" id="mc-formato"></select></div>
       <div class="col-6 col-md-4"><label class="form-label">Objetivo</label><select class="form-select" id="mc-objetivo"></select></div>
       <div class="col-6 col-md-4"><label class="form-label">Status</label><select class="form-select" id="mc-status"></select></div>
-      <div class="col-12 col-md-4"><label class="form-label">Automação ligada (opcional)</label><select class="form-select" id="mc-fluxo"></select></div>
+      <div class="col-12 col-md-6"><label class="form-label">Automação ligada (opcional)</label><select class="form-select" id="mc-fluxo"></select></div>
+      <div class="col-12" id="mc-pin-bloco" style="display:none"></div>
       <div class="col-12"><label class="form-label">Gancho (primeiros 3 segundos)</label><input class="form-control" id="mc-gancho"></div>
       <div class="col-12"><label class="form-label">Roteiro</label><textarea class="form-control" id="mc-roteiro" rows="5"></textarea></div>
       <div class="col-12"><label class="form-label">Legenda</label><textarea class="form-control" id="mc-legenda" rows="4"></textarea></div>
@@ -571,8 +582,11 @@ const PERFIS = [
   { u: 'meulugardecura', cor: '#F59E0B' },
   { u: 'ellatemfe', cor: '#EC4899' },
 ];
-const FORMATOS = ['Reels', 'Carrossel', 'Estático', 'Stories', 'Live', 'TikTok', 'Shorts'];
-const ICONE_FORMATO = { Reels: 'bi-camera-reels', Carrossel: 'bi-images', 'Estático': 'bi-image', Stories: 'bi-phone', Live: 'bi-broadcast', TikTok: 'bi-tiktok', Shorts: 'bi-youtube' };
+const FORMATOS = ['Reels', 'Carrossel', 'Estático', 'Stories', 'Live', 'TikTok', 'Pin', 'Shorts'];
+const REDES_CAL = ['Instagram', 'TikTok', 'Pinterest', 'YouTube', 'Facebook'];
+const NOME_REDE = { instagram: 'Instagram', tiktok: 'TikTok', pinterest: 'Pinterest' };
+const ICONE_REDE = { instagram: 'bi-instagram', tiktok: 'bi-tiktok', pinterest: 'bi-pinterest' };
+const ICONE_FORMATO = { Reels: 'bi-camera-reels', Carrossel: 'bi-images', 'Estático': 'bi-image', Stories: 'bi-phone', Live: 'bi-broadcast', TikTok: 'bi-tiktok', Pin: 'bi-pinterest', Shorts: 'bi-youtube' };
 const OBJETIVOS = ['Vender', 'Ganhar seguidores', 'Conectar', 'Ensinar', 'Trend', 'Humor'];
 const STATUS_CAL = ['Ideia', 'Roteiro', 'Gravado', 'Editado', 'Agendado', 'Postado'];
 const COR_STATUS_CAL = { Ideia: '#9D8EC4', Roteiro: '#60A5FA', Gravado: '#F59E0B', Editado: '#EC4899', Agendado: '#A78BFA', Postado: '#10B981' };
@@ -587,6 +601,9 @@ const EVENTOS = {
 
 let dados = { calendario: [], ideias: [], inspiracoes: [], perfisInsp: [], fluxos: [] };
 let contasIG = [];
+let contasRedes = [], appsRedes = {}, redirectUri = '';
+function redeDoId(id) { return String(id || '').startsWith('tt_') ? 'tiktok' : String(id || '').startsWith('pin_') ? 'pinterest' : 'instagram'; }
+function todasContas() { return [...contasIG.map(c => ({ id: c.igId, rede: 'instagram', username: c.username })), ...contasRedes.map(c => ({ id: c.id, rede: c.rede, username: c.username }))]; }
 let cache = { metricasDia: null, posts: null, perfisIg: null, logs: null, contatos: null };
 let unsubscribers = [];
 let paginaAtual = 'dashboard';
@@ -708,6 +725,9 @@ async function carregarContas() {
   try {
     const r = await api('contas');
     contasIG = r.contas;
+    contasRedes = r.redes || [];
+    appsRedes = r.apps || {};
+    redirectUri = r.redirectUri || '';
   } catch (e) {
     contasIG = [];
     console.warn('contas', e);
@@ -716,6 +736,10 @@ async function carregarContas() {
   renderPaginaAtual();
   if (paginaAtual === 'dashboard' || paginaAtual === 'metricas') syncAutomaticoSeAntigo();
 }
+
+window.addEventListener('message', e => {
+  if (e.origin === 'https://app.eldndigital.com' && e.data === 'redes-conectada') { carregarContas(); toast('Conta conectada!'); }
+});
 
 // ============================================================
 // NAVEGAÇÃO
@@ -727,7 +751,7 @@ const PAGINAS = {
   inspiracoes: ['Inspirações', 'Referências para replicar e perfis que te inspiram', () => abaInspAtual === 'ref'
     ? `<button class="btn btn-primary btn-sm" onclick="novaRef()"><i class="bi bi-plus-lg"></i> Nova referência</button>`
     : `<button class="btn btn-primary btn-sm" onclick="novoPerfilInsp()"><i class="bi bi-plus-lg"></i> Novo perfil</button>`],
-  metricas: ['Métricas dos Posts', 'Desempenho de cada publicação, puxado do Instagram', () => `<button class="btn btn-outline-secondary btn-sm" id="btn-sync" onclick="sincronizarMetricas()"><i class="bi bi-arrow-repeat"></i> Atualizar métricas</button>`],
+  metricas: ['Métricas dos Posts', 'Desempenho de cada publicação no Instagram, TikTok e Pinterest', () => `<button class="btn btn-outline-secondary btn-sm" id="btn-sync" onclick="sincronizarMetricas()"><i class="bi bi-arrow-repeat"></i> Atualizar métricas</button>`],
   automacoes: ['Automações', 'Seu Manychat próprio: comentário, Direct e Stories', () => `<div class="dropdown"><button class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-plus-lg"></i> Nova automação</button><ul class="dropdown-menu dropdown-menu-end">
       <li><a class="dropdown-item" href="#" onclick="novoFluxo('link');return false"><b>Comentou, recebe o link</b><br><small class="text-muted">Palavra no comentário → botão → link</small></a></li>
       <li><a class="dropdown-item" href="#" onclick="novoFluxo('seguidor');return false"><b>Só para quem me segue</b><br><small class="text-muted">Pede para seguir antes de liberar o link</small></a></li>
@@ -735,7 +759,7 @@ const PAGINAS = {
       <li><a class="dropdown-item" href="#" onclick="novoFluxo('story');return false"><b>Agradecer menção no Story</b><br><small class="text-muted">Quem te marca recebe uma mensagem</small></a></li>
       <li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="#" onclick="novoFluxo('vazio');return false">Começar do zero</a></li></ul></div>`],
   contatos: ['Contatos e Leads', 'Quem conversou com as automações', () => `<button class="btn btn-outline-secondary btn-sm" onclick="exportarContatosExcel()"><i class="bi bi-file-earmark-excel"></i> Excel</button><button class="btn btn-outline-secondary btn-sm" onclick="exportarContatosMeta()"><i class="bi bi-meta"></i> Meta Ads</button>`],
-  configuracoes: ['Perfis Conectados', 'Ligação dos seus Instagrams com o sistema', () => ''],
+  configuracoes: ['Perfis Conectados', 'Instagram, TikTok e Pinterest ligados ao sistema', () => ''],
 };
 
 function showPage(id) {
@@ -783,7 +807,8 @@ function preencherFiltrosContas() {
   const sel = $('dash-perfil').value;
   $('dash-perfil').innerHTML = opts(contasIG.map(c => [c.igId, '@' + c.username]), sel, 'Todos os perfis');
   const mt = $('mt-perfil').value;
-  $('mt-perfil').innerHTML = contasIG.length ? opts(contasIG.map(c => [c.igId, '@' + c.username]), mt || contasIG[0].igId) : '<option value="">Nenhum perfil conectado</option>';
+  const todas = todasContas();
+  $('mt-perfil').innerHTML = todas.length ? opts(todas.map(c => [c.id, `${NOME_REDE[c.rede]} · @${c.username}`]), mt || todas[0].id) : '<option value="">Nenhum perfil conectado</option>';
 }
 
 // ============================================================
@@ -804,7 +829,7 @@ async function carregarDadosMetricas(forcar) {
 let sincronizando = false;
 async function sincronizarMetricas(silencioso) {
   if (sincronizando) return;
-  if (!contasIG.length) { if (!silencioso) toast('Conecte seus perfis em "Perfis Conectados" primeiro.', 'erro'); return; }
+  if (!contasIG.length && !contasRedes.length) { if (!silencioso) toast('Conecte seus perfis em "Perfis Conectados" primeiro.', 'erro'); return; }
   sincronizando = true;
   const btn = $('btn-sync');
   if (btn) btn.innerHTML = '<span class="spinner-sm"></span> Atualizando...';
@@ -837,6 +862,9 @@ async function sincronizarMetricas(silencioso) {
       await batch.commit();
     } catch (e) { erros.push(`@${c.username}: ${e.message}`); }
   }
+  for (const c of contasRedes) {
+    try { await sincronizarRede(c); } catch (e) { erros.push(`${NOME_REDE[c.rede]} @${c.username}: ${e.message}`); }
+  }
   sincronizando = false;
   await carregarDadosMetricas(true);
   if (btn) btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Atualizar métricas';
@@ -845,11 +873,38 @@ async function sincronizarMetricas(silencioso) {
   renderPaginaAtual();
 }
 
+// Grava muitos documentos em lotes de até 400 (limite do Firestore é 500 por lote)
+async function gravarEmLotes(ops) {
+  for (let i = 0; i < ops.length; i += 400) {
+    const batch = db.batch();
+    ops.slice(i, i + 400).forEach(([ref, doc]) => batch.set(ref, doc, { merge: true }));
+    await batch.commit();
+  }
+}
+
+async function sincronizarRede(c) {
+  const hoje = hojeStr();
+  const base = { igId: c.id, rede: c.rede, username: c.username };
+  const ops = [];
+  const r = await api(c.rede === 'tiktok' ? 'tiktok_sync' : 'pinterest_sync', { id: c.id });
+  if (c.rede === 'pinterest') {
+    Object.entries(r.dias || {}).forEach(([dia, v]) => ops.push([db.collection('midias_metricas_dia').doc(`${c.id}_${dia}`), { ...base, data: dia, ...v }]));
+  }
+  const snap = { ...base, data: hoje };
+  if (r.perfil.seguidores != null) snap.seguidoresTotal = r.perfil.seguidores;
+  if (r.perfil.curtidasTotal != null) snap.curtidasTotal = r.perfil.curtidasTotal;
+  ops.push([db.collection('midias_metricas_dia').doc(`${c.id}_${hoje}`), snap]);
+  ops.push([db.collection('midias_perfis_ig').doc(c.id), { ...base, foto: r.perfil.foto || '', seguidores: r.perfil.seguidores ?? null, curtidasTotal: r.perfil.curtidasTotal ?? null, atualizadoEm: agoraIso() }]);
+  (r.posts || []).forEach(p => ops.push([db.collection('midias_posts').doc(p.id), { ...p, ...base, atualizadoEm: agoraIso() }]));
+  await gravarEmLotes(ops);
+  if (r.avisoAnalytics) console.warn('Pinterest analytics:', r.avisoAnalytics);
+}
+
 async function syncAutomaticoSeAntigo() {
   await carregarDadosMetricas();
-  if (!contasIG.length) return;
+  if (!contasIG.length && !contasRedes.length) return;
   const seisHoras = Date.now() - 6 * 3600 * 1000;
-  const antigo = contasIG.some(c => { const p = (cache.perfisIg || []).find(x => x.igId === c.igId); return !p || new Date(p.atualizadoEm).getTime() < seisHoras; });
+  const antigo = todasContas().some(c => { const p = (cache.perfisIg || []).find(x => x.igId === c.id); return !p || new Date(p.atualizadoEm).getTime() < seisHoras; });
   if (antigo) sincronizarMetricas(true);
 }
 
@@ -891,7 +946,7 @@ function renderDashboard() {
   const ids = new Set(contas.map(c => c.igId));
   const dentro = d => d >= de && d <= ate;
 
-  $('dash-aviso').innerHTML = !contasIG.length
+  $('dash-aviso').innerHTML = !contasIG.length && !contasRedes.length
     ? `<div class="alerta mb-3"><i class="bi bi-exclamation-triangle"></i> Nenhum perfil conectado ainda. Vá em <a href="#" onclick="showPage('configuracoes');return false" style="color:var(--cor-secundaria)">Perfis Conectados</a> para começar a puxar as métricas.</div>` : '';
 
   const dias = cache.metricasDia.filter(m => ids.has(m.igId) && dentro(m.data));
@@ -914,6 +969,7 @@ function renderDashboard() {
     ['Leads capturados', fmtNum(conta('lead')), 'e-mails e telefones', 'bi-envelope-heart'],
   ];
   $('dash-kpis').innerHTML = kpis.map(([l, v, s, i]) => `<div class="kpi-card"><div class="kpi-label"><i class="bi ${i} me-1"></i>${l}</div><div class="kpi-value">${v}</div><div class="kpi-sub">${s}</div></div>`).join('');
+  renderDashRedes(de, ate, igSel);
 
   // Gráficos por dia (um conjunto por perfil)
   const listaDias = [];
@@ -944,9 +1000,42 @@ function renderDashboard() {
     : '<div class="empty-state" style="padding:24px"><i class="bi bi-calendar-x"></i>Nada planejado para os próximos dias</div>';
 }
 
+// Bloco do TikTok e do Pinterest no Dashboard
+function renderDashRedes(de, ate, igSel) {
+  if (igSel || !contasRedes.length) { $('dash-redes').innerHTML = ''; return; }
+  const dentro = d => d >= de && d <= ate;
+  const kpi = (l, v, s, i) => `<div class="kpi-card"><div class="kpi-label"><i class="bi ${i} me-1"></i>${l}</div><div class="kpi-value">${v}</div><div class="kpi-sub">${s}</div></div>`;
+  $('dash-redes').innerHTML = contasRedes.map(c => {
+    const perfil = (cache.perfisIg || []).find(p => p.igId === c.id) || {};
+    const dias = (cache.metricasDia || []).filter(m => m.igId === c.id).sort((a, b) => a.data.localeCompare(b.data));
+    const noPer = dias.filter(m => dentro(m.data));
+    const soma = campo => noPer.reduce((s, m) => s + (Number(m[campo]) || 0), 0);
+    const snaps = dias.filter(m => m.seguidoresTotal != null);
+    const fimSnap = snaps.filter(m => m.data <= ate).pop();
+    const iniSnap = snaps.filter(m => m.data < de).pop() || snaps.find(m => dentro(m.data));
+    const novos = fimSnap && iniSnap && fimSnap !== iniSnap ? fimSnap.seguidoresTotal - iniSnap.seguidoresTotal : null;
+    const posts = (cache.posts || []).filter(p => p.igId === c.id && dentro(dataLocalDeIso(p.data)));
+    let cards;
+    if (c.rede === 'tiktok') {
+      const views = posts.reduce((s, p) => s + (p.visualizacoes || 0), 0), inter = posts.reduce((s, p) => s + (p.interacoes || 0), 0);
+      cards = [kpi('Seguidores', fmtNum(perfil.seguidores), 'total atual', 'bi-people'), kpi('Novos seguidores', novos == null ? '—' : fmtNum(novos), novos == null ? 'aparece a partir do 2º dia de uso' : 'no período', 'bi-person-plus'),
+        kpi('Vídeos publicados', fmtNum(posts.length), 'no período', 'bi-camera-reels'), kpi('Visualizações', fmtNum(views), 'dos vídeos do período', 'bi-eye'),
+        kpi('Interações', fmtNum(inter), views ? `${pct(inter / views * 100)} das visualizações` : 'curtidas, comentários e compart.', 'bi-heart')];
+    } else {
+      const imp = soma('impressoes');
+      cards = [kpi('Seguidores', fmtNum(perfil.seguidores), 'total atual', 'bi-people'), kpi('Impressões', fmtNum(imp), 'no período', 'bi-eye'),
+        kpi('Salvamentos', fmtNum(soma('salvos')), imp ? `${pct(soma('salvos') / imp * 100)} das impressões` : 'no período', 'bi-pin-angle'),
+        kpi('Cliques no pin', fmtNum(soma('cliquesPin')), 'no período', 'bi-hand-index'), kpi('Cliques no link', fmtNum(soma('cliquesLink')), 'foram para o seu site', 'bi-box-arrow-up-right')];
+    }
+    return `<h6 style="color:var(--cor-titulo);font-size:14px;margin:4px 0 12px"><i class="bi ${ICONE_REDE[c.rede]} me-1"></i>${NOME_REDE[c.rede]} · @${esc(c.username)}</h6><div class="kpi-grid">${cards.join('')}</div>`;
+  }).join('');
+}
+
 function nomeTipo(p) {
   if (p.produto === 'REELS' || p.tipo === 'REELS') return 'Reels';
   if (p.produto === 'STORY') return 'Story';
+  if (p.produto === 'TIKTOK') return 'Vídeo TikTok';
+  if (p.produto === 'PINTEREST' || p.tipo === 'PIN') return 'Pin';
   return { CAROUSEL_ALBUM: 'Carrossel', IMAGE: 'Imagem', VIDEO: 'Vídeo' }[p.tipo] || p.tipo || '';
 }
 function tipoChave(p) { return (p.produto === 'REELS') ? 'REELS' : p.tipo; }
@@ -965,7 +1054,7 @@ function conteudosFiltrados() {
   return dados.calendario.filter(c => (!pf || c.perfil === pf) && (!st || c.status === st));
 }
 function chipConteudo(c) {
-  return `<div class="cal-chip ${c.status === 'Postado' ? 'postado' : ''}" draggable="true" ondragstart="event.dataTransfer.setData('text/plain','${c._id}')" onclick="event.stopPropagation();editarConteudo('${c._id}')" style="border-left-color:${perfilCor(c.perfil)}" title="${esc(c.titulo)} · @${esc(c.perfil)} · ${esc(c.status)}"><span class="status-pip" style="background:${COR_STATUS_CAL[c.status] || '#999'}"></span><i class="bi ${ICONE_FORMATO[c.formato] || 'bi-dot'}"></i> ${c.hora ? esc(c.hora) + ' ' : ''}${esc(c.titulo)}</div>`;
+  return `<div class="cal-chip ${c.status === 'Postado' ? 'postado' : ''}" draggable="true" ondragstart="event.dataTransfer.setData('text/plain','${c._id}')" onclick="event.stopPropagation();editarConteudo('${c._id}')" style="border-left-color:${perfilCor(c.perfil)}" title="${esc(c.titulo)} · @${esc(c.perfil)} · ${esc(c.status)}"><span class="status-pip" style="background:${COR_STATUS_CAL[c.status] || '#999'}"></span><i class="bi ${ICONE_FORMATO[c.formato] || 'bi-dot'}"></i> ${c.pin?.agendado && !c.pin?.publicadoEm ? (c.pin?.erro ? '⚠️ ' : '⏰ ') : ''}${c.hora ? esc(c.hora) + ' ' : ''}${esc(c.titulo)}</div>`;
 }
 
 function renderCalendario() {
@@ -1021,6 +1110,8 @@ function preencherModalConteudo(c) {
   $('mc-data').value = c.data || '';
   $('mc-hora').value = c.hora || '';
   $('mc-perfil').innerHTML = opts(PERFIS.map(p => [p.u, '@' + p.u]), c.perfil || PERFIS[0].u);
+  $('mc-rede').innerHTML = opts(REDES_CAL, c.rede || (c.formato === 'Pin' ? 'Pinterest' : c.formato === 'TikTok' ? 'TikTok' : 'Instagram'));
+  pinAtual = Object.assign({ contaId: '', boardId: '', boardNome: '', imagemUrl: '', link: '', altText: '', agendado: false }, c.pin || {});
   $('mc-formato').innerHTML = opts(FORMATOS, c.formato || 'Reels');
   $('mc-objetivo').innerHTML = opts(OBJETIVOS, c.objetivo || 'Conectar');
   $('mc-status').innerHTML = opts(STATUS_CAL, c.status || 'Ideia');
@@ -1034,6 +1125,7 @@ function preencherModalConteudo(c) {
   $('mc-titulo-modal').textContent = c._id ? 'Editar conteúdo' : 'Novo conteúdo';
   $('mc-btn-excluir').style.display = c._id ? '' : 'none';
   $('mc-btn-duplicar').style.display = c._id ? '' : 'none';
+  alternarRedeConteudo();
   modal('modalConteudo').show();
 }
 function novoConteudo(data) { preencherModalConteudo({ data: data || '', perfil: $('cal-perfil').value || PERFIS[0].u }); }
@@ -1045,12 +1137,25 @@ async function salvarConteudo() {
     perfil: $('mc-perfil').value, formato: $('mc-formato').value, objetivo: $('mc-objetivo').value, status: $('mc-status').value,
     fluxoId: $('mc-fluxo').value, gancho: $('mc-gancho').value.trim(), roteiro: $('mc-roteiro').value, legenda: $('mc-legenda').value,
     linkReferencia: $('mc-ref').value.trim(), linkPost: $('mc-linkpost').value.trim(), observacoes: $('mc-obs').value, ideiaId: $('mc-ideiaId').value,
-    atualizadoEm: agoraIso(),
+    rede: $('mc-rede').value, atualizadoEm: agoraIso(),
   };
   if (!obj.titulo) return alert('Dê um título ao conteúdo.');
-  const id = $('mc-id').value;
-  if (id) await db.collection('midias_calendario').doc(id).set(obj, { merge: true });
-  else { obj.criadoEm = agoraIso(); await db.collection('midias_calendario').add(obj); }
+  if (obj.rede === 'Pinterest') {
+    lerPinBloco();
+    obj.pin = { ...pinAtual };
+    if (obj.pin.agendado && !obj.pin.publicadoEm) {
+      const falta = [];
+      if (!obj.data || !obj.hora) falta.push('data e horário');
+      if (!obj.pin.contaId) falta.push('conta do Pinterest');
+      if (!obj.pin.boardId) falta.push('pasta');
+      if (!obj.pin.imagemUrl) falta.push('imagem');
+      if (falta.length) return alert('Para agendar o pin, falta: ' + falta.join(', ') + '.');
+      obj.pin.erro = ''; obj.pin.tentativas = 0;
+      if (obj.status !== 'Postado') obj.status = 'Agendado';
+    }
+  }
+  const id = await gravarConteudo(obj);
+  $('mc-id').value = id;
   if (obj.ideiaId) {
     const novoStatus = obj.status === 'Postado' ? 'Usada' : 'Agendada';
     await db.collection('midias_ideias').doc(obj.ideiaId).set({ status: novoStatus }, { merge: true }).catch(() => {});
@@ -1058,6 +1163,116 @@ async function salvarConteudo() {
   modal('modalConteudo').hide();
   toast('Conteúdo salvo!');
 }
+async function gravarConteudo(obj) {
+  const id = $('mc-id').value;
+  if (id) { await db.collection('midias_calendario').doc(id).set(obj, { merge: true }); return id; }
+  obj.criadoEm = agoraIso();
+  return (await db.collection('midias_calendario').add(obj)).id;
+}
+
+// ---------- Pinterest dentro do conteúdo ----------
+let pinAtual = {};
+function alternarRedeConteudo() {
+  const ehPin = $('mc-rede').value === 'Pinterest';
+  if (ehPin && $('mc-formato').value !== 'Pin') $('mc-formato').value = 'Pin';
+  $('mc-pin-bloco').style.display = ehPin ? 'block' : 'none';
+  if (ehPin) renderPinBloco();
+}
+function lerPinBloco() {
+  if (!$('pin-conta')) return;
+  const pasta = $('pin-pasta');
+  Object.assign(pinAtual, {
+    contaId: $('pin-conta').value, boardId: pasta.value, boardNome: pasta.selectedOptions[0] ? pasta.selectedOptions[0].text : '',
+    imagemUrl: $('pin-img').value.trim(), link: $('pin-link').value.trim(), altText: $('pin-alt').value.trim(), agendado: $('pin-agendar').checked,
+  });
+}
+function renderPinBloco() {
+  const contas = contasRedes.filter(c => c.rede === 'pinterest');
+  const box = $('mc-pin-bloco');
+  if (!contas.length) { box.innerHTML = `<div class="pin-bloco"><i class="bi bi-pinterest" style="color:#E60023"></i> Para publicar daqui, conecte sua conta do Pinterest em <a href="#" onclick="modal('modalConteudo').hide();showPage('configuracoes');return false" style="color:var(--cor-secundaria)">Perfis Conectados</a>. Você já pode planejar o pin normalmente.</div>`; return; }
+  if (!pinAtual.contaId) pinAtual.contaId = contas[0].id;
+  const pub = pinAtual.publicadoEm;
+  box.innerHTML = `<div class="pin-bloco">
+    <h6 style="margin:0 0 12px;color:var(--cor-titulo)"><i class="bi bi-pinterest" style="color:#E60023"></i> Publicar no Pinterest</h6>
+    ${pub ? `<div class="dica mb-3"><i class="bi bi-check-circle" style="color:var(--cor-verde)"></i> Publicado em ${fmtDataHora(pub)}. <a href="https://www.pinterest.com/pin/${esc(pinAtual.pinId)}/" target="_blank" style="color:var(--cor-secundaria)">Ver pin</a></div>` : ''}
+    ${pinAtual.erro ? `<div class="alerta mb-3"><i class="bi bi-exclamation-triangle"></i> Última tentativa falhou: ${esc(pinAtual.erro)}</div>` : ''}
+    <div class="d-flex gap-3 flex-wrap">
+      <div><img id="pin-preview" class="pin-preview" src="${esc(pinAtual.imagemUrl)}" style="${pinAtual.imagemUrl ? '' : 'visibility:hidden'}" referrerpolicy="no-referrer"></div>
+      <div class="flex-fill row g-2" style="min-width:260px">
+        <div class="col-md-6"><label class="form-label">Conta</label><select class="form-select form-select-sm" id="pin-conta" onchange="pinAtual.contaId=this.value;pinAtual.boardId='';carregarPastasPin()">${opts(contas.map(c => [c.id, '@' + c.username]), pinAtual.contaId)}</select></div>
+        <div class="col-md-6"><label class="form-label">Pasta</label><div class="d-flex gap-1"><select class="form-select form-select-sm" id="pin-pasta">${pinAtual.boardId ? `<option value="${esc(pinAtual.boardId)}">${esc(pinAtual.boardNome)}</option>` : '<option value="">Carregando...</option>'}</select><button class="btn btn-outline-secondary btn-sm" title="Recarregar pastas" onclick="carregarPastasPin()"><i class="bi bi-arrow-clockwise"></i></button></div></div>
+        <div class="col-12"><label class="form-label">Imagem (vertical 2:3 fica melhor, ex.: 1000x1500)</label>
+          <div class="d-flex gap-2"><input type="file" accept="image/*" class="form-control form-control-sm" onchange="enviarImagemPin(this)"><span id="pin-up" class="form-text"></span></div>
+          <input class="form-control form-control-sm mt-1" id="pin-img" placeholder="ou cole o link de uma imagem https://..." value="${esc(pinAtual.imagemUrl)}" oninput="$('pin-preview').src=this.value;$('pin-preview').style.visibility=this.value?'':'hidden'"></div>
+        <div class="col-12"><label class="form-label">Link de destino (para onde o pin leva)</label><input class="form-control form-control-sm" id="pin-link" placeholder="https://eldndigital.com/..." value="${esc(pinAtual.link)}"></div>
+        <div class="col-12"><label class="form-label">Texto alternativo (descreve a imagem)</label><input class="form-control form-control-sm" id="pin-alt" value="${esc(pinAtual.altText)}"></div>
+      </div>
+    </div>
+    <div class="form-text mt-2">O <b>título</b> do pin é o título do conteúdo (até 100 caracteres) e a <b>descrição</b> é a legenda (até 500).</div>
+    ${pub ? '' : `<div class="d-flex flex-wrap gap-3 align-items-center mt-3">
+      <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="pin-agendar" ${pinAtual.agendado ? 'checked' : ''}><label class="form-check-label" for="pin-agendar" style="font-size:13px">Publicar sozinho na data e horário marcados</label></div>
+      <button class="btn btn-sm ms-auto" style="background:#E60023;color:#fff;border-radius:8px" id="pin-btn-agora" onclick="publicarPinAgora()"><i class="bi bi-send"></i> Publicar agora</button></div>`}
+    ${pub ? '<input type="checkbox" id="pin-agendar" class="d-none">' : ''}
+  </div>`;
+  carregarPastasPin();
+}
+let pastasCache = {};
+async function carregarPastasPin() {
+  const conta = $('pin-conta') && $('pin-conta').value;
+  if (!conta) return;
+  const sel = $('pin-pasta');
+  try {
+    if (!pastasCache[conta]) pastasCache[conta] = (await api('pinterest_pastas', { id: conta })).pastas;
+    const pastas = pastasCache[conta];
+    sel.innerHTML = pastas.length ? opts(pastas.map(b => [b.id, b.nome]), pinAtual.boardId || pastas[0].id) : '<option value="">Crie uma pasta no Pinterest primeiro</option>';
+  } catch (e) { sel.innerHTML = `<option value="${esc(pinAtual.boardId)}">${esc(pinAtual.boardNome || 'Erro ao carregar pastas')}</option>`; toast(esc(e.message), 'erro'); }
+}
+function comprimirImagem(file, max = 1600) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const cv = document.createElement('canvas');
+      cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      URL.revokeObjectURL(img.src);
+      res(cv.toDataURL('image/jpeg', 0.88));
+    };
+    img.onerror = rej;
+    img.src = URL.createObjectURL(file);
+  });
+}
+async function enviarImagemPin(input) {
+  const f = input.files[0];
+  if (!f) return;
+  $('pin-up').innerHTML = '<span class="spinner-sm"></span> enviando...';
+  try {
+    const r = await api('upload_imagem', { dataUrl: await comprimirImagem(f) });
+    $('pin-img').value = r.url; $('pin-preview').src = r.url; $('pin-preview').style.visibility = '';
+    $('pin-up').textContent = 'imagem enviada ✔';
+  } catch (e) { $('pin-up').textContent = ''; toast(esc(e.message), 'erro'); }
+}
+async function publicarPinAgora() {
+  lerPinBloco();
+  const titulo = $('mc-titulo').value.trim();
+  if (!titulo) return alert('Dê um título ao conteúdo (ele vira o título do pin).');
+  if (!pinAtual.boardId || !pinAtual.imagemUrl) return alert('Escolha a pasta e a imagem do pin.');
+  if (!confirm('Publicar este pin agora no Pinterest?')) return;
+  const btn = $('pin-btn-agora');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner-sm"></span> Publicando...';
+  try {
+    const r = await api('pinterest_publicar', { id: pinAtual.contaId, boardId: pinAtual.boardId, titulo, descricao: $('mc-legenda').value, link: pinAtual.link, imagemUrl: pinAtual.imagemUrl, altText: pinAtual.altText });
+    Object.assign(pinAtual, { publicadoEm: agoraIso(), pinId: r.pinId, erro: '', agendado: false });
+    $('mc-status').value = 'Postado';
+    $('mc-linkpost').value = r.url;
+    await salvarConteudo();
+    toast('Pin publicado no Pinterest!');
+  } catch (e) {
+    alert('O Pinterest recusou a publicação:\n\n' + e.message + (/access|permission|trial|standard/i.test(e.message) ? '\n\nIsso costuma ser o nível de acesso do app. No app do Pinterest Developers, peça o acesso "Standard".' : ''));
+    btn.disabled = false; btn.innerHTML = '<i class="bi bi-send"></i> Publicar agora';
+  }
+}
+
 async function excluirConteudo() {
   if (!confirm('Excluir este conteúdo do calendário?')) return;
   await db.collection('midias_calendario').doc($('mc-id').value).delete();
@@ -1068,6 +1283,7 @@ function duplicarConteudo() {
   const c = dados.calendario.find(x => x._id === $('mc-id').value);
   if (!c) return;
   const copia = { ...c }; delete copia._id; copia.status = 'Ideia'; copia.linkPost = ''; copia.titulo = c.titulo + ' (cópia)';
+  if (copia.pin) copia.pin = { ...copia.pin, publicadoEm: '', pinId: '', erro: '', agendado: false };
   modal('modalConteudo').hide();
   setTimeout(() => preencherModalConteudo(copia), 300);
 }
@@ -1345,56 +1561,69 @@ async function salvarPostComoRef(postId) {
 // MÉTRICAS DOS POSTS
 // ============================================================
 let mtOrdem = 'data';
-const MT_COLUNAS = [
-  ['data', 'Data'], ['alcance', 'Alcance'], ['visualizacoes', 'Visualiz.'], ['curtidas', 'Curtidas'], ['comentarios', 'Coment.'],
-  ['salvos', 'Salvos'], ['compartilhamentos', 'Compart.'], ['interacoes', 'Interações'], ['taxa', 'Engaj.'],
-];
+const MT_REDES = {
+  instagram: { base: 'alcance', nomeBase: 'Alcance', nomeTaxa: 'Engaj.',
+    colunas: [['data', 'Data'], ['alcance', 'Alcance'], ['visualizacoes', 'Visualiz.'], ['curtidas', 'Curtidas'], ['comentarios', 'Coment.'], ['salvos', 'Salvos'], ['compartilhamentos', 'Compart.'], ['interacoes', 'Interações'], ['taxa', 'Engaj.']],
+    grafico: [['curtidas', 'Curtidas', '#A78BFA'], ['salvos', 'Salvos', '#F59E0B'], ['compartilhamentos', 'Compart.', '#10B981'], ['comentarios', 'Coment.', '#EC4899']] },
+  tiktok: { base: 'visualizacoes', nomeBase: 'Visualizações', nomeTaxa: 'Engaj.',
+    colunas: [['data', 'Data'], ['visualizacoes', 'Visualiz.'], ['curtidas', 'Curtidas'], ['comentarios', 'Coment.'], ['compartilhamentos', 'Compart.'], ['interacoes', 'Interações'], ['taxa', 'Engaj.']],
+    grafico: [['curtidas', 'Curtidas', '#A78BFA'], ['comentarios', 'Coment.', '#EC4899'], ['compartilhamentos', 'Compart.', '#10B981']] },
+  pinterest: { base: 'impressoes', nomeBase: 'Impressões', nomeTaxa: 'Taxa salv.',
+    colunas: [['data', 'Data'], ['impressoes', 'Impressões'], ['salvos', 'Salvos'], ['cliquesPin', 'Cliques pin'], ['cliquesLink', 'Cliques link'], ['interacoes', 'Interações'], ['taxa', 'Taxa salv.']],
+    grafico: [['salvos', 'Salvos', '#F59E0B'], ['cliquesPin', 'Cliques no pin', '#A78BFA'], ['cliquesLink', 'Cliques no link', '#10B981']] },
+};
 function ordenarMetricas(c) { mtOrdem = c; renderMetricas(); }
 function renderMetricas() {
   if (!cache.posts) return;
   const ig = $('mt-perfil').value, tipo = $('mt-tipo').value, de = $('mt-de').value, ate = $('mt-ate').value;
+  const rede = redeDoId(ig), R = MT_REDES[rede];
+  $('mt-tipo').style.display = rede === 'instagram' ? '' : 'none';
+  if (!R.colunas.some(([c]) => c === mtOrdem)) mtOrdem = 'data';
   const todos = cache.posts.filter(p => p.igId === ig);
-  const lista = todos.filter(p => (!tipo || tipoChave(p) === tipo) && (!de || dataLocalDeIso(p.data) >= de) && (!ate || dataLocalDeIso(p.data) <= ate))
-    .map(p => ({ ...p, taxa: p.alcance ? ((p.interacoes ?? p.curtidas + p.comentarios) / p.alcance * 100) : null }));
+  const lista = todos.filter(p => (rede !== 'instagram' || !tipo || tipoChave(p) === tipo) && (!de || dataLocalDeIso(p.data) >= de) && (!ate || dataLocalDeIso(p.data) <= ate))
+    .map(p => {
+      const inter = p.interacoes ?? ((p.curtidas || 0) + (p.comentarios || 0));
+      const taxa = rede === 'pinterest' ? (p.impressoes ? (p.salvos || 0) / p.impressoes * 100 : null) : (p[R.base] ? inter / p[R.base] * 100 : null);
+      return { ...p, interacoes: inter, taxa };
+    });
   lista.sort((a, b) => mtOrdem === 'data' ? String(b.data).localeCompare(String(a.data)) : ((b[mtOrdem] ?? -1) - (a[mtOrdem] ?? -1)));
   const ult = todos.map(p => p.atualizadoEm).sort().pop();
   $('mt-atualizado').textContent = ult ? 'Atualizado em ' + fmtDataHora(ult) : '';
 
   const media = campo => { const v = lista.map(p => p[campo]).filter(x => x != null); return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null; };
-  const somaSalvos = lista.reduce((s, p) => s + (p.salvos || 0), 0), somaAlc = lista.reduce((s, p) => s + (p.alcance || 0), 0);
+  const somaSalvos = lista.reduce((s, p) => s + (p.salvos || 0), 0), somaBase = lista.reduce((s, p) => s + (p[R.base] || 0), 0);
   const porTipo = {};
   lista.forEach(p => { const t = nomeTipo(p); (porTipo[t] = porTipo[t] || []).push(p); });
   const melhor = Object.entries(porTipo).map(([t, ps]) => [t, ps.reduce((s, p) => s + (p.taxa || 0), 0) / ps.length]).sort((a, b) => b[1] - a[1])[0];
-  $('mt-kpis').innerHTML = [
+  const kpis = [
     ['Posts', fmtNum(lista.length), 'no filtro atual'],
-    ['Alcance médio', fmtNum(Math.round(media('alcance') || 0)), 'por post'],
+    [R.nomeBase + ' média', fmtNum(Math.round(media(R.base) || 0)), 'por post'],
     ['Interações médias', fmtNum(Math.round(media('interacoes') || 0)), 'por post'],
-    ['Taxa de salvamento', somaAlc ? pct(somaSalvos / somaAlc * 100) : '—', 'salvos ÷ alcance'],
-    ['Formato campeão', melhor ? melhor[0] : '—', melhor ? `${pct(melhor[1])} de engajamento médio` : ''],
-  ].map(([l, v, s]) => `<div class="kpi-card"><div class="kpi-label">${l}</div><div class="kpi-value">${v}</div><div class="kpi-sub">${s}</div></div>`).join('');
+  ];
+  if (rede === 'instagram') kpis.push(['Taxa de salvamento', somaBase ? pct(somaSalvos / somaBase * 100) : '—', 'salvos ÷ alcance'], ['Formato campeão', melhor ? melhor[0] : '—', melhor ? `${pct(melhor[1])} de engajamento médio` : '']);
+  if (rede === 'tiktok') kpis.push(['Taxa de engajamento', somaBase ? pct(lista.reduce((s, p) => s + p.interacoes, 0) / somaBase * 100) : '—', 'interações ÷ visualizações']);
+  if (rede === 'pinterest') kpis.push(['Taxa de salvamento', somaBase ? pct(somaSalvos / somaBase * 100) : '—', 'salvos ÷ impressões'], ['Cliques no link', fmtNum(lista.reduce((s, p) => s + (p.cliquesLink || 0), 0)), 'tráfego para o site (90 dias)']);
+  $('mt-kpis').innerHTML = kpis.map(([l, v, s]) => `<div class="kpi-card"><div class="kpi-label">${l}</div><div class="kpi-value">${v}</div><div class="kpi-sub">${s}</div></div>`).join('');
 
-  $('mt-formatos').querySelector('tbody').innerHTML = Object.keys(porTipo).length ? `<tr><th>Formato</th><th>Posts</th><th>Alcance</th><th>Salvos</th><th>Engaj.</th></tr>` + Object.entries(porTipo).map(([t, ps]) => {
+  $('mt-formatos').querySelector('tbody').innerHTML = Object.keys(porTipo).length ? `<tr><th>Formato</th><th>Posts</th><th>${R.nomeBase}</th><th>Salvos</th><th>${R.nomeTaxa}</th></tr>` + Object.entries(porTipo).map(([t, ps]) => {
     const m = c => ps.map(p => p[c]).filter(x => x != null);
     const avg = arr => arr.length ? arr.reduce((s, x) => s + x, 0) / arr.length : null;
-    return `<tr><td>${t}</td><td>${ps.length}</td><td>${fmtNum(Math.round(avg(m('alcance')) || 0))}</td><td>${fmtNum(Math.round(avg(m('salvos')) || 0))}</td><td>${pct(avg(m('taxa')))}</td></tr>`;
+    return `<tr><td>${t}</td><td>${ps.length}</td><td>${fmtNum(Math.round(avg(m(R.base)) || 0))}</td><td>${fmtNum(Math.round(avg(m('salvos')) || 0))}</td><td>${pct(avg(m('taxa')))}</td></tr>`;
   }).join('') : '<tr><td><div class="empty-state">Sem dados</div></td></tr>';
 
   const ultimos = lista.slice().sort((a, b) => String(a.data).localeCompare(String(b.data))).slice(-20);
-  desenharGrafico('ch-posts', { type: 'bar', data: { labels: ultimos.map(p => fmtData(p.data).slice(0, 5)), datasets: [
-    { label: 'Curtidas', data: ultimos.map(p => p.curtidas), backgroundColor: '#A78BFA', borderRadius: 4, stack: 's' },
-    { label: 'Salvos', data: ultimos.map(p => p.salvos || 0), backgroundColor: '#F59E0B', borderRadius: 4, stack: 's' },
-    { label: 'Compart.', data: ultimos.map(p => p.compartilhamentos || 0), backgroundColor: '#10B981', borderRadius: 4, stack: 's' },
-    { label: 'Coment.', data: ultimos.map(p => p.comentarios), backgroundColor: '#EC4899', borderRadius: 4, stack: 's' },
-  ] }, options: { scales: { x: { stacked: true, ticks: { color: corTexto() }, grid: { display: false } }, y: { stacked: true, beginAtZero: true, ticks: { color: corTexto() }, grid: { color: corGrade() } } } } });
+  desenharGrafico('ch-posts', { type: 'bar', data: { labels: ultimos.map(p => fmtData(p.data).slice(0, 5)),
+    datasets: R.grafico.map(([c, n, cor]) => ({ label: n, data: ultimos.map(p => p[c] || 0), backgroundColor: cor, borderRadius: 4, stack: 's' })) },
+    options: { scales: { x: { stacked: true, ticks: { color: corTexto() }, grid: { display: false } }, y: { stacked: true, beginAtZero: true, ticks: { color: corTexto() }, grid: { color: corGrade() } } } } });
 
-  $('mt-tabela').querySelector('thead').innerHTML = `<tr><th></th><th>Post</th>${MT_COLUNAS.map(([c, n]) => `<th class="th-sort ${mtOrdem === c ? 'ord' : ''}" onclick="ordenarMetricas('${c}')">${n}</th>`).join('')}</tr>`;
+  $('mt-tabela').querySelector('thead').innerHTML = `<tr><th></th><th>Post</th>${R.colunas.map(([c, n]) => `<th class="th-sort ${mtOrdem === c ? 'ord' : ''}" onclick="ordenarMetricas('${c}')">${n}</th>`).join('')}</tr>`;
   const maxInter = Math.max(...lista.map(p => p.interacoes || 0), 1);
+  const cel = (p, c) => c === 'data' ? `<td style="white-space:nowrap">${fmtData(p.data)}</td>` : c === 'taxa' ? `<td>${pct(p.taxa)}</td>` : c === 'interacoes' ? `<td><b>${fmtNum(p.interacoes)}</b></td>` : `<td>${fmtNum(p[c])}</td>`;
   $('mt-tabela').querySelector('tbody').innerHTML = lista.length ? lista.map(p => `<tr>
       <td><a href="${esc(p.permalink)}" target="_blank"><img class="thumb-mini" src="${esc(p.thumbnail)}" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'"></a></td>
       <td style="min-width:220px"><div style="font-size:12px">${esc((p.legenda || '').slice(0, 80))}</div><span class="selo selo-cinza">${nomeTipo(p)}</span> ${(p.interacoes || 0) >= maxInter * .7 ? '<span class="selo selo-verde">🔥 campeão</span>' : ''}</td>
-      <td style="white-space:nowrap">${fmtData(p.data)}</td><td>${fmtNum(p.alcance)}</td><td>${fmtNum(p.visualizacoes)}</td><td>${fmtNum(p.curtidas)}</td><td>${fmtNum(p.comentarios)}</td>
-      <td>${fmtNum(p.salvos)}</td><td>${fmtNum(p.compartilhamentos)}</td><td><b>${fmtNum(p.interacoes)}</b></td><td>${pct(p.taxa)}</td></tr>`).join('')
-    : `<tr><td colspan="11"><div class="empty-state"><i class="bi bi-bar-chart"></i>${contasIG.length ? 'Nenhum post ainda. Clique em "Atualizar métricas".' : 'Conecte seus perfis para ver as métricas.'}</div></td></tr>`;
+      ${R.colunas.map(([c]) => cel(p, c)).join('')}</tr>`).join('')
+    : `<tr><td colspan="${R.colunas.length + 2}"><div class="empty-state"><i class="bi bi-bar-chart"></i>${todasContas().length ? 'Nenhum post ainda. Clique em "Atualizar métricas".' : 'Conecte seus perfis para ver as métricas.'}</div></td></tr>`;
 }
 
 // ============================================================
@@ -1831,6 +2060,8 @@ function exportarContatosMeta() {
 // PERFIS CONECTADOS
 // ============================================================
 function renderContas() {
+  renderBlocoRede('tiktok');
+  renderBlocoRede('pinterest');
   $('contas-lista').innerHTML = contasIG.length ? contasIG.map(c => `<div class="conta-card" style="padding:12px 0;border-bottom:1px solid var(--cor-borda)">
       ${c.foto ? `<img src="${esc(c.foto)}" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">` : '<img>'}
       <div style="flex:1;min-width:0"><b style="color:var(--cor-titulo)">@${esc(c.username)}</b> <span class="selo selo-verde">conectado</span>
@@ -1841,6 +2072,75 @@ function renderContas() {
   const faltando = PERFIS.filter(p => !contaPorUsername(p.u));
   if (contasIG.length && faltando.length) $('contas-lista').innerHTML += `<div class="alerta mt-3"><i class="bi bi-info-circle"></i> Ainda não conectados: ${faltando.map(p => '@' + p.u).join(', ')}. Cada perfil precisa ser conta Profissional e estar ligado a uma Página do Facebook sua. Depois, gere o token de novo marcando essas páginas.</div>`;
 }
+const GUIA_REDE = {
+  tiktok: {
+    nome: 'TikTok', icone: 'bi-tiktok', cor: '#69C9D0', campoId: 'Client key', campoSecret: 'Client secret',
+    passos: () => [
+      'Entre em <a href="https://developers.tiktok.com/apps" target="_blank">developers.tiktok.com</a> com o seu TikTok e clique em <b>Connect an app</b>',
+      'Dê o nome <b>ELDN Mídias Sociais</b>, envie a logo como ícone, escolha uma categoria e informe o site <b>eldndigital.com</b> e a mesma política de privacidade das páginas',
+      'Em <b>Products</b>, adicione <b>Login Kit</b>. Em <b>Scopes</b>, marque <b>user.info.basic, user.info.profile, user.info.stats e video.list</b>',
+      `Em <b>Login Kit → Redirect URI (Web)</b>, cole: <code>${esc(redirectUri)}</code> <button class="btn-sm-action" onclick="copiar('${esc(redirectUri)}')"><i class="bi bi-copy"></i></button>`,
+      'Ative o <b>Sandbox</b> e, em <b>Target users</b>, adicione as suas contas do TikTok (assim funciona sem esperar aprovação)',
+      'Copie o <b>Client key</b> e o <b>Client secret</b> e cole abaixo',
+    ],
+  },
+  pinterest: {
+    nome: 'Pinterest', icone: 'bi-pinterest', cor: '#E60023', campoId: 'App ID', campoSecret: 'App secret key',
+    passos: () => [
+      'Sua conta do Pinterest precisa ser <b>comercial</b> (dá para converter de graça em Configurações → Gerenciamento de conta)',
+      'Entre em <a href="https://developers.pinterest.com/apps/" target="_blank">developers.pinterest.com</a> e clique em <b>Connect app</b>. Preencha nome, descrição, site <b>eldndigital.com</b> e a política de privacidade',
+      'Aguarde a aprovação do acesso <b>Trial</b>. O Pinterest avisa por e-mail, costuma levar alguns dias',
+      `No app, em <b>Redirect URIs</b>, adicione: <code>${esc(redirectUri)}</code> <button class="btn-sm-action" onclick="copiar('${esc(redirectUri)}')"><i class="bi bi-copy"></i></button>`,
+      'Copie o <b>App ID</b> e a <b>App secret key</b> e cole abaixo',
+      'Se na hora de publicar aparecer erro de permissão, peça o acesso <b>Standard</b> no próprio app',
+    ],
+  },
+};
+let editandoApp = {};
+function renderBlocoRede(rede) {
+  const G = GUIA_REDE[rede];
+  const contas = contasRedes.filter(c => c.rede === rede);
+  let html = `<h6><i class="bi ${G.icone} me-2" style="color:${G.cor}"></i>${G.nome}</h6>`;
+  if (appsRedes[rede] && !editandoApp[rede]) {
+    html += contas.length ? contas.map(c => `<div class="conta-card" style="padding:10px 0;border-bottom:1px solid var(--cor-borda)">
+        ${c.foto ? `<img src="${esc(c.foto)}" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">` : '<img>'}
+        <div style="flex:1;min-width:0"><b style="color:var(--cor-titulo)">@${esc(c.username)}</b> <span class="selo selo-verde">conectado</span><div class="form-text">${esc(c.nome)} · conectado em ${fmtData(c.conectadoEm)}</div></div>
+        <button class="btn btn-outline-secondary btn-sm" onclick="desconectarRede('${c.id}')">Desconectar</button></div>`).join('')
+      : `<div class="form-text mb-2">Nenhuma conta do ${G.nome} conectada ainda.</div>`;
+    html += `<div class="d-flex gap-2 flex-wrap mt-3"><button class="btn btn-primary btn-sm" onclick="conectarRede('${rede}')"><i class="bi bi-box-arrow-in-right"></i> Conectar ${contas.length ? 'outra ' : ''}conta do ${G.nome}</button>
+      <button class="btn btn-outline-secondary btn-sm" onclick="editandoApp['${rede}']=true;renderContas()">Trocar credenciais do app</button></div>
+      <div class="form-text mt-2">Abre uma janela do ${G.nome} para você entrar na conta que quer ligar. Para ligar mais de uma, saia da conta no ${G.nome} e conecte de novo.</div>`;
+  } else {
+    html += `<ol style="font-size:13px;line-height:1.8;padding-left:18px">${G.passos().map(p => `<li>${p}</li>`).join('')}</ol>
+      <div class="row g-2" style="max-width:640px">
+        <div class="col-md-6"><label class="form-label">${G.campoId}</label><input class="form-control" id="app-${rede}-id"></div>
+        <div class="col-md-6"><label class="form-label">${G.campoSecret}</label><input class="form-control" id="app-${rede}-secret" type="password"></div>
+      </div>
+      <div class="d-flex gap-2 mt-2"><button class="btn btn-primary btn-sm" onclick="salvarAppRede('${rede}')"><i class="bi bi-check-lg"></i> Salvar credenciais</button>
+      ${appsRedes[rede] ? `<button class="btn btn-outline-secondary btn-sm" onclick="editandoApp['${rede}']=false;renderContas()">Cancelar</button>` : ''}</div>
+      <div class="form-text mt-2"><i class="bi bi-shield-lock"></i> As credenciais ficam guardadas só no servidor.</div>`;
+  }
+  $('cfg-' + rede).innerHTML = html;
+}
+async function salvarAppRede(rede) {
+  const clientId = $(`app-${rede}-id`).value.trim(), clientSecret = $(`app-${rede}-secret`).value.trim();
+  if (!clientId || !clientSecret) return alert('Preencha os dois campos.');
+  try { await api('salvar_app', { rede, clientId, clientSecret }); editandoApp[rede] = false; await carregarContas(); toast('Credenciais salvas! Agora conecte a conta.'); }
+  catch (e) { toast(esc(e.message), 'erro'); }
+}
+async function conectarRede(rede) {
+  const janela = window.open('about:blank', 'conectar-' + rede, 'width=620,height=760');
+  try {
+    const r = await api('oauth_url', { rede });
+    if (janela) janela.location.href = r.url; else location.href = r.url;
+  } catch (e) { if (janela) janela.close(); toast(esc(e.message), 'erro'); }
+}
+async function desconectarRede(id) {
+  if (!confirm('Desconectar esta conta? As métricas já salvas continuam no sistema.')) return;
+  try { await api('desconectar_rede', { id }); await carregarContas(); toast('Conta desconectada.'); }
+  catch (e) { toast(esc(e.message), 'erro'); }
+}
+
 async function conectarContas() {
   const token = $('cfg-token').value.trim();
   if (!token) return alert('Cole o token primeiro.');
