@@ -3,149 +3,384 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ELDN Digital — Sistema de Mídias Sociais</title>
+<title>ELDN Digital · Mídias Sociais</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
-:root{--cor-primaria:#7C3AED;--cor-secundaria:#A78BFA;--cor-acento:#F59E0B;--cor-fundo:#0F0A1E;--cor-card:#1A1030;--cor-borda:#2D1F5E;--cor-texto:#E2D9F3;--cor-texto-suave:#9D8EC4;--cor-verde:#10B981;--cor-vermelho:#EF4444;--cor-azul:#3B82F6}
-body.modo-claro{--cor-fundo:#F3F0FF;--cor-card:#FFFFFF;--cor-borda:#DDD6FE;--cor-texto:#1E1B4B;--cor-texto-suave:#6B7280;--cor-secundaria:#5B21B6;--cor-acento:#B45309;--cor-verde:#047857;--cor-vermelho:#B91C1C;--cor-azul:#1D4ED8}
+:root{--cor-primaria:#7C3AED;--cor-secundaria:#A78BFA;--cor-acento:#F59E0B;--cor-fundo:#0F0A1E;--cor-card:#1A1030;--cor-borda:#2D1F5E;--cor-texto:#E2D9F3;--cor-texto-suave:#9D8EC4;--cor-verde:#10B981;--cor-vermelho:#EF4444;--cor-azul:#3B82F6;--cor-titulo:#fff}
+body.modo-claro{--cor-fundo:#F3F0FF;--cor-card:#FFFFFF;--cor-borda:#DDD6FE;--cor-texto:#1E1B4B;--cor-texto-suave:#6B7280;--cor-secundaria:#5B21B6;--cor-acento:#B45309;--cor-verde:#047857;--cor-vermelho:#B91C1C;--cor-azul:#1D4ED8;--cor-titulo:#1E1B4B}
+body.modo-claro .nav-link.active{color:var(--cor-primaria)}
+body.modo-claro .form-control,body.modo-claro .form-select,body.modo-claro .input-search{background:#F9F7FF;color:var(--cor-texto)}
+body.modo-claro .form-select option{background:#fff;color:var(--cor-texto)}
+body.modo-claro .btn-close-white{filter:invert(1) brightness(0) opacity(.6)}
+body.modo-claro .toast-msg{background:#fff}
+body.modo-claro .cal-dia{background:#fff}
+*{box-sizing:border-box}
 body{background:var(--cor-fundo);color:var(--cor-texto);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;margin:0}
-.sidebar{width:240px;height:100vh;background:var(--cor-card);border-right:1px solid var(--cor-borda);position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:100;overflow:hidden}
+.sidebar{width:240px;height:100vh;background:var(--cor-card);border-right:1px solid var(--cor-borda);position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:1040;overflow:hidden;transition:transform .2s}
 .sidebar-brand{padding:24px 20px 16px;border-bottom:1px solid var(--cor-borda)}
 .sidebar-brand h6{color:var(--cor-secundaria);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 4px}
-.sidebar-brand h5{margin:0;font-size:16px}
-.sidebar-nav{padding:16px 12px;flex:1;overflow-y:auto}
-.nav-item{margin-bottom:2px}
+.sidebar-brand h5{color:var(--cor-titulo);font-weight:700;margin:0;font-size:15px}
+.sidebar-nav{flex:1;padding:12px 0;overflow-y:auto}
+.nav-grupo{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--cor-texto-suave);opacity:.7;padding:12px 24px 4px}
+.nav-item{margin:2px 10px}
 .nav-link{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:10px;color:var(--cor-texto-suave);cursor:pointer;font-size:14px;border:none;background:none;width:100%;text-align:left;transition:all .15s}
 .nav-link:hover{background:rgba(124,58,237,.15);color:var(--cor-secundaria)}
-.nav-link.active{background:rgba(124,58,237,.2);color:#fff}
+.nav-link.active{background:rgba(124,58,237,.25);color:#fff;font-weight:600}
+.nav-link i{width:18px;text-align:center;font-size:16px}
 .sidebar-footer{padding:14px 20px;border-top:1px solid var(--cor-borda);font-size:12px;color:var(--cor-texto-suave)}
-.main{margin-left:240px}
-.topbar{background:var(--cor-card);border-bottom:1px solid var(--cor-borda);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.main-content{margin-left:240px;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--cor-card);border-bottom:1px solid var(--cor-borda);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:50}
+.topbar h4{margin:0;font-size:18px;font-weight:700;color:var(--cor-titulo)}
 .topbar-sub{font-size:12px;color:var(--cor-texto-suave);margin-top:2px}
-.conteudo{padding:24px 28px}
-.table-card{background:var(--cor-card);border:1px solid var(--cor-borda);border-radius:14px;overflow:clip;margin-bottom:24px}
-.table-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--cor-borda)}
-table.gestao{width:100%;border-collapse:collapse}
-table.gestao th{padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--cor-texto-suave);white-space:nowrap;border-bottom:1px solid var(--cor-borda)}
+.btn-menu{display:none;background:none;border:none;color:var(--cor-texto);font-size:24px;padding:0 6px 0 0}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1030}
+.page-content{padding:28px;flex:1}
+.page{display:none}
+.page.active{display:block}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.kpi-card{background:var(--cor-card);border:1px solid var(--cor-borda);border-radius:14px;padding:18px}
+.kpi-label{font-size:11px;color:var(--cor-texto-suave);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.kpi-value{font-size:24px;font-weight:700;color:var(--cor-titulo)}
+.kpi-sub{font-size:12px;color:var(--cor-texto-suave);margin-top:4px}
+.table-card,.chart-card,.bloco{background:var(--cor-card);border:1px solid var(--cor-borda);border-radius:14px;margin-bottom:24px}
+.table-card{overflow:clip}
+.chart-card,.bloco{padding:20px}
+.chart-card h6,.bloco h6{margin:0 0 16px;font-size:14px;font-weight:600;color:var(--cor-titulo)}
+.table-header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid var(--cor-borda)}
+.table-header h6{margin:0;font-size:14px;font-weight:600;color:var(--cor-titulo)}
+.table-responsive{overflow-x:auto}
+table.gestao{width:100%;border-collapse:collapse;font-size:13px}
+table.gestao th{padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--cor-texto-suave);white-space:nowrap;border-bottom:1px solid var(--cor-borda);background:rgba(124,58,237,.08)}
 table.gestao td{padding:10px 14px;border-bottom:1px solid rgba(45,31,94,.5);color:var(--cor-texto);vertical-align:middle}
+table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
+.th-sort{cursor:pointer;user-select:none}
+.th-sort:hover{color:var(--cor-secundaria)}
+.th-sort.ord::after{content:' ▼';color:var(--cor-secundaria)}
 .modal-content{background:var(--cor-card);border:1px solid var(--cor-borda);color:var(--cor-texto);border-radius:16px}
 .modal-header{border-bottom:1px solid var(--cor-borda)}
 .modal-footer{border-top:1px solid var(--cor-borda)}
 .form-control,.form-select{background:rgba(255,255,255,.04);border:1px solid var(--cor-borda);color:var(--cor-texto);border-radius:8px}
 .form-control:focus,.form-select:focus{background:rgba(124,58,237,.08);border-color:var(--cor-primaria);color:var(--cor-texto);box-shadow:0 0 0 3px rgba(124,58,237,.2)}
+.form-control::placeholder{color:var(--cor-texto-suave);opacity:.7}
+.form-select option{background:#1A1030}
 .form-label{font-size:13px;color:var(--cor-texto-suave);margin-bottom:6px}
+.form-text{color:var(--cor-texto-suave);font-size:12px}
 .btn-primary{background:var(--cor-primaria);border:none;border-radius:8px;font-size:13px;font-weight:600}
+.btn-primary:hover{background:#6D28D9}
 .btn-outline-secondary{border-color:var(--cor-borda);color:var(--cor-texto-suave);border-radius:8px;font-size:13px}
 .btn-outline-secondary:hover{background:rgba(255,255,255,.05);color:var(--cor-texto);border-color:var(--cor-borda)}
-.btn-sm-action{background:none;border:none;font-size:15px;padding:4px 8px;cursor:pointer}
-.btn-edit{color:var(--cor-secundaria)}
+.btn-sm-action{background:none;border:none;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:14px;color:var(--cor-secundaria)}
+.btn-sm-action:hover{background:rgba(255,255,255,.08)}
 .btn-delete{color:var(--cor-vermelho)}
-.empty-state{text-align:center;padding:48px 20px;color:var(--cor-texto-suave)}
+.input-search{background:rgba(255,255,255,.04);border:1px solid var(--cor-borda);border-radius:8px;color:var(--cor-texto);padding:6px 12px;font-size:13px;width:200px;max-width:100%}
+.input-search:focus{outline:none;border-color:var(--cor-primaria)}
+.filtros{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filtros .form-select,.filtros .form-control{width:auto;font-size:13px;padding-top:5px;padding-bottom:5px}
+.dp-btn{background:rgba(124,58,237,.1);border:1px solid var(--cor-borda);color:var(--cor-texto-suave);border-radius:8px;font-size:12px;padding:5px 12px;cursor:pointer;white-space:nowrap}
+.dp-btn:hover,.dp-btn.ativo{background:rgba(124,58,237,.3);color:var(--cor-titulo);border-color:var(--cor-primaria)}
+.empty-state{text-align:center;padding:40px 20px;color:var(--cor-texto-suave)}
 .empty-state i{font-size:40px;display:block;margin-bottom:12px;color:var(--cor-borda)}
-.badge-ativo{background:rgba(16,185,129,.15);color:var(--cor-verde);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
-.badge-inativo{background:rgba(239,68,68,.12);color:var(--cor-vermelho);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
-.badge-status-ok{background:rgba(16,185,129,.15);color:var(--cor-verde);padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
-.badge-status-erro{background:rgba(239,68,68,.12);color:var(--cor-vermelho);padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
-.badge-status-espera{background:rgba(245,158,11,.15);color:var(--cor-acento);padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
-.post-card{border:2px solid var(--cor-borda);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .15s;position:relative}
+.selo{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.selo-verde{background:rgba(16,185,129,.15);color:var(--cor-verde)}
+.selo-vermelho{background:rgba(239,68,68,.12);color:var(--cor-vermelho)}
+.selo-amarelo{background:rgba(245,158,11,.15);color:var(--cor-acento)}
+.selo-roxo{background:rgba(124,58,237,.18);color:var(--cor-secundaria)}
+.selo-azul{background:rgba(59,130,246,.15);color:#60A5FA}
+.selo-cinza{background:rgba(157,142,196,.12);color:var(--cor-texto-suave)}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.card-item{background:var(--cor-card);border:1px solid var(--cor-borda);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;position:relative}
+.card-item:hover{border-color:var(--cor-primaria)}
+.card-item h6{margin:0;font-size:15px;color:var(--cor-titulo);font-weight:600}
+.card-gancho{font-size:13px;font-style:italic;color:var(--cor-texto);border-left:3px solid var(--cor-primaria);padding-left:10px}
+.card-texto{font-size:12px;color:var(--cor-texto-suave);white-space:pre-line;max-height:80px;overflow:hidden}
+.card-acoes{display:flex;gap:4px;flex-wrap:wrap;margin-top:auto;padding-top:6px;border-top:1px solid var(--cor-borda)}
+.card-acoes .btn{font-size:12px;padding:3px 10px}
+.card-thumb{width:100%;height:150px;object-fit:cover;border-radius:10px;background:rgba(124,58,237,.08)}
+.perfil-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.tabs-linha{display:flex;gap:4px;border-bottom:1px solid var(--cor-borda);margin-bottom:20px}
+.tabs-linha button{background:none;border:none;color:var(--cor-texto-suave);padding:10px 16px;font-size:14px;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs-linha button.ativo{color:var(--cor-titulo);border-bottom-color:var(--cor-primaria);font-weight:600}
+/* Calendário */
+.cal-head{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
+.cal-head div{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--cor-texto-suave);text-align:center}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-dia{background:var(--cor-card);border:1px solid var(--cor-borda);border-radius:10px;min-height:118px;padding:6px;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-width:0}
+.cal-dia.fora{opacity:.35}
+.cal-dia.hoje{border-color:var(--cor-primaria);box-shadow:0 0 0 1px var(--cor-primaria)}
+.cal-dia.drop{background:rgba(124,58,237,.18)}
+.cal-num{font-size:12px;color:var(--cor-texto-suave);font-weight:600}
+.cal-chip{font-size:11px;padding:3px 6px;border-radius:6px;background:rgba(124,58,237,.12);border-left:3px solid var(--cor-primaria);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:grab;color:var(--cor-texto)}
+.cal-chip.postado{opacity:.6;text-decoration:line-through}
+.status-pip{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
+/* Automações */
+.fluxo-card .gatilho{font-size:12px;color:var(--cor-texto-suave)}
+.fluxo-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.fluxo-stats div{background:rgba(124,58,237,.08);border-radius:8px;padding:6px 2px}
+.fluxo-stats b{display:block;font-size:16px;color:var(--cor-titulo)}
+.fluxo-stats span{font-size:10px;color:var(--cor-texto-suave);text-transform:uppercase}
+.passo-card{background:rgba(124,58,237,.06);border:1px solid var(--cor-borda);border-radius:12px;padding:14px;margin-bottom:6px}
+.passo-card.inicio{border-color:var(--cor-primaria)}
+.passo-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--cor-primaria);color:#fff;font-size:12px;font-weight:700}
+.passo-seta{text-align:center;color:var(--cor-texto-suave);font-size:12px;margin:2px 0 8px}
+.botao-linha{display:grid;grid-template-columns:1fr 130px 1fr 32px;gap:6px;margin-bottom:6px}
+.dica{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--cor-texto)}
+.alerta{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--cor-texto)}
+.post-card{border:2px solid var(--cor-borda);border-radius:10px;overflow:hidden;cursor:pointer;position:relative}
 .post-card:hover{border-color:var(--cor-secundaria)}
 .post-card.selecionado{border-color:var(--cor-primaria);box-shadow:0 0 0 2px rgba(124,58,237,.3)}
 .post-card img{width:100%;height:110px;object-fit:cover;display:block}
 .post-card .legenda{font-size:10px;color:var(--cor-texto-suave);padding:6px;line-height:1.3;max-height:44px;overflow:hidden}
-.toast-msg{position:fixed;bottom:24px;right:24px;background:#1A1030;border:1px solid var(--cor-borda);border-radius:12px;padding:14px 18px;color:var(--cor-texto);font-size:13px;z-index:9999;display:none;align-items:center;gap:10px;box-shadow:0 4px 24px rgba(0,0,0,.5);max-width:360px}
-.spinner-sm{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:girar .7s linear infinite;display:inline-block}
+.disc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.disc-card{border:1px solid var(--cor-borda);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.disc-card .thumb{height:170px;background:rgba(124,58,237,.1);display:flex;align-items:center;justify-content:center;color:var(--cor-texto-suave);font-size:30px}
+.disc-card .thumb img{width:100%;height:100%;object-fit:cover}
+.disc-card .info{padding:8px;font-size:12px;display:flex;flex-direction:column;gap:4px;flex:1}
+.thumb-mini{width:42px;height:42px;object-fit:cover;border-radius:6px;background:rgba(124,58,237,.1)}
+.conta-card{display:flex;gap:14px;align-items:center}
+.conta-card img{width:52px;height:52px;border-radius:50%;object-fit:cover;background:rgba(124,58,237,.15)}
+.toast-msg{position:fixed;bottom:24px;right:24px;background:#1A1030;border:1px solid var(--cor-borda);border-radius:12px;padding:14px 18px;color:var(--cor-texto);font-size:13px;z-index:9999;display:none;align-items:center;gap:10px;box-shadow:0 4px 24px rgba(0,0,0,.5);max-width:380px}
+.spinner-sm{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:var(--cor-secundaria);border-radius:50%;animation:girar .7s linear infinite;display:inline-block;vertical-align:middle}
 @keyframes girar{to{transform:rotate(360deg)}}
+@media (max-width:991px){
+  .sidebar{transform:translateX(-100%)}
+  body.menu-aberto .sidebar{transform:none}
+  body.menu-aberto .sidebar-overlay{display:block}
+  .main-content{margin-left:0}
+  .btn-menu{display:inline-block}
+  .topbar{padding:12px 16px}
+  .page-content{padding:16px}
+}
+@media (max-width:640px){
+  .cal-dia{min-height:64px;padding:4px}
+  .cal-chip{font-size:0;padding:0;height:6px;border-left-width:0}
+  .botao-linha{grid-template-columns:1fr 1fr}
+  .kpi-value{font-size:20px}
+}
 </style>
 </head>
 <body>
 
-<div id="tela-login" style="display:flex;min-height:100vh;background:var(--cor-fundo);align-items:center;justify-content:center;">
-  <div style="background:var(--cor-card);border:1px solid var(--cor-borda);border-radius:20px;padding:40px;width:100%;max-width:380px;margin:20px;">
+<div id="tela-login" style="display:flex;min-height:100vh;align-items:center;justify-content:center;">
+  <div style="background:var(--cor-card);border:1px solid var(--cor-borda);border-radius:20px;padding:40px;width:100%;max-width:380px;margin:16px;">
     <div style="text-align:center;margin-bottom:24px;">
       <i class="bi bi-instagram" style="font-size:32px;color:var(--cor-secundaria)"></i>
       <h5 style="margin:10px 0 2px;">ELDN Digital</h5>
       <p style="color:var(--cor-texto-suave);font-size:13px;margin:0;">Sistema de Mídias Sociais</p>
     </div>
     <div id="login-erro" style="display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:10px 14px;color:#FCA5A5;font-size:13px;margin-bottom:16px;"></div>
-    <div class="mb-3">
-      <label class="form-label">E-mail</label>
-      <input type="email" id="login-email" class="form-control" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')fazLogin()">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Senha</label>
-      <input type="password" id="login-senha" class="form-control" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazLogin()">
-    </div>
+    <div class="mb-3"><label class="form-label">E-mail</label><input type="email" id="login-email" class="form-control" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')fazLogin()"></div>
+    <div class="mb-3"><label class="form-label">Senha</label><input type="password" id="login-senha" class="form-control" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazLogin()"></div>
     <button id="btn-login" class="btn btn-primary w-100" style="padding:12px;" onclick="fazLogin()">Entrar</button>
-    <p style="text-align:center;font-size:11px;color:var(--cor-borda);margin-top:20px;margin-bottom:0;">Acesso restrito — ELDN Digital</p>
+    <p style="text-align:center;font-size:11px;color:var(--cor-texto-suave);margin-top:20px;margin-bottom:0;">Mesmo login do ELDN Gestão</p>
   </div>
 </div>
 
 <div id="app" style="display:none;">
+  <div class="sidebar-overlay" onclick="fecharMenu()"></div>
   <nav class="sidebar">
-    <div class="sidebar-brand">
-      <h6>ELDN Digital</h6>
-      <h5>Mídias Sociais</h5>
-    </div>
+    <div class="sidebar-brand"><h6>ELDN Digital</h6><h5>Mídias Sociais</h5></div>
     <div class="sidebar-nav">
-      <div class="nav-item"><button class="nav-link active" onclick="showPage('instaauto')"><i class="bi bi-instagram"></i> Automação Instagram</button></div>
+      <div class="nav-item"><button class="nav-link" data-page="dashboard" onclick="showPage('dashboard')"><i class="bi bi-speedometer2"></i> Dashboard</button></div>
+      <div class="nav-grupo">Conteúdo</div>
+      <div class="nav-item"><button class="nav-link" data-page="calendario" onclick="showPage('calendario')"><i class="bi bi-calendar3"></i> Calendário</button></div>
+      <div class="nav-item"><button class="nav-link" data-page="ideias" onclick="showPage('ideias')"><i class="bi bi-lightbulb"></i> Ideias e Roteiros</button></div>
+      <div class="nav-item"><button class="nav-link" data-page="inspiracoes" onclick="showPage('inspiracoes')"><i class="bi bi-stars"></i> Inspirações</button></div>
+      <div class="nav-grupo">Resultados</div>
+      <div class="nav-item"><button class="nav-link" data-page="metricas" onclick="showPage('metricas')"><i class="bi bi-bar-chart-line"></i> Métricas dos Posts</button></div>
+      <div class="nav-grupo">Automação</div>
+      <div class="nav-item"><button class="nav-link" data-page="automacoes" onclick="showPage('automacoes')"><i class="bi bi-robot"></i> Automações</button></div>
+      <div class="nav-item"><button class="nav-link" data-page="contatos" onclick="showPage('contatos')"><i class="bi bi-people"></i> Contatos e Leads</button></div>
+      <div class="nav-grupo">Sistema</div>
+      <div class="nav-item"><button class="nav-link" data-page="configuracoes" onclick="showPage('configuracoes')"><i class="bi bi-gear"></i> Perfis Conectados</button></div>
     </div>
     <div class="sidebar-footer">
-      <div style="font-size:11px;color:var(--cor-texto-suave);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="usuario-nome"></div>
-      <button class="btn btn-outline-secondary btn-sm w-100" onclick="fazLogout()"><i class="bi bi-box-arrow-right"></i> Sair</button>
-      <div style="font-size:11px;text-align:center;color:var(--cor-borda);margin-top:8px;">v1.0 · Meu Lugar de Cura</div>
+      <div style="font-size:11px;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="usuario-nome"></div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm flex-fill" onclick="alternarTema()" title="Modo claro/escuro"><i class="bi bi-circle-half"></i></button>
+        <button class="btn btn-outline-secondary btn-sm flex-fill" onclick="fazLogout()"><i class="bi bi-box-arrow-right"></i> Sair</button>
+      </div>
+      <div style="font-size:11px;text-align:center;margin-top:8px;opacity:.6">v2.0 · Meu Lugar de Cura</div>
     </div>
   </nav>
 
-  <div class="main">
+  <div class="main-content">
     <div class="topbar">
-      <div>
-        <h4 style="margin:0;font-size:18px;">Automação Instagram</h4>
-        <div class="topbar-sub">Comentário → DM automática, por palavra-chave e por post</div>
+      <div class="d-flex align-items-center">
+        <button class="btn-menu" onclick="abrirMenu()"><i class="bi bi-list"></i></button>
+        <div><h4 id="topbar-titulo">Dashboard</h4><div class="topbar-sub" id="topbar-sub"></div></div>
       </div>
+      <div id="topbar-acoes" class="d-flex gap-2"></div>
     </div>
 
-    <div class="conteudo">
+    <div class="page-content">
 
-      <div class="table-card">
-        <div class="table-header">
-          <h6 style="margin:0"><i class="bi bi-chat-left-quote-fill me-2" style="color:var(--cor-secundaria)"></i>Regras de Automação</h6>
-          <button class="btn btn-primary btn-sm" onclick="abrirModalRegra()"><i class="bi bi-plus-lg"></i> Nova Regra</button>
+      <!-- ======================= DASHBOARD ======================= -->
+      <div class="page" id="page-dashboard">
+        <div class="filtros mb-3">
+          <button class="dp-btn" data-per="mes" onclick="setDashPeriodo('mes')">Este Mês</button>
+          <button class="dp-btn" data-per="mesAnt" onclick="setDashPeriodo('mesAnt')">Mês Anterior</button>
+          <button class="dp-btn" data-per="30" onclick="setDashPeriodo('30')">Últimos 30 dias</button>
+          <button class="dp-btn" data-per="ano" onclick="setDashPeriodo('ano')">Este Ano</button>
+          <button class="dp-btn" data-per="tudo" onclick="setDashPeriodo('tudo')">Tudo</button>
+          <span style="font-size:12px;color:var(--cor-texto-suave)">De</span><input type="date" class="form-control" id="dash-de" onchange="setDashPeriodo('custom')">
+          <span style="font-size:12px;color:var(--cor-texto-suave)">Até</span><input type="date" class="form-control" id="dash-ate" onchange="setDashPeriodo('custom')">
+          <select class="form-select" id="dash-perfil" onchange="renderDashboard()"></select>
         </div>
-        <div class="table-responsive">
-          <table class="gestao" id="tabela-regras">
-            <thead><tr>
-              <th>Palavra(s)-chave</th>
-              <th>Aplica a</th>
-              <th>Mensagem da DM</th>
-              <th>Resposta pública</th>
-              <th>Status</th>
-              <th></th>
-            </tr></thead>
-            <tbody></tbody>
-          </table>
+        <div id="dash-aviso"></div>
+        <div class="kpi-grid" id="dash-kpis"></div>
+        <div class="row g-3">
+          <div class="col-lg-7"><div class="chart-card"><h6>Alcance por dia</h6><div style="height:260px"><canvas id="ch-alcance"></canvas></div></div></div>
+          <div class="col-lg-5"><div class="chart-card"><h6>Novos seguidores por dia</h6><div style="height:260px"><canvas id="ch-seguidores"></canvas></div></div></div>
+        </div>
+        <div class="row g-3">
+          <div class="col-lg-7"><div class="table-card"><div class="table-header"><h6><i class="bi bi-trophy me-2" style="color:var(--cor-acento)"></i>Posts campeões do período</h6></div><div class="table-responsive"><table class="gestao" id="dash-top"><tbody></tbody></table></div></div></div>
+          <div class="col-lg-5"><div class="table-card"><div class="table-header"><h6><i class="bi bi-calendar-week me-2" style="color:var(--cor-secundaria)"></i>Próximos 7 dias</h6><button class="btn btn-outline-secondary btn-sm" onclick="showPage('calendario')">Ver calendário</button></div><div id="dash-proximos" style="padding:8px 0"></div></div></div>
         </div>
       </div>
 
-      <div class="table-card">
-        <div class="table-header">
-          <h6 style="margin:0"><i class="bi bi-clock-history me-2" style="color:var(--cor-acento)"></i>Histórico de Comentários Atendidos</h6>
-          <button class="btn btn-outline-secondary btn-sm" onclick="carregarLog()"><i class="bi bi-arrow-clockwise"></i> Atualizar</button>
+      <!-- ======================= CALENDÁRIO ======================= -->
+      <div class="page" id="page-calendario">
+        <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
+          <div class="d-flex gap-2 align-items-center">
+            <button class="btn btn-outline-secondary btn-sm" onclick="mudarMes(-1)"><i class="bi bi-chevron-left"></i></button>
+            <h5 id="cal-titulo" style="margin:0;min-width:170px;text-align:center;font-size:17px;color:var(--cor-titulo)"></h5>
+            <button class="btn btn-outline-secondary btn-sm" onclick="mudarMes(1)"><i class="bi bi-chevron-right"></i></button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="calHoje()">Hoje</button>
+          </div>
+          <div class="filtros">
+            <select class="form-select" id="cal-perfil" onchange="renderCalendario()"></select>
+            <select class="form-select" id="cal-status" onchange="renderCalendario()"></select>
+            <button class="dp-btn" id="cal-modo" onclick="alternarModoCal()"><i class="bi bi-list-ul"></i> Lista</button>
+          </div>
         </div>
-        <div class="table-responsive">
-          <table class="gestao" id="tabela-log">
-            <thead><tr>
-              <th>Data/Hora</th>
-              <th>Usuário</th>
-              <th>Comentário</th>
-              <th>Regra aplicada</th>
-              <th>Status</th>
-            </tr></thead>
-            <tbody></tbody>
-          </table>
+        <div id="cal-mes">
+          <div class="cal-head"><div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div></div>
+          <div class="cal-grid" id="cal-grid"></div>
+          <div class="form-text mt-2"><i class="bi bi-info-circle"></i> Clique num dia para criar um conteúdo. Arraste um conteúdo para outro dia para remarcar.</div>
+        </div>
+        <div id="cal-lista" style="display:none"></div>
+        <div class="table-card mt-4"><div class="table-header"><h6><i class="bi bi-inbox me-2"></i>Conteúdos sem data</h6><span class="form-text">Planejados mas ainda não marcados no calendário</span></div><div id="cal-semdata" style="padding:8px 0"></div></div>
+      </div>
+
+      <!-- ======================= IDEIAS ======================= -->
+      <div class="page" id="page-ideias">
+        <div class="filtros mb-3">
+          <input class="input-search" id="id-busca" placeholder="Buscar ideia..." oninput="renderIdeias()">
+          <select class="form-select" id="id-perfil" onchange="renderIdeias()"></select>
+          <select class="form-select" id="id-formato" onchange="renderIdeias()"></select>
+          <select class="form-select" id="id-objetivo" onchange="renderIdeias()"></select>
+          <select class="form-select" id="id-status" onchange="renderIdeias()"></select>
+        </div>
+        <div class="cards-grid" id="ideias-grid"></div>
+      </div>
+
+      <!-- ======================= INSPIRAÇÕES ======================= -->
+      <div class="page" id="page-inspiracoes">
+        <div class="tabs-linha">
+          <button id="tab-ref" class="ativo" onclick="abaInsp('ref')"><i class="bi bi-bookmark-heart"></i> Referências para replicar</button>
+          <button id="tab-perfis" onclick="abaInsp('perfis')"><i class="bi bi-person-hearts"></i> Perfis de inspiração</button>
+        </div>
+        <div id="insp-ref">
+          <div class="filtros mb-3">
+            <input class="input-search" id="rf-busca" placeholder="Buscar..." oninput="renderReferencias()">
+            <select class="form-select" id="rf-plataforma" onchange="renderReferencias()"></select>
+            <select class="form-select" id="rf-destino" onchange="renderReferencias()"></select>
+            <select class="form-select" id="rf-status" onchange="renderReferencias()"></select>
+          </div>
+          <div class="cards-grid" id="ref-grid"></div>
+        </div>
+        <div id="insp-perfis" style="display:none">
+          <div class="dica mb-3"><i class="bi bi-lightbulb"></i> Para perfis do Instagram que sejam <b>conta comercial ou criador</b>, o botão <b>"Posts que mais engajaram"</b> mostra os posts recentes ordenados por engajamento. Daí você salva os melhores como referência com um clique.</div>
+          <div class="cards-grid" id="perfis-grid"></div>
+        </div>
+      </div>
+
+      <!-- ======================= MÉTRICAS ======================= -->
+      <div class="page" id="page-metricas">
+        <div class="filtros mb-3">
+          <select class="form-select" id="mt-perfil" onchange="renderMetricas()"></select>
+          <select class="form-select" id="mt-tipo" onchange="renderMetricas()"></select>
+          <span style="font-size:12px;color:var(--cor-texto-suave)">De</span><input type="date" class="form-control" id="mt-de" onchange="renderMetricas()">
+          <span style="font-size:12px;color:var(--cor-texto-suave)">Até</span><input type="date" class="form-control" id="mt-ate" onchange="renderMetricas()">
+        </div>
+        <div class="kpi-grid" id="mt-kpis"></div>
+        <div class="row g-3">
+          <div class="col-lg-5"><div class="table-card"><div class="table-header"><h6>Média por formato</h6></div><div class="table-responsive"><table class="gestao" id="mt-formatos"><tbody></tbody></table></div></div></div>
+          <div class="col-lg-7"><div class="chart-card"><h6>Interações dos últimos posts</h6><div style="height:220px"><canvas id="ch-posts"></canvas></div></div></div>
+        </div>
+        <div class="table-card">
+          <div class="table-header"><h6><i class="bi bi-grid-3x3-gap me-2"></i>Todos os posts</h6><span class="form-text" id="mt-atualizado"></span></div>
+          <div class="table-responsive"><table class="gestao" id="mt-tabela"><thead></thead><tbody></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ======================= AUTOMAÇÕES ======================= -->
+      <div class="page" id="page-automacoes">
+        <div id="auto-aviso"></div>
+        <div class="cards-grid mb-4" id="fluxos-grid"></div>
+        <div class="table-card">
+          <div class="table-header"><h6><i class="bi bi-clock-history me-2" style="color:var(--cor-acento)"></i>Histórico das automações</h6>
+            <div class="filtros"><select class="form-select" id="lg-fluxo" onchange="renderLog()"></select><button class="btn btn-outline-secondary btn-sm" onclick="carregarLogs(true)"><i class="bi bi-arrow-clockwise"></i> Atualizar</button></div>
+          </div>
+          <div class="table-responsive" style="max-height:480px;overflow-y:auto"><table class="gestao" id="tabela-log"><thead><tr><th>Data/Hora</th><th>Perfil</th><th>Pessoa</th><th>Automação</th><th>O que aconteceu</th><th>Detalhe</th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ======================= CONTATOS ======================= -->
+      <div class="page" id="page-contatos">
+        <div class="filtros mb-3">
+          <input class="input-search" id="ct-busca" placeholder="Buscar @, nome, e-mail..." oninput="renderContatos()">
+          <select class="form-select" id="ct-perfil" onchange="renderContatos()"></select>
+          <select class="form-select" id="ct-filtro" onchange="renderContatos()">
+            <option value="">Todos os contatos</option><option value="lead">Só leads (e-mail ou telefone)</option><option value="janela">Conversa aberta (últimas 24h)</option>
+          </select>
+        </div>
+        <div class="kpi-grid" id="ct-kpis"></div>
+        <div class="table-card">
+          <div class="table-header"><h6><i class="bi bi-people me-2"></i>Pessoas que interagiram com as automações</h6><button class="btn btn-outline-secondary btn-sm" onclick="carregarContatos(true)"><i class="bi bi-arrow-clockwise"></i> Atualizar</button></div>
+          <div class="table-responsive" style="max-height:600px;overflow-y:auto"><table class="gestao" id="tabela-contatos"><thead><tr><th>Pessoa</th><th>Perfil</th><th>E-mail</th><th>Telefone</th><th>Tags</th><th>Automações</th><th>Última conversa</th><th></th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ======================= CONFIGURAÇÕES ======================= -->
+      <div class="page" id="page-configuracoes">
+        <div class="bloco"><h6><i class="bi bi-instagram me-2"></i>Perfis conectados</h6><div id="contas-lista"></div></div>
+        <div class="bloco">
+          <h6><i class="bi bi-plug me-2"></i>Conectar ou atualizar perfis</h6>
+          <ol style="font-size:13px;line-height:1.8;padding-left:18px">
+            <li>Abra <a href="https://developers.facebook.com/apps/1606206847626520/use_cases/" target="_blank" style="color:var(--cor-secundaria)">o App "ELDN Automação Redes Socias"</a> → <b>Casos de uso</b> → <b>Personalizar</b> em "Gerenciar mensagens e conteúdo no Instagram"</li>
+            <li>No menu da esquerda, clique em <b>"Configuração da API com login do Facebook"</b></li>
+            <li>Em <b>"2. Gerar tokens de acesso"</b>, clique em <b>Adicionar conta</b> e marque as Páginas e os Instagrams (@elnsantana, @meulugardecura, @ellatemfe)</li>
+            <li>Copie o token que aparecer, cole abaixo e clique em Conectar</li>
+          </ol>
+          <textarea class="form-control mb-2" id="cfg-token" rows="3" placeholder="Cole aqui o token (começa com EAA...)"></textarea>
+          <button class="btn btn-primary" id="btn-conectar" onclick="conectarContas()"><i class="bi bi-plug-fill"></i> Conectar</button>
+          <div id="cfg-resultado" class="mt-3"></div>
+          <div class="form-text mt-2"><i class="bi bi-shield-lock"></i> O token fica guardado só no servidor (Hostgator), nunca aqui no navegador nem no GitHub.</div>
+        </div>
+        <div class="bloco">
+          <h6><i class="bi bi-info-circle me-2"></i>O que o Instagram permite nas automações</h6>
+          <div class="row g-3" style="font-size:13px">
+            <div class="col-md-6"><b class="status-ok" style="color:var(--cor-verde)">Pode</b><ul class="mt-1 mb-0">
+              <li>Responder quem comenta uma palavra-chave (em um post ou em todos)</li>
+              <li>Responder quem manda DM com palavra-chave, responde ou menciona seu Story</li>
+              <li>Mensagens em sequência, com botões, links e imagem</li>
+              <li>Liberar o conteúdo só para quem segue o perfil</li>
+              <li>Pedir e-mail e telefone e guardar como lead</li>
+            </ul></div>
+            <div class="col-md-6"><b style="color:var(--cor-vermelho)">Não pode (nenhuma ferramenta pode, nem o Manychat)</b><ul class="mt-1 mb-0">
+              <li>Mandar DM para quem só começou a seguir</li>
+              <li>Mandar mensagem depois de 24h sem a pessoa interagir</li>
+              <li>Disparo em massa para seguidores</li>
+              <li>Depois de responder um comentário no privado, mandar mais de 1 mensagem antes da pessoa responder ou tocar num botão</li>
+            </ul></div>
+          </div>
         </div>
       </div>
 
@@ -153,328 +388,1465 @@ table.gestao td{padding:10px 14px;border-bottom:1px solid rgba(45,31,94,.5);colo
   </div>
 </div>
 
-<!-- MODAL REGRA -->
-<div class="modal fade" id="modalRegra" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
-  <div class="modal-header"><h5 class="modal-title" id="modalRegraTitulo">Nova Regra</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+<!-- ======================= MODAL CONTEÚDO (CALENDÁRIO) ======================= -->
+<div class="modal fade" id="modalConteudo" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title" id="mc-titulo-modal">Novo conteúdo</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
   <div class="modal-body">
-    <input type="hidden" id="rg-idx">
+    <input type="hidden" id="mc-id"><input type="hidden" id="mc-ideiaId">
     <div class="row g-3">
-      <div class="col-12">
-        <label class="form-label">Palavra(s)-chave *</label>
-        <input class="form-control" id="rg-keywords" placeholder="Ex: cura, quero curar (separe por vírgula)">
-      </div>
-      <div class="col-12">
-        <label class="form-label">Esta regra vale para</label>
-        <div class="d-flex gap-3">
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="rg-escopo" id="rg-escopo-qualquer" value="qualquer" checked onchange="alternarEscopoRegra()">
-            <label class="form-check-label" for="rg-escopo-qualquer">Qualquer post</label>
+      <div class="col-12"><label class="form-label">Título / tema *</label><input class="form-control" id="mc-titulo" placeholder="Ex: 3 sinais de que você está se afastando de Deus sem perceber"></div>
+      <div class="col-6 col-md-3"><label class="form-label">Data</label><input type="date" class="form-control" id="mc-data"></div>
+      <div class="col-6 col-md-3"><label class="form-label">Horário</label><input type="time" class="form-control" id="mc-hora"></div>
+      <div class="col-6 col-md-3"><label class="form-label">Perfil</label><select class="form-select" id="mc-perfil"></select></div>
+      <div class="col-6 col-md-3"><label class="form-label">Formato</label><select class="form-select" id="mc-formato"></select></div>
+      <div class="col-6 col-md-4"><label class="form-label">Objetivo</label><select class="form-select" id="mc-objetivo"></select></div>
+      <div class="col-6 col-md-4"><label class="form-label">Status</label><select class="form-select" id="mc-status"></select></div>
+      <div class="col-12 col-md-4"><label class="form-label">Automação ligada (opcional)</label><select class="form-select" id="mc-fluxo"></select></div>
+      <div class="col-12"><label class="form-label">Gancho (primeiros 3 segundos)</label><input class="form-control" id="mc-gancho"></div>
+      <div class="col-12"><label class="form-label">Roteiro</label><textarea class="form-control" id="mc-roteiro" rows="5"></textarea></div>
+      <div class="col-12"><label class="form-label">Legenda</label><textarea class="form-control" id="mc-legenda" rows="4"></textarea></div>
+      <div class="col-md-6"><label class="form-label">Link da referência</label><input class="form-control" id="mc-ref" placeholder="https://..."></div>
+      <div class="col-md-6"><label class="form-label">Link do post publicado</label><input class="form-control" id="mc-linkpost" placeholder="https://www.instagram.com/p/..."></div>
+      <div class="col-12"><label class="form-label">Observações</label><textarea class="form-control" id="mc-obs" rows="2"></textarea></div>
+    </div>
+  </div>
+  <div class="modal-footer d-flex justify-content-between">
+    <div><button class="btn btn-outline-secondary" id="mc-btn-excluir" onclick="excluirConteudo()"><i class="bi bi-trash"></i> Excluir</button> <button class="btn btn-outline-secondary" id="mc-btn-duplicar" onclick="duplicarConteudo()"><i class="bi bi-copy"></i> Duplicar</button></div>
+    <div><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button> <button class="btn btn-primary" onclick="salvarConteudo()">Salvar</button></div>
+  </div>
+</div></div></div>
+
+<!-- ======================= MODAL IDEIA ======================= -->
+<div class="modal fade" id="modalIdeia" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title" id="mi-titulo-modal">Nova ideia</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body">
+    <input type="hidden" id="mi-id"><input type="hidden" id="mi-inspiracaoId">
+    <div id="mi-origem" class="dica mb-3" style="display:none"></div>
+    <div class="row g-3">
+      <div class="col-12"><label class="form-label">Título da ideia *</label><input class="form-control" id="mi-titulo"></div>
+      <div class="col-12"><label class="form-label">Gancho</label><input class="form-control" id="mi-gancho" placeholder="A frase que segura a pessoa nos primeiros segundos"></div>
+      <div class="col-6 col-md-3"><label class="form-label">Perfil</label><select class="form-select" id="mi-perfil"></select></div>
+      <div class="col-6 col-md-3"><label class="form-label">Formato</label><select class="form-select" id="mi-formato"></select></div>
+      <div class="col-6 col-md-3"><label class="form-label">Objetivo</label><select class="form-select" id="mi-objetivo"></select></div>
+      <div class="col-6 col-md-3"><label class="form-label">Status</label><select class="form-select" id="mi-status"></select></div>
+      <div class="col-12"><label class="form-label">Roteiro</label><textarea class="form-control" id="mi-roteiro" rows="6"></textarea></div>
+      <div class="col-12"><label class="form-label">Legenda</label><textarea class="form-control" id="mi-legenda" rows="3"></textarea></div>
+      <div class="col-12"><label class="form-label">Tags</label><input class="form-control" id="mi-tags" placeholder="ansiedade, oração, culpa (separe por vírgula)"></div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" onclick="salvarIdeia()">Salvar</button></div>
+</div></div></div>
+
+<!-- ======================= MODAL REFERÊNCIA ======================= -->
+<div class="modal fade" id="modalRef" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title" id="mr-titulo-modal">Nova referência</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body">
+    <input type="hidden" id="mr-id">
+    <div class="row g-3">
+      <div class="col-12"><label class="form-label">Link do conteúdo *</label><input class="form-control" id="mr-link" placeholder="https://www.instagram.com/reel/..." onchange="detectarPlataforma()"></div>
+      <div class="col-6 col-md-4"><label class="form-label">Plataforma</label><select class="form-select" id="mr-plataforma"></select></div>
+      <div class="col-6 col-md-4"><label class="form-label">Perfil de origem</label><input class="form-control" id="mr-origem" placeholder="@perfil"></div>
+      <div class="col-6 col-md-4"><label class="form-label">Formato</label><select class="form-select" id="mr-formato"></select></div>
+      <div class="col-6 col-md-4"><label class="form-label">Replicar no perfil</label><select class="form-select" id="mr-destino"></select></div>
+      <div class="col-6 col-md-4"><label class="form-label">Status</label><select class="form-select" id="mr-status"></select></div>
+      <div class="col-12 col-md-4"><label class="form-label">Imagem (link, opcional)</label><input class="form-control" id="mr-imagem" placeholder="https://..."></div>
+      <div class="col-12"><label class="form-label">O que funciona nele? (gancho, gatilhos, formato, emoção)</label><textarea class="form-control" id="mr-funciona" rows="3"></textarea></div>
+      <div class="col-12"><label class="form-label">Como adaptar para o meu perfil</label><textarea class="form-control" id="mr-adaptar" rows="3"></textarea></div>
+      <div class="col-12"><label class="form-label">Tags</label><input class="form-control" id="mr-tags" placeholder="separe por vírgula"></div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" onclick="salvarRef()">Salvar</button></div>
+</div></div></div>
+
+<!-- ======================= MODAL PERFIL DE INSPIRAÇÃO ======================= -->
+<div class="modal fade" id="modalPerfilInsp" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title" id="mp-titulo-modal">Novo perfil de inspiração</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body">
+    <input type="hidden" id="mp-id">
+    <div class="row g-3">
+      <div class="col-7"><label class="form-label">@ do perfil *</label><input class="form-control" id="mp-username" placeholder="@perfil"></div>
+      <div class="col-5"><label class="form-label">Plataforma</label><select class="form-select" id="mp-plataforma"></select></div>
+      <div class="col-12"><label class="form-label">Nicho / assunto</label><input class="form-control" id="mp-nicho" placeholder="Ex: devocional feminino, fé e ansiedade"></div>
+      <div class="col-12"><label class="form-label">Por que me inspira</label><textarea class="form-control" id="mp-porque" rows="3" placeholder="Ex: ganchos fortes, carrosséis com muito salvamento"></textarea></div>
+      <div class="col-12"><label class="form-label">Anotações</label><textarea class="form-control" id="mp-notas" rows="2"></textarea></div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" onclick="salvarPerfilInsp()">Salvar</button></div>
+</div></div></div>
+
+<!-- ======================= MODAL DESCOBERTA ======================= -->
+<div class="modal fade" id="modalDescobrir" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-scrollable"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title" id="md-titulo">Posts que mais engajaram</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body">
+    <div id="md-perfil" class="mb-3"></div>
+    <div class="filtros mb-3">
+      <select class="form-select" id="md-ordem" onchange="renderDescoberta()"><option value="engajamento">Maior engajamento</option><option value="curtidas">Mais curtidas</option><option value="comentarios">Mais comentários</option><option value="data">Mais recentes</option></select>
+      <select class="form-select" id="md-tipo" onchange="renderDescoberta()"><option value="">Todos os formatos</option><option value="REELS">Reels</option><option value="CAROUSEL_ALBUM">Carrossel</option><option value="IMAGE">Imagem</option></select>
+    </div>
+    <div class="disc-grid" id="md-grid"></div>
+  </div>
+</div></div></div>
+
+<!-- ======================= MODAL CONTATO ======================= -->
+<div class="modal fade" id="modalContato" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title" id="mct-titulo">Contato</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body">
+    <input type="hidden" id="mct-id">
+    <div class="row g-3">
+      <div class="col-12"><label class="form-label">Nome</label><input class="form-control" id="mct-nome"></div>
+      <div class="col-md-6"><label class="form-label">E-mail</label><input class="form-control" id="mct-email"></div>
+      <div class="col-md-6"><label class="form-label">Telefone</label><input class="form-control" id="mct-telefone"></div>
+      <div class="col-12"><label class="form-label">Tags</label><input class="form-control" id="mct-tags" placeholder="separe por vírgula"></div>
+      <div class="col-12"><label class="form-label">Anotações</label><textarea class="form-control" id="mct-notas" rows="3"></textarea></div>
+      <div class="col-12" id="mct-respostas"></div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" onclick="salvarContatoModal()">Salvar</button></div>
+</div></div></div>
+
+<!-- ======================= MODAL CONSTRUTOR DE AUTOMAÇÃO ======================= -->
+<div class="modal fade" id="modalFluxo" tabindex="-1" data-bs-backdrop="static"><div class="modal-dialog modal-fullscreen-lg-down modal-xl modal-dialog-scrollable"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title" id="mf-titulo-modal">Nova automação</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="bloco" style="margin-bottom:0">
+          <h6><i class="bi bi-lightning-charge me-1" style="color:var(--cor-acento)"></i>Quando começa</h6>
+          <div class="mb-3"><label class="form-label">Nome da automação *</label><input class="form-control" id="mf-nome" placeholder="Ex: CURA → link do livro" oninput="ed.nome=this.value"></div>
+          <div class="mb-3"><label class="form-label">Perfil *</label><select class="form-select" id="mf-perfil" onchange="ed.perfil=this.value;ed.gatilho.mediaId=null;renderGatilho()"></select></div>
+          <div class="mb-3"><label class="form-label">Gatilho</label>
+            <select class="form-select" id="mf-tipo" onchange="ed.gatilho.tipo=this.value;renderGatilho()">
+              <option value="comentario">Comentário em post ou Reels</option>
+              <option value="dm">Mensagem no Direct</option>
+              <option value="story_resposta">Resposta a um Story</option>
+              <option value="story_mencao">Menção no Story</option>
+            </select>
           </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="rg-escopo" id="rg-escopo-especifico" value="especifico" onchange="alternarEscopoRegra()">
-            <label class="form-check-label" for="rg-escopo-especifico">Um post específico</label>
-          </div>
+          <div id="mf-gatilho-extra"></div>
+          <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="mf-umavez" onchange="ed.umaVezPorPessoa=this.checked"><label class="form-check-label" for="mf-umavez" style="font-size:13px">Disparar só 1 vez por pessoa</label></div>
+          <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="mf-ativo" onchange="ed.ativo=this.checked"><label class="form-check-label" for="mf-ativo" style="font-size:13px">Automação ligada</label></div>
+          <div class="dica mt-3"><b>Variáveis:</b> escreva <code>{nome}</code> para o primeiro nome da pessoa ou <code>{usuario}</code> para o @ dela.</div>
         </div>
       </div>
-      <div class="col-12" id="bloco-post-especifico" style="display:none;">
-        <input type="hidden" id="rg-mediaId">
-        <input type="hidden" id="rg-thumbnail">
-        <input type="hidden" id="rg-legenda">
-        <div id="post-selecionado-preview" style="display:none;background:rgba(124,58,237,.08);border:1px solid var(--cor-borda);border-radius:10px;padding:10px;margin-bottom:10px;display:flex;gap:10px;align-items:center;">
-          <img id="post-selecionado-img" style="width:50px;height:50px;object-fit:cover;border-radius:6px;">
-          <div style="font-size:12px;color:var(--cor-texto-suave);flex:1" id="post-selecionado-legenda"></div>
-        </div>
-        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="buscarPostsRecentes()"><i class="bi bi-search"></i> Buscar posts recentes</button>
-        <div id="posts-loading" style="display:none;margin-top:10px;"><span class="spinner-sm"></span> Buscando posts...</div>
-        <div id="posts-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px;max-height:260px;overflow-y:auto;"></div>
-      </div>
-      <div class="col-12">
-        <label class="form-label">Mensagem da DM privada *</label>
-        <textarea class="form-control" id="rg-dmMessage" rows="3" placeholder="Ex: Oi! Que alegria seu interesse 💛 Aqui está o link: https://..."></textarea>
-      </div>
-      <div class="col-12">
-        <label class="form-label">Resposta pública no comentário (opcional)</label>
-        <input class="form-control" id="rg-publicReply" placeholder="Ex: Te mandei no Direct! 💌">
-      </div>
-      <div class="col-12">
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="rg-ativo" checked>
-          <label class="form-check-label" for="rg-ativo">Regra ativa</label>
+      <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-2"><h6 style="margin:0;color:var(--cor-titulo)"><i class="bi bi-chat-dots me-1"></i>O que acontece no Direct</h6></div>
+        <div id="mf-avisos"></div>
+        <div id="mf-passos"></div>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn btn-outline-secondary btn-sm" onclick="addPasso('mensagem')"><i class="bi bi-chat-left-text"></i> Mensagem</button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="addPasso('pergunta')"><i class="bi bi-question-circle"></i> Pergunta (e-mail, telefone...)</button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="addPasso('verificar_seguidor')"><i class="bi bi-person-check"></i> Verificar se segue</button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="addPasso('aguardar')"><i class="bi bi-hourglass-split"></i> Aguardar</button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="addPasso('tag')"><i class="bi bi-tag"></i> Etiqueta</button>
         </div>
       </div>
     </div>
   </div>
-  <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" onclick="salvarRegra()">Salvar</button></div>
+  <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" onclick="salvarFluxo()"><i class="bi bi-check-lg"></i> Salvar automação</button></div>
 </div></div></div>
 
 <div id="toast-msg" class="toast-msg"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCgnmQMG8CV6xxr5fYjRF5nFYxABL28tjY",
-  authDomain: "eldn-gestao.firebaseapp.com",
-  projectId: "eldn-gestao",
-};
-firebase.initializeApp(firebaseConfig);
+// ============================================================
+// CONFIGURAÇÃO
+// ============================================================
+firebase.initializeApp({ apiKey: "AIzaSyCgnmQMG8CV6xxr5fYjRF5nFYxABL28tjY", authDomain: "eldn-gestao.firebaseapp.com", projectId: "eldn-gestao" });
 const auth = firebase.auth();
 const db = firebase.firestore();
+const PROXY_URL = 'https://app.eldndigital.com/instagram-webhook/proxy.php';
 
-const IG_PROXY_URL = 'https://app.eldndigital.com/instagram-webhook/proxy.php';
+const PERFIS = [
+  { u: 'elnsantana', cor: '#A78BFA' },
+  { u: 'meulugardecura', cor: '#F59E0B' },
+  { u: 'ellatemfe', cor: '#EC4899' },
+];
+const FORMATOS = ['Reels', 'Carrossel', 'Estático', 'Stories', 'Live', 'TikTok', 'Shorts'];
+const ICONE_FORMATO = { Reels: 'bi-camera-reels', Carrossel: 'bi-images', 'Estático': 'bi-image', Stories: 'bi-phone', Live: 'bi-broadcast', TikTok: 'bi-tiktok', Shorts: 'bi-youtube' };
+const OBJETIVOS = ['Vender', 'Ganhar seguidores', 'Conectar', 'Ensinar', 'Trend', 'Humor'];
+const STATUS_CAL = ['Ideia', 'Roteiro', 'Gravado', 'Editado', 'Agendado', 'Postado'];
+const COR_STATUS_CAL = { Ideia: '#9D8EC4', Roteiro: '#60A5FA', Gravado: '#F59E0B', Editado: '#EC4899', Agendado: '#A78BFA', Postado: '#10B981' };
+const STATUS_IDEIA = ['Nova', 'Aprovada', 'Agendada', 'Usada', 'Descartada'];
+const PLATAFORMAS = ['Instagram', 'TikTok', 'YouTube', 'Pinterest', 'Facebook', 'Outro'];
+const STATUS_REF = ['Salva', 'Modelando', 'Replicada'];
+const EVENTOS = {
+  entrou: ['Entrou na automação', 'selo-roxo'], clique: ['Tocou num botão', 'selo-azul'], link: ['Abriu o link', 'selo-verde'],
+  lead: ['Virou lead', 'selo-verde'], resposta: ['Respondeu pergunta', 'selo-azul'], segue: ['Segue o perfil', 'selo-cinza'],
+  nao_segue: ['Ainda não segue', 'selo-amarelo'], repetido: ['Já tinha recebido', 'selo-cinza'], erro: ['Erro ao enviar', 'selo-vermelho'],
+};
 
-let dados = { instagram_automacao: [] };
+let dados = { calendario: [], ideias: [], inspiracoes: [], perfisInsp: [], fluxos: [] };
+let contasIG = [];
+let cache = { metricasDia: null, posts: null, perfisIg: null, logs: null, contatos: null };
 let unsubscribers = [];
-let postsEncontrados = [];
+let paginaAtual = 'dashboard';
+let charts = {};
 
 // ============================================================
-// LOGIN
+// UTILIDADES
+// ============================================================
+const $ = id => document.getElementById(id);
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function fmtNum(n) { return n == null || isNaN(n) ? '—' : Number(n).toLocaleString('pt-BR'); }
+function pct(n) { return n == null || !isFinite(n) ? '—' : n.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%'; }
+function ymd(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+function hojeStr() { return ymd(new Date()); }
+function addDias(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+function parseYmd(s) { const [a, m, d] = s.split('-').map(Number); return new Date(a, m - 1, d); }
+function fmtData(s) { if (!s) return '—'; if (/^\d{4}-\d{2}-\d{2}$/.test(s)) { const [a, m, d] = s.split('-'); return `${d}/${m}/${a}`; } const d = new Date(s); return isNaN(d) ? s : d.toLocaleDateString('pt-BR'); }
+function fmtDataHora(s) { if (!s) return '—'; const d = new Date(s); return isNaN(d) ? s : d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }); }
+function dataLocalDeIso(s) { const d = new Date(s); return isNaN(d) ? '' : ymd(d); }
+function agoraIso() { return new Date().toISOString(); }
+function uid() { return Math.random().toString(36).slice(2, 8); }
+function perfilCor(u) { return (PERFIS.find(p => p.u === u) || {}).cor || '#7C3AED'; }
+function perfilTag(u) { return u ? `<span style="font-size:12px;white-space:nowrap"><span class="perfil-dot" style="background:${perfilCor(u)}"></span>@${esc(u)}</span>` : '<span class="form-text">—</span>'; }
+function opts(lista, sel, vazio) { return (vazio !== undefined ? `<option value="">${esc(vazio)}</option>` : '') + lista.map(v => { const [val, txt] = Array.isArray(v) ? v : [v, v]; return `<option value="${esc(val)}" ${String(val) === String(sel ?? '') ? 'selected' : ''}>${esc(txt)}</option>`; }).join(''); }
+function listaTags(s) { return String(s || '').split(',').map(t => t.trim()).filter(Boolean); }
+function modal(id) { return bootstrap.Modal.getOrCreateInstance($(id)); }
+function contaPorUsername(u) { return contasIG.find(c => c.username === u); }
+function contaPorId(id) { return contasIG.find(c => c.igId === id); }
+function usernameDoIg(id) { return (contaPorId(id) || {}).username || ''; }
+
+let toastTimer;
+function toast(msg, tipo) {
+  const t = $('toast-msg');
+  const icone = tipo === 'erro' ? 'bi-x-circle-fill' : 'bi-check-circle-fill';
+  const cor = tipo === 'erro' ? 'var(--cor-vermelho)' : 'var(--cor-verde)';
+  t.innerHTML = `<i class="bi ${icone}" style="color:${cor};font-size:18px;"></i> <span>${msg}</span>`;
+  t.style.display = 'flex';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.style.display = 'none', 5000);
+}
+
+async function copiar(texto) {
+  try { await navigator.clipboard.writeText(texto); }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = texto; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+  toast('Copiado! Cole aqui no Claude.');
+}
+
+async function api(acao, extra = {}) {
+  const idToken = await auth.currentUser.getIdToken();
+  const resp = await fetch(PROXY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ acao, idToken, ...extra }) });
+  let data;
+  try { data = await resp.json(); } catch (e) { throw new Error('O servidor não respondeu direito. Tente de novo.'); }
+  if (!data.ok) throw new Error(data.erro || 'Falha na comunicação com o Instagram');
+  return data;
+}
+
+// ============================================================
+// LOGIN, TEMA, MENU
 // ============================================================
 function fazLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const senha = document.getElementById('login-senha').value;
-  const btn = document.getElementById('btn-login');
-  const err = document.getElementById('login-erro');
-  err.style.display = 'none';
-  btn.disabled = true;
-  btn.textContent = 'Entrando...';
-  auth.signInWithEmailAndPassword(email, senha).catch(() => {
+  const btn = $('btn-login'), err = $('login-erro');
+  err.style.display = 'none'; btn.disabled = true; btn.textContent = 'Entrando...';
+  auth.signInWithEmailAndPassword($('login-email').value.trim(), $('login-senha').value).catch(() => {
     err.textContent = 'E-mail ou senha incorretos. Verifique e tente novamente.';
-    err.style.display = 'block';
-    btn.disabled = false;
-    btn.textContent = 'Entrar';
+    err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Entrar';
   });
 }
-
 function fazLogout() {
   if (!confirm('Deseja sair do sistema?')) return;
-  unsubscribers.forEach(u => u());
-  unsubscribers = [];
+  unsubscribers.forEach(u => u()); unsubscribers = [];
   auth.signOut();
 }
+function alternarTema() {
+  document.body.classList.toggle('modo-claro');
+  try { localStorage.setItem('ms-tema', document.body.classList.contains('modo-claro') ? 'claro' : 'escuro'); } catch (e) {}
+  if (paginaAtual === 'dashboard') renderDashboard();
+  if (paginaAtual === 'metricas') renderMetricas();
+}
+try { if (localStorage.getItem('ms-tema') === 'claro') document.body.classList.add('modo-claro'); } catch (e) {}
+function abrirMenu() { document.body.classList.add('menu-aberto'); }
+function fecharMenu() { document.body.classList.remove('menu-aberto'); }
 
-auth.onAuthStateChanged(user => {
-  if (user) {
-    document.getElementById('tela-login').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    document.getElementById('usuario-nome').textContent = user.email;
-    setupListeners();
-    carregarLog();
-  } else {
-    document.getElementById('app').style.display = 'none';
-    document.getElementById('tela-login').style.display = 'flex';
-  }
+auth.onAuthStateChanged(async user => {
+  if (!user) { $('app').style.display = 'none'; $('tela-login').style.display = 'flex'; return; }
+  $('tela-login').style.display = 'none';
+  $('app').style.display = 'block';
+  $('usuario-nome').textContent = user.email;
+  preencherFiltros();
+  setupListeners();
+  let inicial = 'dashboard';
+  try { inicial = localStorage.getItem('ms-pagina') || 'dashboard'; } catch (e) {}
+  if (!$('page-' + inicial)) inicial = 'dashboard';
+  setDashPeriodo('mes', true);
+  showPage(inicial);
+  carregarContas();
 });
 
 function setupListeners() {
-  unsubscribers.push(db.collection('instagram_automacao').onSnapshot(snap => {
-    dados.instagram_automacao = snap.docs.map(d => ({ ...d.data(), _docId: d.id }));
-    renderRegras();
-  }));
+  const ouvir = (col, chave, ordenar) => unsubscribers.push(db.collection(col).onSnapshot(snap => {
+    dados[chave] = snap.docs.map(d => ({ ...d.data(), _id: d.id }));
+    if (ordenar) dados[chave].sort(ordenar);
+    renderPaginaAtual();
+  }, e => console.error(col, e)));
+  const recentes = (a, b) => String(b.criadoEm || '').localeCompare(String(a.criadoEm || ''));
+  ouvir('midias_calendario', 'calendario');
+  ouvir('midias_ideias', 'ideias', recentes);
+  ouvir('midias_inspiracoes', 'inspiracoes', recentes);
+  ouvir('midias_perfis_inspiracao', 'perfisInsp', (a, b) => String(a.username).localeCompare(String(b.username)));
+  ouvir('midias_fluxos', 'fluxos', (a, b) => String(a.nome).localeCompare(String(b.nome)));
 }
 
-function showPage(id) { /* só existe uma página por enquanto */ }
-
-// ============================================================
-// TOAST
-// ============================================================
-let toastTimer;
-function mostrarToast(msg, tipo) {
-  const t = document.getElementById('toast-msg');
-  const icone = tipo === 'erro' ? 'bi-x-circle-fill' : 'bi-check-circle-fill';
-  const cor = tipo === 'erro' ? 'var(--cor-vermelho)' : 'var(--cor-verde)';
-  t.innerHTML = `<i class="bi ${icone}" style="color:${cor};font-size:18px;"></i> ${msg}`;
-  t.style.display = 'flex';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.style.display = 'none', 4000);
-}
-
-// ============================================================
-// REGRAS
-// ============================================================
-function renderRegras() {
-  const lista = dados.instagram_automacao;
-  const tbody = document.querySelector('#tabela-regras tbody');
-  if (!lista.length) {
-    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="bi bi-chat-left-quote"></i>Nenhuma regra cadastrada ainda</div></td></tr>';
-    return;
+async function carregarContas() {
+  try {
+    const r = await api('contas');
+    contasIG = r.contas;
+  } catch (e) {
+    contasIG = [];
+    console.warn('contas', e);
   }
-  tbody.innerHTML = lista.map((r, i) => {
-    const aplicaA = r.escopo === 'especifico'
-      ? `<div style="display:flex;align-items:center;gap:6px;">${r.thumbnail ? `<img src="${escHtml(r.thumbnail)}" style="width:28px;height:28px;object-fit:cover;border-radius:4px;">` : ''}<span style="font-size:12px;">${escHtml((r.legenda || 'Post específico').slice(0, 30))}</span></div>`
-      : '<span style="color:var(--cor-texto-suave);font-size:12px;">Qualquer post</span>';
-    const dmPreview = escHtml((r.dmMessage || '').slice(0, 60)) + ((r.dmMessage || '').length > 60 ? '...' : '');
-    return `<tr>
-      <td><strong>${escHtml((r.keywords || []).join(', '))}</strong></td>
-      <td>${aplicaA}</td>
-      <td style="font-size:12px;color:var(--cor-texto-suave);">${dmPreview}</td>
-      <td style="font-size:12px;color:var(--cor-texto-suave);">${escHtml(r.publicReply || '—')}</td>
-      <td>${r.ativo ? '<span class="badge-ativo">Ativa</span>' : '<span class="badge-inativo">Inativa</span>'}</td>
-      <td style="white-space:nowrap;">
-        <button class="btn-sm-action btn-edit" onclick="editarRegra(${i})"><i class="bi bi-pencil-fill"></i></button>
-        <button class="btn-sm-action btn-delete" onclick="excluirRegra(${i})"><i class="bi bi-trash-fill"></i></button>
-      </td>
-    </tr>`;
-  }).join('');
+  preencherFiltrosContas();
+  renderPaginaAtual();
+  if (paginaAtual === 'dashboard' || paginaAtual === 'metricas') syncAutomaticoSeAntigo();
 }
 
-function escHtml(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// ============================================================
+// NAVEGAÇÃO
+// ============================================================
+const PAGINAS = {
+  dashboard: ['Dashboard', 'Crescimento, alcance e resultados das automações', () => `<button class="btn btn-outline-secondary btn-sm" id="btn-sync" onclick="sincronizarMetricas()"><i class="bi bi-arrow-repeat"></i> Atualizar métricas</button>`],
+  calendario: ['Calendário de Conteúdo', 'Planeje e acompanhe cada post dos 3 perfis', () => `<button class="btn btn-primary btn-sm" onclick="novoConteudo()"><i class="bi bi-plus-lg"></i> Novo conteúdo</button>`],
+  ideias: ['Ideias e Roteiros', 'Seu banco de ideias, ganchos e roteiros prontos para gravar', () => `<button class="btn btn-primary btn-sm" onclick="novaIdeia()"><i class="bi bi-plus-lg"></i> Nova ideia</button>`],
+  inspiracoes: ['Inspirações', 'Referências para replicar e perfis que te inspiram', () => abaInspAtual === 'ref'
+    ? `<button class="btn btn-primary btn-sm" onclick="novaRef()"><i class="bi bi-plus-lg"></i> Nova referência</button>`
+    : `<button class="btn btn-primary btn-sm" onclick="novoPerfilInsp()"><i class="bi bi-plus-lg"></i> Novo perfil</button>`],
+  metricas: ['Métricas dos Posts', 'Desempenho de cada publicação, puxado do Instagram', () => `<button class="btn btn-outline-secondary btn-sm" id="btn-sync" onclick="sincronizarMetricas()"><i class="bi bi-arrow-repeat"></i> Atualizar métricas</button>`],
+  automacoes: ['Automações', 'Seu Manychat próprio: comentário, Direct e Stories', () => `<div class="dropdown"><button class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-plus-lg"></i> Nova automação</button><ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="#" onclick="novoFluxo('link');return false"><b>Comentou, recebe o link</b><br><small class="text-muted">Palavra no comentário → botão → link</small></a></li>
+      <li><a class="dropdown-item" href="#" onclick="novoFluxo('seguidor');return false"><b>Só para quem me segue</b><br><small class="text-muted">Pede para seguir antes de liberar o link</small></a></li>
+      <li><a class="dropdown-item" href="#" onclick="novoFluxo('email');return false"><b>Captura de e-mail</b><br><small class="text-muted">Pede o e-mail no Direct e entrega o material</small></a></li>
+      <li><a class="dropdown-item" href="#" onclick="novoFluxo('story');return false"><b>Agradecer menção no Story</b><br><small class="text-muted">Quem te marca recebe uma mensagem</small></a></li>
+      <li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="#" onclick="novoFluxo('vazio');return false">Começar do zero</a></li></ul></div>`],
+  contatos: ['Contatos e Leads', 'Quem conversou com as automações', () => `<button class="btn btn-outline-secondary btn-sm" onclick="exportarContatosExcel()"><i class="bi bi-file-earmark-excel"></i> Excel</button><button class="btn btn-outline-secondary btn-sm" onclick="exportarContatosMeta()"><i class="bi bi-meta"></i> Meta Ads</button>`],
+  configuracoes: ['Perfis Conectados', 'Ligação dos seus Instagrams com o sistema', () => ''],
+};
+
+function showPage(id) {
+  paginaAtual = id;
+  try { localStorage.setItem('ms-pagina', id); } catch (e) {}
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + id));
+  document.querySelectorAll('.nav-link').forEach(n => n.classList.toggle('active', n.dataset.page === id));
+  const [t, s] = PAGINAS[id];
+  $('topbar-titulo').textContent = t;
+  $('topbar-sub').textContent = s;
+  atualizarAcoesTopo();
+  fecharMenu();
+  renderPaginaAtual(true);
+}
+function atualizarAcoesTopo() { $('topbar-acoes').innerHTML = PAGINAS[paginaAtual][2](); }
+
+function renderPaginaAtual(abrindo) {
+  const p = paginaAtual;
+  if (p === 'dashboard') { Promise.all([carregarDadosMetricas(), cache.logs ? null : carregarLogs()]).then(renderDashboard); if (abrindo) syncAutomaticoSeAntigo(); }
+  else if (p === 'calendario') renderCalendario();
+  else if (p === 'ideias') renderIdeias();
+  else if (p === 'inspiracoes') { renderReferencias(); renderPerfisInsp(); }
+  else if (p === 'metricas') carregarDadosMetricas().then(renderMetricas);
+  else if (p === 'automacoes') { renderFluxos(); carregarLogs(abrindo); }
+  else if (p === 'contatos') carregarContatos(abrindo);
+  else if (p === 'configuracoes') renderContas();
 }
 
-function limparModalRegra() {
-  document.getElementById('rg-idx').value = '';
-  document.getElementById('rg-keywords').value = '';
-  document.getElementById('rg-dmMessage').value = '';
-  document.getElementById('rg-publicReply').value = '';
-  document.getElementById('rg-ativo').checked = true;
-  document.getElementById('rg-escopo-qualquer').checked = true;
-  document.getElementById('rg-mediaId').value = '';
-  document.getElementById('rg-thumbnail').value = '';
-  document.getElementById('rg-legenda').value = '';
-  document.getElementById('post-selecionado-preview').style.display = 'none';
-  document.getElementById('posts-grid').innerHTML = '';
-  alternarEscopoRegra();
+function preencherFiltros() {
+  const perfisOpts = PERFIS.map(p => [p.u, '@' + p.u]);
+  $('cal-perfil').innerHTML = opts(perfisOpts, '', 'Todos os perfis');
+  $('cal-status').innerHTML = opts(STATUS_CAL, '', 'Todos os status');
+  $('id-perfil').innerHTML = opts(perfisOpts, '', 'Todos os perfis');
+  $('id-formato').innerHTML = opts(FORMATOS, '', 'Todos os formatos');
+  $('id-objetivo').innerHTML = opts(OBJETIVOS, '', 'Todos os objetivos');
+  $('id-status').innerHTML = opts([['ativas', 'Ativas (sem usadas/descartadas)'], ...STATUS_IDEIA], 'ativas', 'Todos os status');
+  $('rf-plataforma').innerHTML = opts(PLATAFORMAS, '', 'Todas as plataformas');
+  $('rf-destino').innerHTML = opts(perfisOpts, '', 'Para qualquer perfil');
+  $('rf-status').innerHTML = opts(STATUS_REF, '', 'Todos os status');
+  $('mt-tipo').innerHTML = opts([['REELS', 'Reels'], ['CAROUSEL_ALBUM', 'Carrossel'], ['IMAGE', 'Imagem'], ['VIDEO', 'Vídeo']], '', 'Todos os formatos');
+  $('ct-perfil').innerHTML = opts(perfisOpts, '', 'Todos os perfis');
+  preencherFiltrosContas();
+}
+function preencherFiltrosContas() {
+  const sel = $('dash-perfil').value;
+  $('dash-perfil').innerHTML = opts(contasIG.map(c => [c.igId, '@' + c.username]), sel, 'Todos os perfis');
+  const mt = $('mt-perfil').value;
+  $('mt-perfil').innerHTML = contasIG.length ? opts(contasIG.map(c => [c.igId, '@' + c.username]), mt || contasIG[0].igId) : '<option value="">Nenhum perfil conectado</option>';
 }
 
-function abrirModalRegra() {
-  limparModalRegra();
-  document.getElementById('modalRegraTitulo').textContent = 'Nova Regra';
-  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalRegra')).show();
+// ============================================================
+// MÉTRICAS: SINCRONIZAÇÃO COM O INSTAGRAM
+// ============================================================
+async function carregarDadosMetricas(forcar) {
+  if (cache.metricasDia && !forcar) return;
+  const [md, ps, pi] = await Promise.all([
+    db.collection('midias_metricas_dia').get(),
+    db.collection('midias_posts').get(),
+    db.collection('midias_perfis_ig').get(),
+  ]);
+  cache.metricasDia = md.docs.map(d => d.data());
+  cache.posts = ps.docs.map(d => d.data());
+  cache.perfisIg = pi.docs.map(d => d.data());
 }
 
-function editarRegra(i) {
-  const r = dados.instagram_automacao[i];
-  limparModalRegra();
-  document.getElementById('modalRegraTitulo').textContent = 'Editar Regra';
-  document.getElementById('rg-idx').value = i;
-  document.getElementById('rg-keywords').value = (r.keywords || []).join(', ');
-  document.getElementById('rg-dmMessage').value = r.dmMessage || '';
-  document.getElementById('rg-publicReply').value = r.publicReply || '';
-  document.getElementById('rg-ativo').checked = !!r.ativo;
-  if (r.escopo === 'especifico') {
-    document.getElementById('rg-escopo-especifico').checked = true;
-    document.getElementById('rg-mediaId').value = r.mediaId || '';
-    document.getElementById('rg-thumbnail').value = r.thumbnail || '';
-    document.getElementById('rg-legenda').value = r.legenda || '';
-    if (r.thumbnail) {
-      document.getElementById('post-selecionado-preview').style.display = 'flex';
-      document.getElementById('post-selecionado-img').src = r.thumbnail;
-      document.getElementById('post-selecionado-legenda').textContent = r.legenda || '';
+let sincronizando = false;
+async function sincronizarMetricas(silencioso) {
+  if (sincronizando) return;
+  if (!contasIG.length) { if (!silencioso) toast('Conecte seus perfis em "Perfis Conectados" primeiro.', 'erro'); return; }
+  sincronizando = true;
+  const btn = $('btn-sync');
+  if (btn) btn.innerHTML = '<span class="spinner-sm"></span> Atualizando...';
+  const erros = [];
+  for (const c of contasIG) {
+    try {
+      const snap = await db.collection('midias_metricas_dia').where('igId', '==', c.igId).get();
+      const existentes = new Set(snap.docs.map(d => d.data().data));
+      const dias = [];
+      for (let i = 29; i >= 0; i--) { const d = ymd(addDias(new Date(), -i)); if (!existentes.has(d) || i <= 2) dias.push(d); }
+      let perfil = null;
+      for (let i = 0; i < dias.length; i += 10) {
+        const r = await api('metricas_dias', { igId: c.igId, dias: dias.slice(i, i + 10) });
+        perfil = r.perfil || perfil;
+        const batch = db.batch();
+        Object.entries(r.dias).forEach(([dia, v]) => {
+          const doc = { igId: c.igId, username: c.username, data: dia, ...v };
+          if (v.novosSeguidores == null) delete doc.novosSeguidores;
+          batch.set(db.collection('midias_metricas_dia').doc(`${c.igId}_${dia}`), doc, { merge: true });
+        });
+        await batch.commit();
+      }
+      if (perfil && perfil.followers_count != null) {
+        await db.collection('midias_metricas_dia').doc(`${c.igId}_${hojeStr()}`).set({ igId: c.igId, username: c.username, data: hojeStr(), seguidoresTotal: perfil.followers_count }, { merge: true });
+        await db.collection('midias_perfis_ig').doc(c.igId).set({ igId: c.igId, username: c.username, foto: perfil.profile_picture_url || '', seguidores: perfil.followers_count, seguindo: perfil.follows_count || 0, posts: perfil.media_count || 0, atualizadoEm: agoraIso() }, { merge: true });
+      }
+      const rp = await api('metricas_posts', { igId: c.igId, limite: 50 });
+      const batch = db.batch();
+      rp.posts.forEach(p => batch.set(db.collection('midias_posts').doc(p.id), { ...p, igId: c.igId, username: c.username, atualizadoEm: agoraIso() }, { merge: true }));
+      await batch.commit();
+    } catch (e) { erros.push(`@${c.username}: ${e.message}`); }
+  }
+  sincronizando = false;
+  await carregarDadosMetricas(true);
+  if (btn) btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Atualizar métricas';
+  if (erros.length) toast('Algumas métricas falharam: ' + esc(erros.join(' | ')), 'erro');
+  else if (!silencioso) toast('Métricas atualizadas!');
+  renderPaginaAtual();
+}
+
+async function syncAutomaticoSeAntigo() {
+  await carregarDadosMetricas();
+  if (!contasIG.length) return;
+  const seisHoras = Date.now() - 6 * 3600 * 1000;
+  const antigo = contasIG.some(c => { const p = (cache.perfisIg || []).find(x => x.igId === c.igId); return !p || new Date(p.atualizadoEm).getTime() < seisHoras; });
+  if (antigo) sincronizarMetricas(true);
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+let dashPer = { tipo: 'mes', de: '', ate: '' };
+function setDashPeriodo(tipo, semRender) {
+  const h = new Date();
+  let de, ate = hojeStr();
+  if (tipo === 'mes') de = ymd(new Date(h.getFullYear(), h.getMonth(), 1));
+  else if (tipo === 'mesAnt') { de = ymd(new Date(h.getFullYear(), h.getMonth() - 1, 1)); ate = ymd(new Date(h.getFullYear(), h.getMonth(), 0)); }
+  else if (tipo === '30') de = ymd(addDias(h, -29));
+  else if (tipo === 'ano') de = `${h.getFullYear()}-01-01`;
+  else if (tipo === 'tudo') de = '2020-01-01';
+  else { de = $('dash-de').value || hojeStr(); ate = $('dash-ate').value || hojeStr(); }
+  dashPer = { tipo, de, ate };
+  $('dash-de').value = de === '2020-01-01' ? '' : de;
+  $('dash-ate').value = ate;
+  document.querySelectorAll('#page-dashboard .dp-btn').forEach(b => b.classList.toggle('ativo', b.dataset.per === tipo));
+  if (!semRender) renderDashboard();
+}
+
+function corTexto() { return getComputedStyle(document.body).getPropertyValue('--cor-texto-suave').trim(); }
+function corGrade() { return document.body.classList.contains('modo-claro') ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.06)'; }
+function desenharGrafico(id, config) {
+  if (charts[id]) charts[id].destroy();
+  const c = corTexto();
+  config.options = Object.assign({ responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: c, boxWidth: 12 } } },
+    scales: { x: { ticks: { color: c, maxRotation: 0, autoSkip: true }, grid: { color: corGrade() } }, y: { beginAtZero: true, ticks: { color: c }, grid: { color: corGrade() } } } }, config.options || {});
+  charts[id] = new Chart($(id), config);
+}
+
+function renderDashboard() {
+  if (!cache.metricasDia) return;
+  const { de, ate } = dashPer;
+  const igSel = $('dash-perfil').value;
+  const contas = igSel ? contasIG.filter(c => c.igId === igSel) : contasIG;
+  const ids = new Set(contas.map(c => c.igId));
+  const dentro = d => d >= de && d <= ate;
+
+  $('dash-aviso').innerHTML = !contasIG.length
+    ? `<div class="alerta mb-3"><i class="bi bi-exclamation-triangle"></i> Nenhum perfil conectado ainda. Vá em <a href="#" onclick="showPage('configuracoes');return false" style="color:var(--cor-secundaria)">Perfis Conectados</a> para começar a puxar as métricas.</div>` : '';
+
+  const dias = cache.metricasDia.filter(m => ids.has(m.igId) && dentro(m.data));
+  const soma = campo => dias.reduce((s, m) => s + (Number(m[campo]) || 0), 0);
+  const seguidores = contas.reduce((s, c) => s + (((cache.perfisIg || []).find(p => p.igId === c.igId) || {}).seguidores || 0), 0);
+  const posts = (cache.posts || []).filter(p => ids.has(p.igId) && dentro(dataLocalDeIso(p.data)));
+  const logs = (cache.logs || []).filter(l => (!igSel || l.perfil === igSel) && dentro(dataLocalDeIso(l.criadoEm)));
+  const conta = ev => logs.filter(l => l.evento === ev).length;
+  const plan = dados.calendario.filter(c => c.data && dentro(c.data) && (!igSel || c.perfil === usernameDoIg(igSel)));
+  const alcance = soma('alcance'), inter = soma('interacoes');
+
+  const kpis = [
+    ['Seguidores', fmtNum(seguidores), 'total atual', 'bi-people'],
+    ['Novos seguidores', fmtNum(soma('novosSeguidores')), 'no período', 'bi-person-plus'],
+    ['Alcance', fmtNum(alcance), 'soma diária do período', 'bi-broadcast'],
+    ['Interações', fmtNum(inter), alcance ? `${pct(inter / alcance * 100)} do alcance` : 'curtidas, comentários, salvos...', 'bi-heart'],
+    ['Visitas ao perfil', fmtNum(soma('visitasPerfil')), 'no período', 'bi-person-badge'],
+    ['Posts publicados', fmtNum(posts.length), `${plan.filter(c => c.status === 'Postado').length} de ${plan.length} planejados postados`, 'bi-grid-3x3'],
+    ['Entraram nas automações', fmtNum(conta('entrou')), `${conta('link')} abriram o link`, 'bi-robot'],
+    ['Leads capturados', fmtNum(conta('lead')), 'e-mails e telefones', 'bi-envelope-heart'],
+  ];
+  $('dash-kpis').innerHTML = kpis.map(([l, v, s, i]) => `<div class="kpi-card"><div class="kpi-label"><i class="bi ${i} me-1"></i>${l}</div><div class="kpi-value">${v}</div><div class="kpi-sub">${s}</div></div>`).join('');
+
+  // Gráficos por dia (um conjunto por perfil)
+  const listaDias = [];
+  const ini = de === '2020-01-01' ? (dias.map(d => d.data).sort()[0] || ate) : de;
+  for (let d = parseYmd(ini); ymd(d) <= ate && listaDias.length < 400; d = addDias(d, 1)) listaDias.push(ymd(d));
+  const serie = (campo) => contas.map(c => {
+    const mapa = {}; dias.filter(m => m.igId === c.igId).forEach(m => mapa[m.data] = m[campo]);
+    return { label: '@' + c.username, data: listaDias.map(d => mapa[d] ?? null), borderColor: perfilCor(c.username), backgroundColor: perfilCor(c.username) + '99', tension: .3, spanGaps: true, pointRadius: 0, borderWidth: 2 };
+  });
+  const rotulos = listaDias.map(d => fmtData(d).slice(0, 5));
+  desenharGrafico('ch-alcance', { type: 'line', data: { labels: rotulos, datasets: serie('alcance') } });
+  desenharGrafico('ch-seguidores', { type: 'bar', data: { labels: rotulos, datasets: serie('novosSeguidores').map(s => ({ ...s, borderWidth: 0, borderRadius: 4 })) }, options: { scales: { x: { stacked: true, ticks: { color: corTexto(), maxRotation: 0, autoSkip: true }, grid: { display: false } }, y: { stacked: true, beginAtZero: true, ticks: { color: corTexto() }, grid: { color: corGrade() } } } } });
+
+  // Top posts
+  const top = posts.slice().sort((a, b) => (b.interacoes ?? (b.curtidas + b.comentarios)) - (a.interacoes ?? (a.curtidas + a.comentarios))).slice(0, 6);
+  $('dash-top').querySelector('tbody').innerHTML = top.length ? top.map(p => `<tr>
+      <td style="width:54px"><a href="${esc(p.permalink)}" target="_blank"><img class="thumb-mini" src="${esc(p.thumbnail)}" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'"></a></td>
+      <td><div style="font-size:12px">${esc((p.legenda || '').slice(0, 70))}</div><div class="form-text">${perfilTag(p.username)} · ${fmtData(p.data)} · ${nomeTipo(p)}</div></td>
+      <td style="text-align:right;white-space:nowrap;font-size:12px"><b>${fmtNum(p.interacoes ?? p.curtidas + p.comentarios)}</b> interações<br><span class="form-text">${fmtNum(p.alcance)} alcance</span></td></tr>`).join('')
+    : '<tr><td><div class="empty-state"><i class="bi bi-trophy"></i>Nenhum post neste período</div></td></tr>';
+
+  // Próximos 7 dias do calendário
+  const fim = ymd(addDias(new Date(), 7));
+  const prox = dados.calendario.filter(c => c.data && c.data >= hojeStr() && c.data <= fim && c.status !== 'Postado').sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || '')));
+  $('dash-proximos').innerHTML = prox.length ? prox.map(c => `<div style="padding:8px 20px;border-bottom:1px solid var(--cor-borda);cursor:pointer" onclick="editarConteudo('${c._id}')">
+      <div style="font-size:13px"><span class="status-pip" style="background:${COR_STATUS_CAL[c.status] || '#999'}"></span>${esc(c.titulo)}</div>
+      <div class="form-text">${fmtData(c.data)}${c.hora ? ' ' + esc(c.hora) : ''} · ${perfilTag(c.perfil)} · ${esc(c.formato || '')} · ${esc(c.status || '')}</div></div>`).join('')
+    : '<div class="empty-state" style="padding:24px"><i class="bi bi-calendar-x"></i>Nada planejado para os próximos dias</div>';
+}
+
+function nomeTipo(p) {
+  if (p.produto === 'REELS' || p.tipo === 'REELS') return 'Reels';
+  if (p.produto === 'STORY') return 'Story';
+  return { CAROUSEL_ALBUM: 'Carrossel', IMAGE: 'Imagem', VIDEO: 'Vídeo' }[p.tipo] || p.tipo || '';
+}
+function tipoChave(p) { return (p.produto === 'REELS') ? 'REELS' : p.tipo; }
+
+// ============================================================
+// CALENDÁRIO
+// ============================================================
+let calMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+let calModoLista = window.innerWidth < 640;
+function mudarMes(n) { calMes = new Date(calMes.getFullYear(), calMes.getMonth() + n, 1); renderCalendario(); }
+function calHoje() { calMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1); renderCalendario(); }
+function alternarModoCal() { calModoLista = !calModoLista; renderCalendario(); }
+
+function conteudosFiltrados() {
+  const pf = $('cal-perfil').value, st = $('cal-status').value;
+  return dados.calendario.filter(c => (!pf || c.perfil === pf) && (!st || c.status === st));
+}
+function chipConteudo(c) {
+  return `<div class="cal-chip ${c.status === 'Postado' ? 'postado' : ''}" draggable="true" ondragstart="event.dataTransfer.setData('text/plain','${c._id}')" onclick="event.stopPropagation();editarConteudo('${c._id}')" style="border-left-color:${perfilCor(c.perfil)}" title="${esc(c.titulo)} · @${esc(c.perfil)} · ${esc(c.status)}"><span class="status-pip" style="background:${COR_STATUS_CAL[c.status] || '#999'}"></span><i class="bi ${ICONE_FORMATO[c.formato] || 'bi-dot'}"></i> ${c.hora ? esc(c.hora) + ' ' : ''}${esc(c.titulo)}</div>`;
+}
+
+function renderCalendario() {
+  const nomeMes = calMes.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  $('cal-titulo').textContent = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1);
+  $('cal-modo').innerHTML = calModoLista ? '<i class="bi bi-calendar3"></i> Mês' : '<i class="bi bi-list-ul"></i> Lista';
+  $('cal-mes').style.display = calModoLista ? 'none' : 'block';
+  $('cal-lista').style.display = calModoLista ? 'block' : 'none';
+  const lista = conteudosFiltrados();
+  const porDia = {};
+  lista.filter(c => c.data).forEach(c => (porDia[c.data] = porDia[c.data] || []).push(c));
+  Object.values(porDia).forEach(l => l.sort((a, b) => (a.hora || '99').localeCompare(b.hora || '99')));
+
+  if (!calModoLista) {
+    const inicio = addDias(calMes, -calMes.getDay());
+    let html = '';
+    for (let i = 0; i < 42; i++) {
+      const d = addDias(inicio, i), ds = ymd(d);
+      if (i >= 35 && d.getMonth() !== calMes.getMonth()) break;
+      const itens = porDia[ds] || [];
+      html += `<div class="cal-dia ${d.getMonth() !== calMes.getMonth() ? 'fora' : ''} ${ds === hojeStr() ? 'hoje' : ''}" onclick="novoConteudo('${ds}')"
+        ondragover="event.preventDefault();this.classList.add('drop')" ondragleave="this.classList.remove('drop')" ondrop="soltarNoDia(event,'${ds}')">
+        <div class="cal-num">${d.getDate()}</div>${itens.map(chipConteudo).join('')}</div>`;
     }
-  }
-  alternarEscopoRegra();
-  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalRegra')).show();
-}
-
-async function salvarRegra() {
-  const keywordsRaw = document.getElementById('rg-keywords').value.trim();
-  const dmMessage = document.getElementById('rg-dmMessage').value.trim();
-  if (!keywordsRaw || !dmMessage) return alert('Preencha ao menos a palavra-chave e a mensagem da DM.');
-
-  const escopo = document.querySelector('input[name="rg-escopo"]:checked').value;
-  if (escopo === 'especifico' && !document.getElementById('rg-mediaId').value) {
-    return alert('Escolha um post específico (use "Buscar posts recentes") ou selecione "Qualquer post".');
-  }
-
-  const obj = {
-    keywords: keywordsRaw.split(',').map(k => k.trim().toLowerCase()).filter(Boolean),
-    escopo,
-    mediaId: escopo === 'especifico' ? document.getElementById('rg-mediaId').value : null,
-    thumbnail: escopo === 'especifico' ? document.getElementById('rg-thumbnail').value : null,
-    legenda: escopo === 'especifico' ? document.getElementById('rg-legenda').value : null,
-    dmMessage,
-    publicReply: document.getElementById('rg-publicReply').value.trim(),
-    ativo: document.getElementById('rg-ativo').checked,
-  };
-
-  const idx = document.getElementById('rg-idx').value;
-  if (idx === '') {
-    obj.criadoEm = firebase.firestore.FieldValue.serverTimestamp();
-    await db.collection('instagram_automacao').add(obj);
+    $('cal-grid').innerHTML = html;
   } else {
-    await db.collection('instagram_automacao').doc(dados.instagram_automacao[parseInt(idx)]._docId).set(obj, { merge: true });
+    const ini = ymd(calMes), fim = ymd(new Date(calMes.getFullYear(), calMes.getMonth() + 1, 0));
+    const doMes = lista.filter(c => c.data && c.data >= ini && c.data <= fim).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || '')));
+    $('cal-lista').innerHTML = `<div class="table-card"><div style="padding:6px 0">${doMes.length ? doMes.map(linhaConteudo).join('') : '<div class="empty-state"><i class="bi bi-calendar"></i>Nada planejado neste mês</div>'}</div></div>`;
   }
-  bootstrap.Modal.getInstance(document.getElementById('modalRegra')).hide();
-  mostrarToast('Regra salva com sucesso!');
+  const semData = lista.filter(c => !c.data);
+  $('cal-semdata').innerHTML = semData.length ? semData.map(linhaConteudo).join('') : '<div class="empty-state" style="padding:20px">Tudo com data marcada 💜</div>';
+}
+function linhaConteudo(c) {
+  return `<div style="padding:10px 20px;border-bottom:1px solid var(--cor-borda);cursor:pointer;display:flex;gap:12px;align-items:center" onclick="editarConteudo('${c._id}')">
+    <div style="min-width:74px;font-size:12px;color:var(--cor-texto-suave)">${c.data ? fmtData(c.data).slice(0, 5) : 'sem data'}${c.hora ? '<br>' + esc(c.hora) : ''}</div>
+    <div style="flex:1;min-width:0"><div style="font-size:13px;color:var(--cor-titulo)">${esc(c.titulo)}</div><div class="form-text">${perfilTag(c.perfil)} · <i class="bi ${ICONE_FORMATO[c.formato] || ''}"></i> ${esc(c.formato || '')} · ${esc(c.objetivo || '')}</div></div>
+    <span class="selo" style="background:${COR_STATUS_CAL[c.status] || '#999'}22;color:${COR_STATUS_CAL[c.status] || '#999'}">${esc(c.status || '')}</span></div>`;
 }
 
-async function excluirRegra(i) {
-  if (!confirm('Excluir esta regra? Essa ação não pode ser desfeita.')) return;
-  await db.collection('instagram_automacao').doc(dados.instagram_automacao[i]._docId).delete();
-  mostrarToast('Regra excluída.');
+async function soltarNoDia(ev, dia) {
+  ev.preventDefault(); ev.currentTarget.classList.remove('drop');
+  const id = ev.dataTransfer.getData('text/plain');
+  if (!id) return;
+  await db.collection('midias_calendario').doc(id).update({ data: dia });
+  toast('Conteúdo remarcado para ' + fmtData(dia));
 }
 
-function alternarEscopoRegra() {
-  const especifico = document.getElementById('rg-escopo-especifico').checked;
-  document.getElementById('bloco-post-especifico').style.display = especifico ? 'block' : 'none';
+function preencherModalConteudo(c) {
+  $('mc-id').value = c._id || '';
+  $('mc-ideiaId').value = c.ideiaId || '';
+  $('mc-titulo').value = c.titulo || '';
+  $('mc-data').value = c.data || '';
+  $('mc-hora').value = c.hora || '';
+  $('mc-perfil').innerHTML = opts(PERFIS.map(p => [p.u, '@' + p.u]), c.perfil || PERFIS[0].u);
+  $('mc-formato').innerHTML = opts(FORMATOS, c.formato || 'Reels');
+  $('mc-objetivo').innerHTML = opts(OBJETIVOS, c.objetivo || 'Conectar');
+  $('mc-status').innerHTML = opts(STATUS_CAL, c.status || 'Ideia');
+  $('mc-fluxo').innerHTML = opts(dados.fluxos.map(f => [f._id, f.nome]), c.fluxoId || '', 'Nenhuma');
+  $('mc-gancho').value = c.gancho || '';
+  $('mc-roteiro').value = c.roteiro || '';
+  $('mc-legenda').value = c.legenda || '';
+  $('mc-ref').value = c.linkReferencia || '';
+  $('mc-linkpost').value = c.linkPost || '';
+  $('mc-obs').value = c.observacoes || '';
+  $('mc-titulo-modal').textContent = c._id ? 'Editar conteúdo' : 'Novo conteúdo';
+  $('mc-btn-excluir').style.display = c._id ? '' : 'none';
+  $('mc-btn-duplicar').style.display = c._id ? '' : 'none';
+  modal('modalConteudo').show();
+}
+function novoConteudo(data) { preencherModalConteudo({ data: data || '', perfil: $('cal-perfil').value || PERFIS[0].u }); }
+function editarConteudo(id) { const c = dados.calendario.find(x => x._id === id); if (c) preencherModalConteudo(c); }
+
+async function salvarConteudo() {
+  const obj = {
+    titulo: $('mc-titulo').value.trim(), data: $('mc-data').value, hora: $('mc-hora').value,
+    perfil: $('mc-perfil').value, formato: $('mc-formato').value, objetivo: $('mc-objetivo').value, status: $('mc-status').value,
+    fluxoId: $('mc-fluxo').value, gancho: $('mc-gancho').value.trim(), roteiro: $('mc-roteiro').value, legenda: $('mc-legenda').value,
+    linkReferencia: $('mc-ref').value.trim(), linkPost: $('mc-linkpost').value.trim(), observacoes: $('mc-obs').value, ideiaId: $('mc-ideiaId').value,
+    atualizadoEm: agoraIso(),
+  };
+  if (!obj.titulo) return alert('Dê um título ao conteúdo.');
+  const id = $('mc-id').value;
+  if (id) await db.collection('midias_calendario').doc(id).set(obj, { merge: true });
+  else { obj.criadoEm = agoraIso(); await db.collection('midias_calendario').add(obj); }
+  if (obj.ideiaId) {
+    const novoStatus = obj.status === 'Postado' ? 'Usada' : 'Agendada';
+    await db.collection('midias_ideias').doc(obj.ideiaId).set({ status: novoStatus }, { merge: true }).catch(() => {});
+  }
+  modal('modalConteudo').hide();
+  toast('Conteúdo salvo!');
+}
+async function excluirConteudo() {
+  if (!confirm('Excluir este conteúdo do calendário?')) return;
+  await db.collection('midias_calendario').doc($('mc-id').value).delete();
+  modal('modalConteudo').hide();
+  toast('Conteúdo excluído.');
+}
+function duplicarConteudo() {
+  const c = dados.calendario.find(x => x._id === $('mc-id').value);
+  if (!c) return;
+  const copia = { ...c }; delete copia._id; copia.status = 'Ideia'; copia.linkPost = ''; copia.titulo = c.titulo + ' (cópia)';
+  modal('modalConteudo').hide();
+  setTimeout(() => preencherModalConteudo(copia), 300);
 }
 
 // ============================================================
-// BUSCAR POSTS RECENTES (via proxy PHP — usa o token do Meta que fica só no servidor)
+// IDEIAS E ROTEIROS
 // ============================================================
-async function buscarPostsRecentes() {
-  const loading = document.getElementById('posts-loading');
-  const grid = document.getElementById('posts-grid');
-  loading.style.display = 'block';
-  grid.innerHTML = '';
-  try {
-    const resp = await fetch(IG_PROXY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ acao: 'list_posts' }) });
-    const data = await resp.json();
-    if (!data.ok) throw new Error('Falha ao buscar posts');
-    postsEncontrados = data.posts;
-    grid.innerHTML = postsEncontrados.map((p, i) => `
-      <div class="post-card" id="post-card-${i}" onclick="selecionarPost(${i})">
-        <img src="${escHtml(p.thumbnail)}" loading="lazy">
-        <div class="legenda">${escHtml(p.legenda)}</div>
+function renderIdeias() {
+  const busca = $('id-busca').value.toLowerCase(), pf = $('id-perfil').value, fm = $('id-formato').value, ob = $('id-objetivo').value, st = $('id-status').value;
+  const lista = dados.ideias.filter(i =>
+    (!pf || i.perfil === pf) && (!fm || i.formato === fm) && (!ob || i.objetivo === ob) &&
+    (!st || (st === 'ativas' ? !['Usada', 'Descartada'].includes(i.status) : i.status === st)) &&
+    (!busca || [i.titulo, i.gancho, i.roteiro, (i.tags || []).join(' ')].join(' ').toLowerCase().includes(busca)));
+  const corSt = { Nova: 'selo-roxo', Aprovada: 'selo-azul', Agendada: 'selo-amarelo', Usada: 'selo-verde', Descartada: 'selo-cinza' };
+  $('ideias-grid').innerHTML = lista.length ? lista.map(i => `<div class="card-item">
+      <div class="d-flex justify-content-between gap-2"><h6>${esc(i.titulo)}</h6><span class="selo ${corSt[i.status] || 'selo-cinza'}">${esc(i.status || 'Nova')}</span></div>
+      ${i.gancho ? `<div class="card-gancho">"${esc(i.gancho)}"</div>` : ''}
+      ${i.roteiro ? `<div class="card-texto">${esc(i.roteiro)}</div>` : ''}
+      <div class="d-flex gap-1 flex-wrap">${perfilTag(i.perfil)} <span class="selo selo-cinza"><i class="bi ${ICONE_FORMATO[i.formato] || ''}"></i> ${esc(i.formato || '')}</span> <span class="selo selo-cinza">${esc(i.objetivo || '')}</span>${(i.tags || []).map(t => `<span class="selo selo-cinza">#${esc(t)}</span>`).join('')}</div>
+      <div class="card-acoes">
+        <button class="btn btn-primary" onclick="agendarIdeia('${i._id}')"><i class="bi bi-calendar-plus"></i> Agendar</button>
+        <button class="btn btn-outline-secondary" onclick="editarIdeia('${i._id}')"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-outline-secondary" onclick="copiar(pedidoRoteiro('${i._id}'))" title="Copiar pedido de roteiro para o Claude"><i class="bi bi-magic"></i> Pedir roteiro</button>
+        <button class="btn btn-outline-secondary ms-auto" onclick="excluirIdeia('${i._id}')"><i class="bi bi-trash"></i></button>
+      </div></div>`).join('')
+    : `<div class="empty-state" style="grid-column:1/-1"><i class="bi bi-lightbulb"></i>Nenhuma ideia por aqui ainda.<br><button class="btn btn-primary btn-sm mt-3" onclick="novaIdeia()">Anotar a primeira ideia</button></div>`;
+}
+function pedidoRoteiro(id) {
+  const i = dados.ideias.find(x => x._id === id) || {};
+  return `Virginia, cria o roteiro completo desta ideia para o @${i.perfil}:\nTítulo: ${i.titulo}\nGancho: ${i.gancho || '(sugira 3 opções)'}\nFormato: ${i.formato}\nObjetivo: ${i.objetivo}\n${i.roteiro ? 'Rascunho: ' + i.roteiro : ''}`;
+}
+function preencherModalIdeia(i) {
+  $('mi-id').value = i._id || '';
+  $('mi-inspiracaoId').value = i.inspiracaoId || '';
+  $('mi-titulo').value = i.titulo || '';
+  $('mi-gancho').value = i.gancho || '';
+  $('mi-perfil').innerHTML = opts(PERFIS.map(p => [p.u, '@' + p.u]), i.perfil || PERFIS[0].u);
+  $('mi-formato').innerHTML = opts(FORMATOS, i.formato || 'Reels');
+  $('mi-objetivo').innerHTML = opts(OBJETIVOS, i.objetivo || 'Conectar');
+  $('mi-status').innerHTML = opts(STATUS_IDEIA, i.status || 'Nova');
+  $('mi-roteiro').value = i.roteiro || '';
+  $('mi-legenda').value = i.legenda || '';
+  $('mi-tags').value = (i.tags || []).join(', ');
+  const ref = i.inspiracaoId && dados.inspiracoes.find(r => r._id === i.inspiracaoId);
+  $('mi-origem').style.display = ref ? 'block' : 'none';
+  if (ref) $('mi-origem').innerHTML = `<i class="bi bi-stars"></i> Inspirada em <a href="${esc(ref.link)}" target="_blank" style="color:var(--cor-secundaria)">${esc(ref.perfilOrigem || ref.link)}</a>`;
+  $('mi-titulo-modal').textContent = i._id ? 'Editar ideia' : 'Nova ideia';
+  modal('modalIdeia').show();
+}
+function novaIdeia(base) { preencherModalIdeia(base || {}); }
+function editarIdeia(id) { const i = dados.ideias.find(x => x._id === id); if (i) preencherModalIdeia(i); }
+async function salvarIdeia() {
+  const obj = {
+    titulo: $('mi-titulo').value.trim(), gancho: $('mi-gancho').value.trim(), perfil: $('mi-perfil').value, formato: $('mi-formato').value,
+    objetivo: $('mi-objetivo').value, status: $('mi-status').value, roteiro: $('mi-roteiro').value, legenda: $('mi-legenda').value,
+    tags: listaTags($('mi-tags').value), inspiracaoId: $('mi-inspiracaoId').value, atualizadoEm: agoraIso(),
+  };
+  if (!obj.titulo) return alert('Dê um título à ideia.');
+  const id = $('mi-id').value;
+  if (id) await db.collection('midias_ideias').doc(id).set(obj, { merge: true });
+  else {
+    obj.criadoEm = agoraIso();
+    await db.collection('midias_ideias').add(obj);
+    if (obj.inspiracaoId) await db.collection('midias_inspiracoes').doc(obj.inspiracaoId).set({ status: 'Modelando' }, { merge: true }).catch(() => {});
+  }
+  modal('modalIdeia').hide();
+  toast('Ideia salva!');
+}
+async function excluirIdeia(id) {
+  if (!confirm('Excluir esta ideia?')) return;
+  await db.collection('midias_ideias').doc(id).delete();
+  toast('Ideia excluída.');
+}
+function agendarIdeia(id) {
+  const i = dados.ideias.find(x => x._id === id);
+  if (!i) return;
+  const ref = i.inspiracaoId && dados.inspiracoes.find(r => r._id === i.inspiracaoId);
+  preencherModalConteudo({ titulo: i.titulo, gancho: i.gancho, roteiro: i.roteiro, legenda: i.legenda, perfil: i.perfil, formato: i.formato, objetivo: i.objetivo, status: i.roteiro ? 'Roteiro' : 'Ideia', ideiaId: i._id, linkReferencia: ref ? ref.link : '' });
+}
+
+// ============================================================
+// INSPIRAÇÕES: REFERÊNCIAS
+// ============================================================
+let abaInspAtual = 'ref';
+function abaInsp(a) {
+  abaInspAtual = a;
+  $('tab-ref').classList.toggle('ativo', a === 'ref'); $('tab-perfis').classList.toggle('ativo', a === 'perfis');
+  $('insp-ref').style.display = a === 'ref' ? 'block' : 'none'; $('insp-perfis').style.display = a === 'perfis' ? 'block' : 'none';
+  atualizarAcoesTopo();
+}
+function iconePlataforma(p) { return { Instagram: 'bi-instagram', TikTok: 'bi-tiktok', YouTube: 'bi-youtube', Pinterest: 'bi-pinterest', Facebook: 'bi-facebook' }[p] || 'bi-link-45deg'; }
+
+function renderReferencias() {
+  const busca = $('rf-busca').value.toLowerCase(), pl = $('rf-plataforma').value, de = $('rf-destino').value, st = $('rf-status').value;
+  const lista = dados.inspiracoes.filter(r => (!pl || r.plataforma === pl) && (!de || r.perfilDestino === de) && (!st || r.status === st) &&
+    (!busca || [r.perfilOrigem, r.oQueFunciona, r.comoAdaptar, r.legenda, (r.tags || []).join(' ')].join(' ').toLowerCase().includes(busca)));
+  const corSt = { Salva: 'selo-roxo', Modelando: 'selo-amarelo', Replicada: 'selo-verde' };
+  $('ref-grid').innerHTML = lista.length ? lista.map(r => `<div class="card-item">
+      ${r.imagemUrl ? `<a href="${esc(r.link)}" target="_blank"><img class="card-thumb" src="${esc(r.imagemUrl)}" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=&quot;card-thumb d-flex align-items-center justify-content-center&quot; style=&quot;font-size:36px;color:var(--cor-texto-suave)&quot;><i class=&quot;bi ${iconePlataforma(r.plataforma)}&quot;></i></div>'"></a>` : ''}
+      <div class="d-flex justify-content-between gap-2 align-items-start">
+        <h6><i class="bi ${iconePlataforma(r.plataforma)} me-1"></i>${esc(r.perfilOrigem || 'Referência')}</h6><span class="selo ${corSt[r.status] || 'selo-cinza'}">${esc(r.status || 'Salva')}</span></div>
+      ${r.legenda ? `<div class="card-texto">${esc(r.legenda.slice(0, 160))}</div>` : ''}
+      ${r.oQueFunciona ? `<div style="font-size:12px"><b style="color:var(--cor-acento)">O que funciona:</b> ${esc(r.oQueFunciona)}</div>` : ''}
+      ${r.comoAdaptar ? `<div style="font-size:12px"><b style="color:var(--cor-secundaria)">Como adaptar:</b> ${esc(r.comoAdaptar)}</div>` : ''}
+      <div class="d-flex gap-1 flex-wrap">${r.perfilDestino ? '<span class="form-text">para</span> ' + perfilTag(r.perfilDestino) : ''} ${r.formato ? `<span class="selo selo-cinza">${esc(r.formato)}</span>` : ''}${r.curtidas != null ? `<span class="selo selo-cinza">❤ ${fmtNum(r.curtidas)}</span>` : ''}${(r.tags || []).map(t => `<span class="selo selo-cinza">#${esc(t)}</span>`).join('')}</div>
+      <div class="card-acoes">
+        <button class="btn btn-primary" onclick="refParaIdeia('${r._id}')"><i class="bi bi-lightbulb"></i> Virar ideia</button>
+        <button class="btn btn-outline-secondary" onclick="copiar(pedidoModelar('${r._id}'))" title="Copiar pedido para o /modelar-conteudo"><i class="bi bi-magic"></i> Modelar</button>
+        <a class="btn btn-outline-secondary" href="${esc(r.link)}" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
+        <button class="btn btn-outline-secondary" onclick="editarRef('${r._id}')"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-outline-secondary ms-auto" onclick="excluirRef('${r._id}')"><i class="bi bi-trash"></i></button>
+      </div></div>`).join('')
+    : `<div class="empty-state" style="grid-column:1/-1"><i class="bi bi-bookmark-heart"></i>Nenhuma referência salva.<br>Viu um post que te inspirou? Cole o link aqui.<br><button class="btn btn-primary btn-sm mt-3" onclick="novaRef()">Salvar referência</button></div>`;
+}
+function pedidoModelar(id) {
+  const r = dados.inspiracoes.find(x => x._id === id) || {};
+  return `/modelar-conteudo modela esta referência para o @${r.perfilDestino || 'elnsantana'}: ${r.link}${r.oQueFunciona ? '\nO que me chamou atenção: ' + r.oQueFunciona : ''}${r.comoAdaptar ? '\nIdeia de adaptação: ' + r.comoAdaptar : ''}`;
+}
+function detectarPlataforma() {
+  const l = $('mr-link').value.toLowerCase();
+  const p = l.includes('instagram') ? 'Instagram' : l.includes('tiktok') ? 'TikTok' : (l.includes('youtu') ? 'YouTube' : l.includes('pinterest') || l.includes('pin.it') ? 'Pinterest' : l.includes('facebook') || l.includes('fb.') ? 'Facebook' : '');
+  if (p) $('mr-plataforma').value = p;
+  if (l.includes('/reel')) $('mr-formato').value = 'Reels';
+}
+function preencherModalRef(r) {
+  $('mr-id').value = r._id || '';
+  $('mr-link').value = r.link || '';
+  $('mr-plataforma').innerHTML = opts(PLATAFORMAS, r.plataforma || 'Instagram');
+  $('mr-origem').value = r.perfilOrigem || '';
+  $('mr-formato').innerHTML = opts(FORMATOS, r.formato || 'Reels');
+  $('mr-destino').innerHTML = opts(PERFIS.map(p => [p.u, '@' + p.u]), r.perfilDestino || PERFIS[0].u);
+  $('mr-status').innerHTML = opts(STATUS_REF, r.status || 'Salva');
+  $('mr-imagem').value = r.imagemUrl || '';
+  $('mr-funciona').value = r.oQueFunciona || '';
+  $('mr-adaptar').value = r.comoAdaptar || '';
+  $('mr-tags').value = (r.tags || []).join(', ');
+  $('mr-titulo-modal').textContent = r._id ? 'Editar referência' : 'Nova referência';
+  modal('modalRef').show();
+}
+function novaRef() { preencherModalRef({}); }
+function editarRef(id) { const r = dados.inspiracoes.find(x => x._id === id); if (r) preencherModalRef(r); }
+async function salvarRef() {
+  const obj = {
+    link: $('mr-link').value.trim(), plataforma: $('mr-plataforma').value, perfilOrigem: $('mr-origem').value.trim(),
+    formato: $('mr-formato').value, perfilDestino: $('mr-destino').value, status: $('mr-status').value, imagemUrl: $('mr-imagem').value.trim(),
+    oQueFunciona: $('mr-funciona').value.trim(), comoAdaptar: $('mr-adaptar').value.trim(), tags: listaTags($('mr-tags').value), atualizadoEm: agoraIso(),
+  };
+  if (!obj.link) return alert('Cole o link do conteúdo.');
+  if (obj.perfilOrigem && !obj.perfilOrigem.startsWith('@')) obj.perfilOrigem = '@' + obj.perfilOrigem;
+  const id = $('mr-id').value;
+  if (id) await db.collection('midias_inspiracoes').doc(id).set(obj, { merge: true });
+  else { obj.criadoEm = agoraIso(); await db.collection('midias_inspiracoes').add(obj); }
+  modal('modalRef').hide();
+  toast('Referência salva!');
+}
+async function excluirRef(id) {
+  if (!confirm('Excluir esta referência?')) return;
+  await db.collection('midias_inspiracoes').doc(id).delete();
+  toast('Referência excluída.');
+}
+function refParaIdeia(id) {
+  const r = dados.inspiracoes.find(x => x._id === id);
+  if (!r) return;
+  novaIdeia({ titulo: '', gancho: '', perfil: r.perfilDestino, formato: r.formato, objetivo: 'Conectar', inspiracaoId: r._id, roteiro: r.comoAdaptar || '', tags: r.tags || [] });
+}
+
+// ============================================================
+// INSPIRAÇÕES: PERFIS
+// ============================================================
+function renderPerfisInsp() {
+  const lista = dados.perfisInsp;
+  $('perfis-grid').innerHTML = lista.length ? lista.map(p => {
+    const link = p.plataforma === 'TikTok' ? `https://www.tiktok.com/@${p.username}` : p.plataforma === 'YouTube' ? `https://www.youtube.com/@${p.username}` : `https://www.instagram.com/${p.username}/`;
+    const refs = dados.inspiracoes.filter(r => (r.perfilOrigem || '').replace('@', '').toLowerCase() === p.username.toLowerCase()).length;
+    return `<div class="card-item">
+      <div class="d-flex gap-3 align-items-center">
+        ${p.foto ? `<img src="${esc(p.foto)}" referrerpolicy="no-referrer" style="width:48px;height:48px;border-radius:50%;object-fit:cover" onerror="this.style.display='none'">` : `<div style="width:48px;height:48px;border-radius:50%;background:rgba(124,58,237,.15);display:flex;align-items:center;justify-content:center;font-size:20px"><i class="bi ${iconePlataforma(p.plataforma)}"></i></div>`}
+        <div style="min-width:0"><h6>@${esc(p.username)}</h6><div class="form-text">${esc(p.nicho || p.plataforma)}</div></div>
       </div>
-    `).join('');
-  } catch (e) {
-    mostrarToast('Não consegui buscar os posts agora. Tente novamente.', 'erro');
-  }
-  loading.style.display = 'none';
+      ${p.porQueInspira ? `<div class="card-texto">${esc(p.porQueInspira)}</div>` : ''}
+      <div class="d-flex gap-1 flex-wrap">
+        ${p.seguidores != null ? `<span class="selo selo-cinza"><i class="bi bi-people"></i> ${fmtNum(p.seguidores)}</span>` : ''}
+        ${p.engajamentoMedio != null ? `<span class="selo selo-roxo">${pct(p.engajamentoMedio)} engaj. médio</span>` : ''}
+        <span class="selo selo-cinza">${refs} referência(s) salva(s)</span>
+        ${p.ultimaAnalise ? `<span class="form-text">analisado ${fmtData(p.ultimaAnalise)}</span>` : ''}
+      </div>
+      <div class="card-acoes">
+        ${p.plataforma === 'Instagram' ? `<button class="btn btn-primary" onclick="descobrirPerfil('${p._id}')"><i class="bi bi-graph-up-arrow"></i> Posts que mais engajaram</button>` : ''}
+        <a class="btn btn-outline-secondary" href="${link}" target="_blank"><i class="bi bi-box-arrow-up-right"></i> Abrir</a>
+        <button class="btn btn-outline-secondary" onclick="editarPerfilInsp('${p._id}')"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-outline-secondary ms-auto" onclick="excluirPerfilInsp('${p._id}')"><i class="bi bi-trash"></i></button>
+      </div></div>`;
+  }).join('') : `<div class="empty-state" style="grid-column:1/-1"><i class="bi bi-person-hearts"></i>Nenhum perfil de inspiração ainda.<br><button class="btn btn-primary btn-sm mt-3" onclick="novoPerfilInsp()">Adicionar perfil</button></div>`;
+}
+function preencherModalPerfilInsp(p) {
+  $('mp-id').value = p._id || '';
+  $('mp-username').value = p.username ? '@' + p.username : '';
+  $('mp-plataforma').innerHTML = opts(PLATAFORMAS, p.plataforma || 'Instagram');
+  $('mp-nicho').value = p.nicho || '';
+  $('mp-porque').value = p.porQueInspira || '';
+  $('mp-notas').value = p.notas || '';
+  $('mp-titulo-modal').textContent = p._id ? 'Editar perfil de inspiração' : 'Novo perfil de inspiração';
+  modal('modalPerfilInsp').show();
+}
+function novoPerfilInsp() { preencherModalPerfilInsp({}); }
+function editarPerfilInsp(id) { const p = dados.perfisInsp.find(x => x._id === id); if (p) preencherModalPerfilInsp(p); }
+async function salvarPerfilInsp() {
+  let u = $('mp-username').value.trim().replace(/^@/, '').replace(/^https?:\/\/(www\.)?(instagram|tiktok)\.com\/@?/i, '').replace(/[/?].*$/, '');
+  if (!u) return alert('Informe o @ do perfil.');
+  const obj = { username: u, plataforma: $('mp-plataforma').value, nicho: $('mp-nicho').value.trim(), porQueInspira: $('mp-porque').value.trim(), notas: $('mp-notas').value.trim(), atualizadoEm: agoraIso() };
+  const id = $('mp-id').value;
+  if (id) await db.collection('midias_perfis_inspiracao').doc(id).set(obj, { merge: true });
+  else { obj.criadoEm = agoraIso(); await db.collection('midias_perfis_inspiracao').add(obj); }
+  modal('modalPerfilInsp').hide();
+  toast('Perfil salvo!');
+}
+async function excluirPerfilInsp(id) {
+  if (!confirm('Excluir este perfil de inspiração?')) return;
+  await db.collection('midias_perfis_inspiracao').doc(id).delete();
+  toast('Perfil excluído.');
 }
 
-function selecionarPost(i) {
-  const p = postsEncontrados[i];
-  document.getElementById('rg-mediaId').value = p.id;
-  document.getElementById('rg-thumbnail').value = p.thumbnail;
-  document.getElementById('rg-legenda').value = p.legenda;
-  document.getElementById('post-selecionado-preview').style.display = 'flex';
-  document.getElementById('post-selecionado-img').src = p.thumbnail;
-  document.getElementById('post-selecionado-legenda').textContent = p.legenda;
-  document.querySelectorAll('.post-card').forEach(el => el.classList.remove('selecionado'));
-  document.getElementById(`post-card-${i}`).classList.add('selecionado');
-}
-
-// ============================================================
-// LOG DE COMENTÁRIOS ATENDIDOS
-// ============================================================
-async function carregarLog() {
-  const tbody = document.querySelector('#tabela-log tbody');
-  tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><span class="spinner-sm"></span> Carregando...</div></td></tr>';
+let descoberta = { perfilId: null, perfil: null, posts: [] };
+async function descobrirPerfil(id) {
+  const p = dados.perfisInsp.find(x => x._id === id);
+  if (!p) return;
+  if (!contasIG.length) return toast('Para buscar os posts, conecte pelo menos um perfil seu em "Perfis Conectados".', 'erro');
+  descoberta = { perfilId: id, perfil: null, posts: [] };
+  $('md-titulo').textContent = `@${p.username}: posts que mais engajaram`;
+  $('md-perfil').innerHTML = '<span class="spinner-sm"></span> Buscando no Instagram...';
+  $('md-grid').innerHTML = '';
+  modal('modalDescobrir').show();
   try {
-    const snap = await db.collection('instagram_automacao_log').orderBy('criadoEm', 'desc').limit(50).get();
-    const itens = snap.docs.map(d => d.data());
-    if (!itens.length) {
-      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><i class="bi bi-clock-history"></i>Nenhum comentário atendido ainda</div></td></tr>';
-      return;
-    }
-    tbody.innerHTML = itens.map(l => {
-      const data = l.criadoEm ? (l.criadoEm.toDate ? l.criadoEm.toDate() : new Date(l.criadoEm)).toLocaleString('pt-BR') : '—';
-      let statusBadge = '<span class="badge-status-espera">Sem regra</span>';
-      if (l.status === 'concluido') statusBadge = '<span class="badge-status-ok">Enviado</span>';
-      else if (l.status === 'processando') statusBadge = '<span class="badge-status-espera">Processando</span>';
-      else if (l.status === 'erro_dm') statusBadge = '<span class="badge-status-erro">Erro ao enviar</span>';
-      return `<tr>
-        <td style="font-size:12px;">${data}</td>
-        <td>${escHtml(l.usuario || '—')}</td>
-        <td style="font-size:12px;color:var(--cor-texto-suave);">${escHtml((l.texto || '').slice(0, 50))}</td>
-        <td>${escHtml(l.regraAplicada || '—')}</td>
-        <td>${statusBadge}</td>
-      </tr>`;
-    }).join('');
+    const r = await api('descobrir', { igId: contasIG[0].igId, username: p.username });
+    descoberta.perfil = r.perfil; descoberta.posts = r.posts;
+    const media = r.posts.length ? r.posts.reduce((s, x) => s + x.engajamento, 0) / r.posts.length : null;
+    await db.collection('midias_perfis_inspiracao').doc(id).set({ foto: r.perfil.profile_picture_url || '', seguidores: r.perfil.followers_count ?? null, engajamentoMedio: media != null ? Math.round(media * 100) / 100 : null, ultimaAnalise: hojeStr() }, { merge: true });
+    $('md-perfil').innerHTML = `<div class="conta-card">${r.perfil.profile_picture_url ? `<img src="${esc(r.perfil.profile_picture_url)}" referrerpolicy="no-referrer">` : ''}
+      <div><b style="color:var(--cor-titulo)">${esc(r.perfil.name || r.perfil.username)}</b> <span class="form-text">@${esc(r.perfil.username)}</span><div class="form-text">${fmtNum(r.perfil.followers_count)} seguidores · ${fmtNum(r.perfil.media_count)} posts · engajamento médio ${pct(media)}</div>
+      <div style="font-size:12px;margin-top:4px;white-space:pre-line">${esc((r.perfil.biography || '').slice(0, 200))}</div></div></div>`;
+    renderDescoberta();
   } catch (e) {
-    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">Erro ao carregar o histórico.</div></td></tr>';
+    $('md-perfil').innerHTML = `<div class="alerta"><i class="bi bi-exclamation-triangle"></i> ${esc(e.message)}</div>`;
   }
+}
+function renderDescoberta() {
+  const ord = $('md-ordem').value, tipo = $('md-tipo').value;
+  const lista = descoberta.posts.filter(p => !tipo || tipoChave(p) === tipo).sort((a, b) => ord === 'data' ? String(b.data).localeCompare(String(a.data)) : (b[ord] - a[ord]));
+  const media = descoberta.posts.length ? descoberta.posts.reduce((s, x) => s + x.engajamento, 0) / descoberta.posts.length : 0;
+  $('md-grid').innerHTML = lista.length ? lista.map((p, i) => `<div class="disc-card">
+      <a class="thumb" href="${esc(p.permalink)}" target="_blank">${p.thumbnail ? `<img src="${esc(p.thumbnail)}" referrerpolicy="no-referrer" onerror="this.outerHTML='<i class=&quot;bi bi-camera-reels&quot;></i>'">` : '<i class="bi bi-camera-reels"></i>'}</a>
+      <div class="info">
+        <div class="d-flex justify-content-between"><span class="selo selo-cinza">${nomeTipo(p)}</span><span class="form-text">${fmtData(p.data)}</span></div>
+        <div>❤ ${fmtNum(p.curtidas)} · 💬 ${fmtNum(p.comentarios)}</div>
+        <div><span class="selo ${p.engajamento >= media * 1.5 ? 'selo-verde' : 'selo-roxo'}">${pct(p.engajamento)} engaj.${p.engajamento >= media * 1.5 ? ' 🔥' : ''}</span></div>
+        <div class="form-text" style="max-height:48px;overflow:hidden">${esc((p.legenda || '').slice(0, 110))}</div>
+        <button class="btn btn-outline-secondary btn-sm mt-auto" onclick="salvarPostComoRef('${p.id}')"><i class="bi bi-bookmark-plus"></i> Salvar referência</button>
+      </div></div>`).join('') : '<div class="empty-state">Nenhum post encontrado</div>';
+}
+async function salvarPostComoRef(postId) {
+  const p = descoberta.posts.find(x => x.id === postId);
+  const perfil = dados.perfisInsp.find(x => x._id === descoberta.perfilId) || {};
+  if (!p) return;
+  if (dados.inspiracoes.some(r => r.link === p.permalink)) return toast('Essa referência já está salva.');
+  await db.collection('midias_inspiracoes').add({
+    link: p.permalink, plataforma: 'Instagram', perfilOrigem: '@' + perfil.username, formato: nomeTipo(p) === 'Imagem' ? 'Estático' : nomeTipo(p) === 'Vídeo' ? 'Reels' : nomeTipo(p),
+    perfilDestino: PERFIS[0].u, status: 'Salva', imagemUrl: p.thumbnail || '', legenda: p.legenda || '', curtidas: p.curtidas, comentarios: p.comentarios,
+    oQueFunciona: `${pct(p.engajamento)} de engajamento (média do perfil: ${pct(descoberta.posts.reduce((s, x) => s + x.engajamento, 0) / descoberta.posts.length)})`,
+    comoAdaptar: '', tags: [], criadoEm: agoraIso(), atualizadoEm: agoraIso(),
+  });
+  toast('Salvo nas referências!');
+}
+
+// ============================================================
+// MÉTRICAS DOS POSTS
+// ============================================================
+let mtOrdem = 'data';
+const MT_COLUNAS = [
+  ['data', 'Data'], ['alcance', 'Alcance'], ['visualizacoes', 'Visualiz.'], ['curtidas', 'Curtidas'], ['comentarios', 'Coment.'],
+  ['salvos', 'Salvos'], ['compartilhamentos', 'Compart.'], ['interacoes', 'Interações'], ['taxa', 'Engaj.'],
+];
+function ordenarMetricas(c) { mtOrdem = c; renderMetricas(); }
+function renderMetricas() {
+  if (!cache.posts) return;
+  const ig = $('mt-perfil').value, tipo = $('mt-tipo').value, de = $('mt-de').value, ate = $('mt-ate').value;
+  const todos = cache.posts.filter(p => p.igId === ig);
+  const lista = todos.filter(p => (!tipo || tipoChave(p) === tipo) && (!de || dataLocalDeIso(p.data) >= de) && (!ate || dataLocalDeIso(p.data) <= ate))
+    .map(p => ({ ...p, taxa: p.alcance ? ((p.interacoes ?? p.curtidas + p.comentarios) / p.alcance * 100) : null }));
+  lista.sort((a, b) => mtOrdem === 'data' ? String(b.data).localeCompare(String(a.data)) : ((b[mtOrdem] ?? -1) - (a[mtOrdem] ?? -1)));
+  const ult = todos.map(p => p.atualizadoEm).sort().pop();
+  $('mt-atualizado').textContent = ult ? 'Atualizado em ' + fmtDataHora(ult) : '';
+
+  const media = campo => { const v = lista.map(p => p[campo]).filter(x => x != null); return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null; };
+  const somaSalvos = lista.reduce((s, p) => s + (p.salvos || 0), 0), somaAlc = lista.reduce((s, p) => s + (p.alcance || 0), 0);
+  const porTipo = {};
+  lista.forEach(p => { const t = nomeTipo(p); (porTipo[t] = porTipo[t] || []).push(p); });
+  const melhor = Object.entries(porTipo).map(([t, ps]) => [t, ps.reduce((s, p) => s + (p.taxa || 0), 0) / ps.length]).sort((a, b) => b[1] - a[1])[0];
+  $('mt-kpis').innerHTML = [
+    ['Posts', fmtNum(lista.length), 'no filtro atual'],
+    ['Alcance médio', fmtNum(Math.round(media('alcance') || 0)), 'por post'],
+    ['Interações médias', fmtNum(Math.round(media('interacoes') || 0)), 'por post'],
+    ['Taxa de salvamento', somaAlc ? pct(somaSalvos / somaAlc * 100) : '—', 'salvos ÷ alcance'],
+    ['Formato campeão', melhor ? melhor[0] : '—', melhor ? `${pct(melhor[1])} de engajamento médio` : ''],
+  ].map(([l, v, s]) => `<div class="kpi-card"><div class="kpi-label">${l}</div><div class="kpi-value">${v}</div><div class="kpi-sub">${s}</div></div>`).join('');
+
+  $('mt-formatos').querySelector('tbody').innerHTML = Object.keys(porTipo).length ? `<tr><th>Formato</th><th>Posts</th><th>Alcance</th><th>Salvos</th><th>Engaj.</th></tr>` + Object.entries(porTipo).map(([t, ps]) => {
+    const m = c => ps.map(p => p[c]).filter(x => x != null);
+    const avg = arr => arr.length ? arr.reduce((s, x) => s + x, 0) / arr.length : null;
+    return `<tr><td>${t}</td><td>${ps.length}</td><td>${fmtNum(Math.round(avg(m('alcance')) || 0))}</td><td>${fmtNum(Math.round(avg(m('salvos')) || 0))}</td><td>${pct(avg(m('taxa')))}</td></tr>`;
+  }).join('') : '<tr><td><div class="empty-state">Sem dados</div></td></tr>';
+
+  const ultimos = lista.slice().sort((a, b) => String(a.data).localeCompare(String(b.data))).slice(-20);
+  desenharGrafico('ch-posts', { type: 'bar', data: { labels: ultimos.map(p => fmtData(p.data).slice(0, 5)), datasets: [
+    { label: 'Curtidas', data: ultimos.map(p => p.curtidas), backgroundColor: '#A78BFA', borderRadius: 4, stack: 's' },
+    { label: 'Salvos', data: ultimos.map(p => p.salvos || 0), backgroundColor: '#F59E0B', borderRadius: 4, stack: 's' },
+    { label: 'Compart.', data: ultimos.map(p => p.compartilhamentos || 0), backgroundColor: '#10B981', borderRadius: 4, stack: 's' },
+    { label: 'Coment.', data: ultimos.map(p => p.comentarios), backgroundColor: '#EC4899', borderRadius: 4, stack: 's' },
+  ] }, options: { scales: { x: { stacked: true, ticks: { color: corTexto() }, grid: { display: false } }, y: { stacked: true, beginAtZero: true, ticks: { color: corTexto() }, grid: { color: corGrade() } } } } });
+
+  $('mt-tabela').querySelector('thead').innerHTML = `<tr><th></th><th>Post</th>${MT_COLUNAS.map(([c, n]) => `<th class="th-sort ${mtOrdem === c ? 'ord' : ''}" onclick="ordenarMetricas('${c}')">${n}</th>`).join('')}</tr>`;
+  const maxInter = Math.max(...lista.map(p => p.interacoes || 0), 1);
+  $('mt-tabela').querySelector('tbody').innerHTML = lista.length ? lista.map(p => `<tr>
+      <td><a href="${esc(p.permalink)}" target="_blank"><img class="thumb-mini" src="${esc(p.thumbnail)}" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'"></a></td>
+      <td style="min-width:220px"><div style="font-size:12px">${esc((p.legenda || '').slice(0, 80))}</div><span class="selo selo-cinza">${nomeTipo(p)}</span> ${(p.interacoes || 0) >= maxInter * .7 ? '<span class="selo selo-verde">🔥 campeão</span>' : ''}</td>
+      <td style="white-space:nowrap">${fmtData(p.data)}</td><td>${fmtNum(p.alcance)}</td><td>${fmtNum(p.visualizacoes)}</td><td>${fmtNum(p.curtidas)}</td><td>${fmtNum(p.comentarios)}</td>
+      <td>${fmtNum(p.salvos)}</td><td>${fmtNum(p.compartilhamentos)}</td><td><b>${fmtNum(p.interacoes)}</b></td><td>${pct(p.taxa)}</td></tr>`).join('')
+    : `<tr><td colspan="11"><div class="empty-state"><i class="bi bi-bar-chart"></i>${contasIG.length ? 'Nenhum post ainda. Clique em "Atualizar métricas".' : 'Conecte seus perfis para ver as métricas.'}</div></td></tr>`;
+}
+
+// ============================================================
+// AUTOMAÇÕES: LISTA, ESTATÍSTICAS E HISTÓRICO
+// ============================================================
+async function carregarLogs(forcar) {
+  if (!cache.logs || forcar) {
+    try {
+      const snap = await db.collection('midias_fluxo_log').orderBy('criadoEm', 'desc').limit(3000).get();
+      cache.logs = snap.docs.map(d => d.data());
+    } catch (e) { cache.logs = []; console.error(e); }
+  }
+  renderFluxos();
+  renderLog();
+}
+
+function descreverGatilho(f) {
+  const g = f.gatilho || {};
+  const palavras = (g.palavras || []).map(p => `<b>${esc(p.toUpperCase())}</b>`).join(', ');
+  const qual = g.modo === 'qualquer' ? 'qualquer texto' : (g.modo === 'exata' ? `exatamente ${palavras}` : palavras);
+  if (g.tipo === 'comentario') return `Comentário com ${qual} em ${g.escopo === 'especifico' ? 'um post específico' : 'qualquer post'}`;
+  if (g.tipo === 'dm') return `Direct com ${qual}`;
+  if (g.tipo === 'story_resposta') return `Resposta ao Story com ${qual}`;
+  if (g.tipo === 'story_mencao') return 'Alguém marcou o perfil no Story';
+  return '';
+}
+
+function renderFluxos() {
+  const logs = cache.logs || [];
+  $('auto-aviso').innerHTML = !contasIG.length
+    ? `<div class="alerta mb-3"><i class="bi bi-exclamation-triangle"></i> As automações só funcionam com o perfil conectado. Vá em <a href="#" onclick="showPage('configuracoes');return false" style="color:var(--cor-secundaria)">Perfis Conectados</a>.</div>` : '';
+  $('lg-fluxo').innerHTML = opts(dados.fluxos.map(f => [f._id, f.nome]), $('lg-fluxo').value, 'Todas as automações');
+  $('fluxos-grid').innerHTML = dados.fluxos.length ? dados.fluxos.map(f => {
+    const l = logs.filter(x => x.fluxoId === f._id);
+    const n = ev => l.filter(x => x.evento === ev).length;
+    const pessoas = new Set(l.filter(x => x.evento === 'entrou').map(x => x.contatoId)).size;
+    return `<div class="card-item fluxo-card">
+      <div class="d-flex justify-content-between align-items-start gap-2">
+        <div style="min-width:0"><h6>${esc(f.nome)}</h6><div class="gatilho">${perfilTag(f.perfilUsername)} · ${descreverGatilho(f)}</div></div>
+        <div class="form-check form-switch m-0" title="Ligar/desligar"><input class="form-check-input" type="checkbox" ${f.ativo ? 'checked' : ''} onchange="alternarFluxo('${f._id}',this.checked)"></div>
+      </div>
+      ${f.gatilho?.escopo === 'especifico' && f.gatilho?.thumbnail ? `<div class="d-flex gap-2 align-items-center"><img class="thumb-mini" src="${esc(f.gatilho.thumbnail)}" referrerpolicy="no-referrer"><span class="form-text">${esc((f.gatilho.legenda || '').slice(0, 60))}</span></div>` : ''}
+      <div class="fluxo-stats">
+        <div><b>${fmtNum(pessoas)}</b><span>Pessoas</span></div><div><b>${fmtNum(n('clique'))}</b><span>Cliques</span></div>
+        <div><b>${fmtNum(n('link'))}</b><span>Links</span></div><div><b>${fmtNum(n('lead'))}</b><span>Leads</span></div>
+      </div>
+      ${n('erro') ? `<div class="form-text" style="color:var(--cor-vermelho)"><i class="bi bi-exclamation-circle"></i> ${n('erro')} erro(s) de envio. Veja no histórico.</div>` : ''}
+      <div class="card-acoes">
+        <button class="btn btn-primary" onclick="editarFluxo('${f._id}')"><i class="bi bi-pencil"></i> Editar</button>
+        <button class="btn btn-outline-secondary" onclick="duplicarFluxo('${f._id}')"><i class="bi bi-copy"></i> Duplicar</button>
+        <button class="btn btn-outline-secondary ms-auto" onclick="excluirFluxo('${f._id}')"><i class="bi bi-trash"></i></button>
+      </div></div>`;
+  }).join('') : `<div class="empty-state" style="grid-column:1/-1"><i class="bi bi-robot"></i>Nenhuma automação ainda.<br>Comece por um modelo pronto no botão <b>"Nova automação"</b> lá em cima.</div>`;
+}
+
+function renderLog() {
+  const fl = $('lg-fluxo').value;
+  const lista = (cache.logs || []).filter(l => !fl || l.fluxoId === fl).slice(0, 300);
+  $('tabela-log').querySelector('tbody').innerHTML = lista.length ? lista.map(l => {
+    const [txt, cls] = EVENTOS[l.evento] || [l.evento, 'selo-cinza'];
+    return `<tr><td style="font-size:12px;white-space:nowrap">${fmtDataHora(l.criadoEm)}</td><td>${perfilTag(l.perfilUsername)}</td>
+      <td>${l.usuario ? `<a href="https://www.instagram.com/${esc(l.usuario)}/" target="_blank" style="color:var(--cor-secundaria)">@${esc(l.usuario)}</a>` : '—'}</td>
+      <td style="font-size:12px">${esc(l.fluxoNome)}</td><td><span class="selo ${cls}">${txt}</span></td>
+      <td style="font-size:12px;color:var(--cor-texto-suave);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(l.detalhe)}">${esc(l.detalhe)}</td></tr>`;
+  }).join('') : '<tr><td colspan="6"><div class="empty-state"><i class="bi bi-clock-history"></i>Nada aconteceu ainda</div></td></tr>';
+}
+
+async function alternarFluxo(id, ativo) {
+  const f = dados.fluxos.find(x => x._id === id);
+  if (ativo && f && !contaPorId(f.perfil)) { toast('Conecte o perfil @' + f.perfilUsername + ' antes de ligar esta automação.', 'erro'); renderFluxos(); return; }
+  if (ativo && f) { const erros = validarFluxo(f, true); if (erros.length) { alert('Antes de ligar, corrija:\n\n• ' + erros.join('\n• ')); renderFluxos(); return; } }
+  await db.collection('midias_fluxos').doc(id).update({ ativo });
+  toast(ativo ? 'Automação ligada!' : 'Automação desligada.');
+}
+async function excluirFluxo(id) {
+  if (!confirm('Excluir esta automação? O histórico dela continua guardado.')) return;
+  await db.collection('midias_fluxos').doc(id).delete();
+  toast('Automação excluída.');
+}
+function duplicarFluxo(id) {
+  const f = dados.fluxos.find(x => x._id === id);
+  if (!f) return;
+  const copia = JSON.parse(JSON.stringify(f)); delete copia._id; copia.nome += ' (cópia)'; copia.ativo = false;
+  abrirEditorFluxo(copia);
+}
+
+// ============================================================
+// CONSTRUTOR DE AUTOMAÇÃO
+// ============================================================
+let ed = null; // automação em edição
+let postsDoPerfil = [];
+
+const TIPOS_PASSO = { mensagem: 'Mensagem', pergunta: 'Pergunta', verificar_seguidor: 'Verificar se segue', aguardar: 'Aguardar', tag: 'Etiqueta', fim: 'Fim' };
+function novoPassoBase(tipo) {
+  const p = { id: uid(), tipo };
+  if (tipo === 'mensagem') Object.assign(p, { texto: '', imagemUrl: '', botoes: [], proximo: '' });
+  if (tipo === 'pergunta') Object.assign(p, { texto: '', campo: 'email', salvarComo: '', msgInvalido: '', proximo: '' });
+  if (tipo === 'verificar_seguidor') Object.assign(p, { seSegue: '', naoSegue: '' });
+  if (tipo === 'aguardar') Object.assign(p, { segundos: 3, proximo: '' });
+  if (tipo === 'tag') Object.assign(p, { tag: '', proximo: '' });
+  return p;
+}
+
+function modeloFluxo(tipo) {
+  const perfil = contasIG[0] ? contasIG[0].igId : '';
+  const base = { nome: '', perfil, perfilUsername: usernameDoIg(perfil), ativo: false, umaVezPorPessoa: false,
+    gatilho: { tipo: 'comentario', palavras: [], modo: 'contem', escopo: 'qualquer', mediaId: null, thumbnail: '', legenda: '' },
+    respostasPublicas: ['Te mandei no Direct! 💌', 'Corre no Direct que te mandei 💛', 'Acabei de te mandar no Direct ✨'], passos: [] };
+  const [a, b, c, d] = [uid(), uid(), uid(), uid()];
+  if (tipo === 'link') {
+    base.nome = 'Comentou, recebe o link';
+    base.gatilho.palavras = ['cura'];
+    base.passos = [
+      { id: a, tipo: 'mensagem', texto: 'Oi, {nome}! Que alegria ter você aqui 💛 Toque no botão abaixo que eu te mando o link agora mesmo.', imagemUrl: '', botoes: [{ titulo: 'Quero o link', acao: 'passo', alvo: b }], proximo: '' },
+      { id: b, tipo: 'mensagem', texto: 'Aqui está, com todo carinho 👇', imagemUrl: '', botoes: [{ titulo: 'Abrir', acao: 'link', url: '' }], proximo: '' },
+    ];
+  } else if (tipo === 'seguidor') {
+    base.nome = 'Só para quem me segue';
+    base.gatilho.palavras = ['quero'];
+    base.passos = [
+      { id: a, tipo: 'mensagem', texto: 'Oi, {nome}! 💛 Toque no botão abaixo para receber.', imagemUrl: '', botoes: [{ titulo: 'Quero receber', acao: 'passo', alvo: b }], proximo: '' },
+      { id: b, tipo: 'verificar_seguidor', seSegue: c, naoSegue: d },
+      { id: c, tipo: 'mensagem', texto: 'Prontinho! Aqui está 👇', imagemUrl: '', botoes: [{ titulo: 'Abrir', acao: 'link', url: '' }], proximo: '' },
+      { id: d, tipo: 'mensagem', texto: 'Esse conteúdo é um presente para quem me acompanha 💛 Me segue aqui no perfil e depois toque no botão abaixo.', imagemUrl: '', botoes: [{ titulo: 'Já segui', acao: 'passo', alvo: b }], proximo: '' },
+    ];
+  } else if (tipo === 'email') {
+    base.nome = 'Captura de e-mail';
+    base.gatilho = { tipo: 'dm', palavras: ['material'], modo: 'contem', escopo: 'qualquer', mediaId: null };
+    base.respostasPublicas = [];
+    base.passos = [
+      { id: a, tipo: 'pergunta', texto: 'Que bom que você quer, {nome}! 💛 Me manda aqui o seu melhor e-mail que eu te envio.', campo: 'email', salvarComo: '', msgInvalido: '', proximo: b },
+      { id: b, tipo: 'mensagem', texto: 'Prontinho, recebi! Aqui está o seu material 👇', imagemUrl: '', botoes: [{ titulo: 'Abrir', acao: 'link', url: '' }], proximo: '' },
+    ];
+  } else if (tipo === 'story') {
+    base.nome = 'Agradecer menção no Story';
+    base.gatilho = { tipo: 'story_mencao', palavras: [], modo: 'qualquer', escopo: 'qualquer', mediaId: null };
+    base.respostasPublicas = [];
+    base.umaVezPorPessoa = true;
+    base.passos = [{ id: a, tipo: 'mensagem', texto: 'Que presente ver você me marcando, {nome}! 💛 Obrigada de coração por compartilhar.', imagemUrl: '', botoes: [], proximo: '' }];
+  } else {
+    base.nome = 'Nova automação';
+    base.passos = [novoPassoBase('mensagem')];
+  }
+  return base;
+}
+
+function novoFluxo(tipo) { abrirEditorFluxo(modeloFluxo(tipo)); }
+function editarFluxo(id) { const f = dados.fluxos.find(x => x._id === id); if (f) abrirEditorFluxo(JSON.parse(JSON.stringify(f))); }
+
+function abrirEditorFluxo(f) {
+  ed = f;
+  ed.gatilho = Object.assign({ tipo: 'comentario', palavras: [], modo: 'contem', escopo: 'qualquer' }, ed.gatilho || {});
+  ed.respostasPublicas = ed.respostasPublicas || [];
+  ed.passos = ed.passos || [];
+  postsDoPerfil = [];
+  $('mf-titulo-modal').textContent = ed._id ? 'Editar automação' : 'Nova automação';
+  $('mf-nome').value = ed.nome || '';
+  $('mf-perfil').innerHTML = contasIG.length ? opts(contasIG.map(c => [c.igId, '@' + c.username]), ed.perfil) : '<option value="">Conecte um perfil primeiro</option>';
+  if (contasIG.length && !contaPorId(ed.perfil)) ed.perfil = contasIG[0].igId;
+  $('mf-tipo').value = ed.gatilho.tipo;
+  $('mf-umavez').checked = !!ed.umaVezPorPessoa;
+  $('mf-ativo').checked = !!ed.ativo;
+  renderGatilho();
+  renderPassos();
+  modal('modalFluxo').show();
+}
+
+function renderGatilho() {
+  const g = ed.gatilho;
+  let html = '';
+  if (g.tipo !== 'story_mencao') {
+    html += `<div class="mb-3"><label class="form-label">Quando a mensagem</label><select class="form-select" onchange="ed.gatilho.modo=this.value;renderGatilho()">
+      ${opts([['contem', 'contém a palavra'], ['exata', 'é exatamente a palavra'], ['qualquer', 'qualquer texto (sem palavra-chave)']], g.modo || 'contem')}</select></div>`;
+    if (g.modo !== 'qualquer') html += `<div class="mb-3"><label class="form-label">Palavra(s)-chave *</label><input class="form-control" value="${esc((g.palavras || []).join(', '))}" placeholder="cura, quero, link" oninput="ed.gatilho.palavras=listaTags(this.value).map(x=>x.toLowerCase())"><div class="form-text">Separe por vírgula. Maiúscula e acento não fazem diferença.</div></div>`;
+  } else {
+    g.modo = 'qualquer';
+    html += `<div class="dica mb-3">Dispara quando alguém marcar o perfil num Story. A pessoa precisa ter o Direct aberto para receber.</div>`;
+  }
+  if (g.tipo === 'comentario') {
+    html += `<div class="mb-3"><label class="form-label">Em qual post</label><select class="form-select" onchange="ed.gatilho.escopo=this.value;renderGatilho()">${opts([['qualquer', 'Qualquer post ou Reels'], ['especifico', 'Um post específico']], g.escopo || 'qualquer')}</select></div>`;
+    if (g.escopo === 'especifico') {
+      html += `<div class="mb-3">${g.mediaId ? `<div class="d-flex gap-2 align-items-center mb-2" style="background:rgba(124,58,237,.08);border-radius:10px;padding:8px"><img class="thumb-mini" src="${esc(g.thumbnail)}" referrerpolicy="no-referrer"><span class="form-text">${esc((g.legenda || '').slice(0, 60))}</span></div>` : ''}
+        <button class="btn btn-outline-secondary btn-sm" onclick="buscarPostsFluxo()"><i class="bi bi-search"></i> ${g.mediaId ? 'Trocar post' : 'Escolher post'}</button>
+        <div id="mf-posts" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;max-height:280px;overflow-y:auto"></div></div>`;
+    }
+    html += `<div class="mb-3"><label class="form-label">Resposta pública no comentário</label><textarea class="form-control" rows="3" placeholder="Uma por linha. O sistema sorteia uma para não parecer robô." oninput="ed.respostasPublicas=this.value.split('\\n')">${esc((ed.respostasPublicas || []).join('\n'))}</textarea><div class="form-text">Deixe vazio para não responder em público.</div></div>`;
+  }
+  $('mf-gatilho-extra').innerHTML = html;
+  renderAvisosFluxo();
+}
+
+async function buscarPostsFluxo() {
+  const box = $('mf-posts');
+  if (!ed.perfil) return toast('Escolha o perfil primeiro.', 'erro');
+  box.innerHTML = '<span class="spinner-sm"></span>';
+  try {
+    const r = await api('list_posts', { igId: ed.perfil });
+    postsDoPerfil = r.posts;
+    box.innerHTML = r.posts.map((p, i) => `<div class="post-card ${p.id === ed.gatilho.mediaId ? 'selecionado' : ''}" onclick="escolherPostFluxo(${i})"><img src="${esc(p.thumbnail)}" referrerpolicy="no-referrer" loading="lazy"><div class="legenda">${esc(p.legenda)}</div></div>`).join('');
+  } catch (e) { box.innerHTML = `<div class="form-text" style="grid-column:1/-1">${esc(e.message)}</div>`; }
+}
+function escolherPostFluxo(i) {
+  const p = postsDoPerfil[i];
+  Object.assign(ed.gatilho, { mediaId: p.id, thumbnail: p.thumbnail, legenda: p.legenda });
+  renderGatilho();
+}
+
+function rotuloPasso(p, i) {
+  const resumo = p.tipo === 'mensagem' || p.tipo === 'pergunta' ? (p.texto || '').slice(0, 30) : TIPOS_PASSO[p.tipo];
+  return `Passo ${i + 1}: ${resumo}`;
+}
+function seletorPasso(valor, onchange, vazio = 'Terminar aqui') {
+  return `<select class="form-select form-select-sm" onchange="${onchange}">${opts(ed.passos.map((p, i) => [p.id, rotuloPasso(p, i)]), valor, vazio)}</select>`;
+}
+
+function renderPassos() {
+  const html = ed.passos.map((p, i) => {
+    let corpo = '';
+    const prox = (campo, rot = 'Depois disso, vai para') => `<div class="mt-2 d-flex gap-2 align-items-center"><span class="form-text" style="white-space:nowrap">${rot}</span>${seletorPasso(p[campo], `setPasso(${i},'${campo}',this.value);renderPassos()`)}</div>`;
+    if (p.tipo === 'mensagem') {
+      corpo = `<textarea class="form-control mb-2" rows="3" maxlength="640" placeholder="Escreva a mensagem..." oninput="setPasso(${i},'texto',this.value);this.nextElementSibling.textContent=this.value.length+'/640'">${esc(p.texto)}</textarea><div class="form-text text-end" style="margin-top:-6px">${(p.texto || '').length}/640</div>
+        <input class="form-control form-control-sm mb-2" placeholder="Imagem (opcional): link de uma imagem https://..." value="${esc(p.imagemUrl)}" oninput="setPasso(${i},'imagemUrl',this.value)">
+        <div class="form-label mb-1">Botões (até 3)</div>
+        ${(p.botoes || []).map((b, j) => `<div class="botao-linha">
+          <input class="form-control form-control-sm" maxlength="20" placeholder="Texto do botão" value="${esc(b.titulo)}" oninput="ed.passos[${i}].botoes[${j}].titulo=this.value">
+          <select class="form-select form-select-sm" onchange="ed.passos[${i}].botoes[${j}].acao=this.value;renderPassos()">${opts([['passo', 'Ir para passo'], ['link', 'Abrir link']], b.acao)}</select>
+          ${b.acao === 'link' ? `<input class="form-control form-control-sm" placeholder="https://..." value="${esc(b.url || '')}" oninput="ed.passos[${i}].botoes[${j}].url=this.value.trim()">` : seletorPasso(b.alvo, `ed.passos[${i}].botoes[${j}].alvo=this.value`, 'Escolha o passo')}
+          <button class="btn-sm-action btn-delete" onclick="ed.passos[${i}].botoes.splice(${j},1);renderPassos()"><i class="bi bi-x-lg"></i></button></div>`).join('')}
+        ${(p.botoes || []).length < 3 ? `<button class="btn btn-outline-secondary btn-sm" onclick="addBotao(${i})"><i class="bi bi-plus"></i> Botão</button>` : ''}
+        ${(p.botoes || []).length ? '<div class="form-text mt-2"><i class="bi bi-hand-index"></i> A conversa continua quando a pessoa tocar num botão.</div>' : prox('proximo')}`;
+    } else if (p.tipo === 'pergunta') {
+      corpo = `<textarea class="form-control mb-2" rows="2" placeholder="Ex: Me manda seu melhor e-mail 💛" oninput="setPasso(${i},'texto',this.value)">${esc(p.texto)}</textarea>
+        <div class="row g-2"><div class="col-md-6"><label class="form-label">O que a pessoa vai responder</label><select class="form-select form-select-sm" onchange="setPasso(${i},'campo',this.value);renderPassos()">${opts([['email', 'E-mail'], ['telefone', 'Telefone / WhatsApp'], ['texto', 'Texto livre']], p.campo)}</select></div>
+        ${p.campo === 'texto' ? `<div class="col-md-6"><label class="form-label">Salvar como</label><input class="form-control form-control-sm" placeholder="Ex: maior dor" value="${esc(p.salvarComo)}" oninput="setPasso(${i},'salvarComo',this.value)"></div>`
+          : `<div class="col-md-6"><label class="form-label">Se vier errado, responder</label><input class="form-control form-control-sm" placeholder="(mensagem padrão)" value="${esc(p.msgInvalido)}" oninput="setPasso(${i},'msgInvalido',this.value)"></div>`}</div>
+        ${prox('proximo', 'Depois que responder, vai para')}`;
+    } else if (p.tipo === 'verificar_seguidor') {
+      corpo = `<div class="form-text mb-2">O Instagram informa se a pessoa já segue o perfil. Use depois de um botão (ex.: "Quero receber").</div>
+        <div class="mb-2 d-flex gap-2 align-items-center"><span class="selo selo-verde" style="min-width:90px">Se segue</span>${seletorPasso(p.seSegue, `setPasso(${i},'seSegue',this.value)`)}</div>
+        <div class="d-flex gap-2 align-items-center"><span class="selo selo-amarelo" style="min-width:90px">Se não segue</span>${seletorPasso(p.naoSegue, `setPasso(${i},'naoSegue',this.value)`)}</div>`;
+    } else if (p.tipo === 'aguardar') {
+      corpo = `<div class="d-flex gap-2 align-items-center"><input type="number" min="1" max="10" class="form-control form-control-sm" style="width:80px" value="${p.segundos || 3}" oninput="setPasso(${i},'segundos',Math.max(1,Math.min(10,parseInt(this.value)||3)))"><span class="form-text">segundos (até 10) antes da próxima mensagem, para parecer mais natural</span></div>${prox('proximo')}`;
+    } else if (p.tipo === 'tag') {
+      corpo = `<input class="form-control form-control-sm" placeholder="Ex: interessada-livro" value="${esc(p.tag)}" oninput="setPasso(${i},'tag',this.value)"><div class="form-text">Marca a pessoa em Contatos, para você filtrar depois.</div>${prox('proximo')}`;
+    }
+    return `<div class="passo-card ${i === 0 ? 'inicio' : ''}">
+      <div class="d-flex align-items-center gap-2 mb-2"><span class="passo-num">${i + 1}</span><b style="font-size:13px;color:var(--cor-titulo)">${TIPOS_PASSO[p.tipo]}</b>${i === 0 ? '<span class="selo selo-roxo">início</span>' : ''}
+        <span class="ms-auto"></span>
+        ${i > 0 ? `<button class="btn-sm-action" title="Subir" onclick="moverPasso(${i},-1)"><i class="bi bi-arrow-up"></i></button>` : ''}
+        ${i < ed.passos.length - 1 ? `<button class="btn-sm-action" title="Descer" onclick="moverPasso(${i},1)"><i class="bi bi-arrow-down"></i></button>` : ''}
+        <button class="btn-sm-action btn-delete" title="Excluir passo" onclick="removerPasso(${i})"><i class="bi bi-trash"></i></button></div>
+      ${corpo}</div>${i < ed.passos.length - 1 ? '<div class="passo-seta"><i class="bi bi-three-dots-vertical"></i></div>' : ''}`;
+  }).join('');
+  $('mf-passos').innerHTML = html || '<div class="empty-state" style="padding:20px">Adicione o primeiro passo abaixo</div>';
+  renderAvisosFluxo();
+}
+function setPasso(i, campo, valor) { ed.passos[i][campo] = valor; if (campo === 'texto' || campo === 'tipo') renderAvisosFluxo(); }
+function addBotao(i) { ed.passos[i].botoes = ed.passos[i].botoes || []; ed.passos[i].botoes.push({ titulo: '', acao: 'link', url: '' }); renderPassos(); }
+function addPasso(tipo) {
+  const novo = novoPassoBase(tipo);
+  const ant = ed.passos[ed.passos.length - 1];
+  if (ant && 'proximo' in ant && !ant.proximo && !(ant.botoes || []).length) ant.proximo = novo.id;
+  ed.passos.push(novo);
+  renderPassos();
+}
+function moverPasso(i, d) { const p = ed.passos.splice(i, 1)[0]; ed.passos.splice(i + d, 0, p); renderPassos(); }
+function removerPasso(i) {
+  if (!confirm('Excluir este passo?')) return;
+  const id = ed.passos[i].id;
+  ed.passos.splice(i, 1);
+  ed.passos.forEach(p => {
+    ['proximo', 'seSegue', 'naoSegue'].forEach(c => { if (p[c] === id) p[c] = ''; });
+    (p.botoes || []).forEach(b => { if (b.alvo === id) b.alvo = ''; });
+  });
+  renderPassos();
+}
+
+function renderAvisosFluxo() {
+  const box = $('mf-avisos');
+  if (!box || !ed) return;
+  const av = [];
+  const p0 = ed.passos[0];
+  if (ed.gatilho.tipo === 'comentario' && p0) {
+    if (!['mensagem', 'pergunta'].includes(p0.tipo)) av.push('No gatilho de comentário, o <b>passo 1</b> precisa ser uma Mensagem ou uma Pergunta.');
+    else if (p0.tipo === 'mensagem' && !(p0.botoes || []).length && p0.proximo) av.push('Atenção: depois de responder um comentário no privado, o Instagram só deixa mandar a próxima mensagem quando a pessoa responder ou tocar num botão. <b>Coloque um botão no passo 1</b> (ex.: "Quero o link") para a conversa continuar.');
+    if (p0.tipo === 'mensagem' && p0.imagemUrl && (p0.texto || '').length > 80) av.push('No passo 1 com imagem, só os primeiros 160 caracteres aparecem no cartão. Encurte o texto ou tire a imagem.');
+  }
+  box.innerHTML = av.map(a => `<div class="alerta mb-2"><i class="bi bi-exclamation-triangle"></i> ${a}</div>`).join('');
+}
+
+function validarFluxo(f, paraLigar) {
+  const erros = [];
+  const g = f.gatilho || {};
+  if (!f.nome || !f.nome.trim()) erros.push('Dê um nome à automação.');
+  if (!f.passos || !f.passos.length) erros.push('Adicione pelo menos um passo.');
+  if (g.tipo !== 'story_mencao' && g.modo !== 'qualquer' && !(g.palavras || []).length) erros.push('Escreva pelo menos uma palavra-chave.');
+  if (g.tipo === 'comentario' && g.escopo === 'especifico' && !g.mediaId) erros.push('Escolha o post da automação.');
+  const ids = new Set((f.passos || []).map(p => p.id));
+  (f.passos || []).forEach((p, i) => {
+    const n = `Passo ${i + 1}`;
+    if ((p.tipo === 'mensagem' || p.tipo === 'pergunta') && !(p.texto || '').trim()) erros.push(`${n}: escreva a mensagem.`);
+    (p.botoes || []).forEach((b, j) => {
+      if (!(b.titulo || '').trim()) erros.push(`${n}: o botão ${j + 1} está sem texto.`);
+      if (b.acao === 'link' && !/^https?:\/\/\S+\.\S+/.test(b.url || '')) erros.push(`${n}: o botão "${b.titulo || j + 1}" precisa de um link válido (começando com https://).`);
+      if (b.acao === 'passo' && !ids.has(b.alvo)) erros.push(`${n}: escolha para qual passo o botão "${b.titulo || j + 1}" leva.`);
+    });
+    if (p.tipo === 'verificar_seguidor' && (!ids.has(p.seSegue) || !ids.has(p.naoSegue))) erros.push(`${n}: escolha o caminho de quem segue e de quem não segue.`);
+  });
+  if (g.tipo === 'comentario' && f.passos?.[0] && !['mensagem', 'pergunta'].includes(f.passos[0].tipo)) erros.push('No gatilho de comentário, o passo 1 precisa ser Mensagem ou Pergunta.');
+  if (paraLigar && !contaPorId(f.perfil)) erros.push('Escolha um perfil conectado.');
+  return erros;
+}
+
+function conflitosPalavras(f) {
+  if (!f.ativo) return [];
+  const minhas = new Set((f.gatilho.palavras || []).map(p => p.toLowerCase()));
+  return dados.fluxos.filter(o => o._id !== f._id && o.ativo && o.perfil === f.perfil && o.gatilho?.tipo === f.gatilho.tipo &&
+      (o.gatilho?.escopo || 'qualquer') === (f.gatilho.escopo || 'qualquer') && (f.gatilho.escopo !== 'especifico' || o.gatilho?.mediaId === f.gatilho.mediaId))
+    .filter(o => (o.gatilho.palavras || []).some(p => minhas.has(p.toLowerCase())))
+    .map(o => o.nome);
+}
+
+async function salvarFluxo() {
+  ed.nome = $('mf-nome').value.trim();
+  ed.perfil = $('mf-perfil').value;
+  ed.perfilUsername = usernameDoIg(ed.perfil);
+  ed.ativo = $('mf-ativo').checked;
+  ed.umaVezPorPessoa = $('mf-umavez').checked;
+  ed.respostasPublicas = (ed.respostasPublicas || []).map(r => r.trim()).filter(Boolean);
+  if (ed.gatilho.tipo !== 'comentario') { ed.respostasPublicas = []; ed.gatilho.escopo = 'qualquer'; ed.gatilho.mediaId = null; }
+  const erros = validarFluxo(ed, ed.ativo);
+  if (erros.length) return alert('Falta pouco! Corrija:\n\n• ' + erros.join('\n• '));
+  const conf = conflitosPalavras(ed);
+  if (conf.length && !confirm(`A automação "${conf.join('", "')}" já usa a mesma palavra-chave neste perfil. Só uma delas vai disparar. Salvar mesmo assim?`)) return;
+  const obj = JSON.parse(JSON.stringify(ed));
+  const id = obj._id; delete obj._id;
+  obj.atualizadoEm = agoraIso();
+  if (id) await db.collection('midias_fluxos').doc(id).set(obj);
+  else { obj.criadoEm = agoraIso(); await db.collection('midias_fluxos').add(obj); }
+  modal('modalFluxo').hide();
+  toast(ed.ativo ? 'Automação salva e ligada!' : 'Automação salva (desligada).');
+}
+
+// ============================================================
+// CONTATOS E LEADS
+// ============================================================
+async function carregarContatos(forcar) {
+  if (!cache.contatos || forcar) {
+    $('tabela-contatos').querySelector('tbody').innerHTML = '<tr><td colspan="8"><div class="empty-state"><span class="spinner-sm"></span> Carregando...</div></td></tr>';
+    try {
+      const snap = await db.collection('midias_contatos').get();
+      cache.contatos = snap.docs.map(d => ({ ...d.data(), _id: d.id })).sort((a, b) => String(b.ultimaInteracao || b.primeiraInteracao || '').localeCompare(String(a.ultimaInteracao || a.primeiraInteracao || '')));
+    } catch (e) { cache.contatos = []; }
+  }
+  renderContatos();
+}
+function janelaAberta(c) { return c.ultimaInteracao && (Date.now() - new Date(c.ultimaInteracao).getTime()) < 24 * 3600 * 1000; }
+function contatosFiltrados() {
+  const busca = $('ct-busca').value.toLowerCase(), pf = $('ct-perfil').value, fl = $('ct-filtro').value;
+  return (cache.contatos || []).filter(c => (!pf || c.perfilUsername === pf) &&
+    (!fl || (fl === 'lead' ? (c.email || c.telefone) : janelaAberta(c))) &&
+    (!busca || [c.usuario, c.nome, c.email, c.telefone, (c.tags || []).join(' ')].join(' ').toLowerCase().includes(busca)));
+}
+function renderContatos() {
+  const todos = cache.contatos || [];
+  const lista = contatosFiltrados();
+  $('ct-kpis').innerHTML = [
+    ['Contatos', fmtNum(todos.length)], ['Com e-mail', fmtNum(todos.filter(c => c.email).length)],
+    ['Com telefone', fmtNum(todos.filter(c => c.telefone).length)], ['Conversa aberta agora', fmtNum(todos.filter(janelaAberta).length)],
+  ].map(([l, v]) => `<div class="kpi-card"><div class="kpi-label">${l}</div><div class="kpi-value">${v}</div></div>`).join('');
+  const nomeFluxo = id => (dados.fluxos.find(f => f._id === id) || {}).nome || '';
+  $('tabela-contatos').querySelector('tbody').innerHTML = lista.length ? lista.map(c => `<tr>
+      <td>${c.usuario ? `<a href="https://www.instagram.com/${esc(c.usuario)}/" target="_blank" style="color:var(--cor-secundaria)">@${esc(c.usuario)}</a>` : '<span class="form-text">(sem @)</span>'}${c.nome ? `<div class="form-text">${esc(c.nome)}</div>` : ''}</td>
+      <td>${perfilTag(c.perfilUsername)}</td><td style="font-size:12px">${esc(c.email || '—')}</td><td style="font-size:12px;white-space:nowrap">${esc(c.telefone || '—')}</td>
+      <td>${(c.tags || []).map(t => `<span class="selo selo-cinza">${esc(t)}</span>`).join(' ')}</td>
+      <td style="font-size:12px">${(c.fluxos || []).map(nomeFluxo).filter(Boolean).map(esc).join('<br>')}</td>
+      <td style="font-size:12px;white-space:nowrap">${fmtDataHora(c.ultimaInteracao || c.primeiraInteracao)}${janelaAberta(c) ? '<br><span class="selo selo-verde">conversa aberta</span>' : ''}</td>
+      <td style="white-space:nowrap"><button class="btn-sm-action" onclick="editarContato('${c._id}')"><i class="bi bi-pencil-fill"></i></button><button class="btn-sm-action btn-delete" onclick="excluirContato('${c._id}')"><i class="bi bi-trash-fill"></i></button></td></tr>`).join('')
+    : '<tr><td colspan="8"><div class="empty-state"><i class="bi bi-people"></i>Ninguém por aqui ainda. Os contatos aparecem quando as automações começam a rodar.</div></td></tr>';
+}
+function editarContato(id) {
+  const c = (cache.contatos || []).find(x => x._id === id);
+  if (!c) return;
+  $('mct-id').value = id;
+  $('mct-titulo').textContent = c.usuario ? '@' + c.usuario : 'Contato';
+  $('mct-nome').value = c.nome || ''; $('mct-email').value = c.email || ''; $('mct-telefone').value = c.telefone || '';
+  $('mct-tags').value = (c.tags || []).join(', '); $('mct-notas').value = c.notas || '';
+  const resp = Object.entries(c.respostas || {});
+  $('mct-respostas').innerHTML = resp.length ? '<div class="form-label">Respostas nas automações</div>' + resp.map(([k, v]) => `<div style="font-size:13px"><b>${esc(k)}:</b> ${esc(v)}</div>`).join('') : '';
+  modal('modalContato').show();
+}
+async function salvarContatoModal() {
+  const id = $('mct-id').value;
+  const obj = { nome: $('mct-nome').value.trim(), email: $('mct-email').value.trim(), telefone: $('mct-telefone').value.trim(), tags: listaTags($('mct-tags').value), notas: $('mct-notas').value };
+  await db.collection('midias_contatos').doc(id).set(obj, { merge: true });
+  const c = cache.contatos.find(x => x._id === id); Object.assign(c, obj);
+  modal('modalContato').hide(); renderContatos(); toast('Contato salvo!');
+}
+async function excluirContato(id) {
+  if (!confirm('Excluir este contato? Se a pessoa interagir de novo, ela volta como contato novo.')) return;
+  await db.collection('midias_contatos').doc(id).delete();
+  cache.contatos = cache.contatos.filter(x => x._id !== id);
+  renderContatos(); toast('Contato excluído.');
+}
+function semAcento(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+function exportarContatosExcel() {
+  const lista = contatosFiltrados();
+  if (!lista.length) return toast('Nenhum contato para exportar.', 'erro');
+  const nomeFluxo = id => (dados.fluxos.find(f => f._id === id) || {}).nome || '';
+  const linhas = lista.map(c => ({ 'Instagram': c.usuario ? '@' + c.usuario : '', 'Nome': c.nome || '', 'E-mail': c.email || '', 'Telefone': c.telefone || '', 'Perfil': '@' + (c.perfilUsername || ''),
+    'Tags': (c.tags || []).join(', '), 'Automações': (c.fluxos || []).map(nomeFluxo).join(', '), 'Primeira interação': fmtDataHora(c.primeiraInteracao), 'Última conversa': fmtDataHora(c.ultimaInteracao),
+    'Respostas': Object.entries(c.respostas || {}).map(([k, v]) => `${k}: ${v}`).join(' | '), 'Anotações': c.notas || '' }));
+  const ws = XLSX.utils.json_to_sheet(linhas);
+  ws['!cols'] = Object.keys(linhas[0]).map(k => ({ wch: Math.min(40, Math.max(k.length, ...linhas.map(l => String(l[k]).length)) + 2) }));
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Contatos');
+  XLSX.writeFile(wb, `contatos-instagram-${hojeStr()}.xlsx`);
+}
+function exportarContatosMeta() {
+  const lista = contatosFiltrados().filter(c => c.email || c.telefone);
+  if (!lista.length) return toast('Nenhum contato com e-mail ou telefone para exportar.', 'erro');
+  const linhas = [['fn', 'ln', 'email', 'phone', 'country']];
+  lista.forEach(c => {
+    const partes = semAcento(c.nome).toLowerCase().trim().split(/\s+/);
+    linhas.push([partes[0] || '', partes.length > 1 ? partes[partes.length - 1] : '', (c.email || '').toLowerCase(), (c.telefone || '').replace(/[^\d+]/g, ''), 'br']);
+  });
+  const csv = linhas.map(l => l.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = `publico-meta-instagram-${hojeStr()}.csv`; a.click();
+  alert(`${lista.length} contatos exportados (${lista.filter(c => c.email).length} com e-mail, ${lista.filter(c => c.telefone).length} com telefone).\n\nNo Meta: Públicos → Criar público → Público personalizado → Lista de clientes.`);
+}
+
+// ============================================================
+// PERFIS CONECTADOS
+// ============================================================
+function renderContas() {
+  $('contas-lista').innerHTML = contasIG.length ? contasIG.map(c => `<div class="conta-card" style="padding:12px 0;border-bottom:1px solid var(--cor-borda)">
+      ${c.foto ? `<img src="${esc(c.foto)}" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">` : '<img>'}
+      <div style="flex:1;min-width:0"><b style="color:var(--cor-titulo)">@${esc(c.username)}</b> <span class="selo selo-verde">conectado</span>
+        <div class="form-text">Página: ${esc(c.paginaNome)} · Token ${c.tokenExpira ? 'expira em ' + fmtData(new Date(c.tokenExpira * 1000).toISOString()) : 'sem validade (não expira)'} · conectado em ${fmtData(c.conectadoEm)}</div>
+        <div class="form-text">Webhook: ${c.webhook === 'ok' ? '<span style="color:var(--cor-verde)">ativo</span>' : esc(c.webhook || 'pendente')}</div></div>
+      <button class="btn btn-outline-secondary btn-sm" onclick="desconectarConta('${c.igId}')">Desconectar</button></div>`).join('')
+    : '<div class="empty-state" style="padding:20px"><i class="bi bi-instagram"></i>Nenhum perfil conectado ainda. Siga os passos abaixo.</div>';
+  const faltando = PERFIS.filter(p => !contaPorUsername(p.u));
+  if (contasIG.length && faltando.length) $('contas-lista').innerHTML += `<div class="alerta mt-3"><i class="bi bi-info-circle"></i> Ainda não conectados: ${faltando.map(p => '@' + p.u).join(', ')}. Cada perfil precisa ser conta Profissional e estar ligado a uma Página do Facebook sua. Depois, gere o token de novo marcando essas páginas.</div>`;
+}
+async function conectarContas() {
+  const token = $('cfg-token').value.trim();
+  if (!token) return alert('Cole o token primeiro.');
+  const btn = $('btn-conectar');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner-sm"></span> Conectando...';
+  $('cfg-resultado').innerHTML = '';
+  try {
+    const r = await api('conectar', { token });
+    $('cfg-token').value = '';
+    $('cfg-resultado').innerHTML = `<div class="dica"><i class="bi bi-check-circle" style="color:var(--cor-verde)"></i> Conectado: ${r.conectadas.map(c => '<b>@' + esc(c.username) + '</b>').join(', ')}
+      ${r.avisos.length ? '<div class="mt-2" style="color:var(--cor-acento)">Avisos: ' + r.avisos.map(esc).join('<br>') + '</div>' : ''}</div>`;
+    await carregarContas();
+  } catch (e) {
+    $('cfg-resultado').innerHTML = `<div class="alerta"><i class="bi bi-x-circle" style="color:var(--cor-vermelho)"></i> ${esc(e.message)}</div>`;
+  }
+  btn.disabled = false; btn.innerHTML = '<i class="bi bi-plug-fill"></i> Conectar';
+}
+async function desconectarConta(igId) {
+  if (!confirm('Desconectar este perfil? As automações dele param de funcionar até conectar de novo.')) return;
+  try { await api('desconectar', { igId }); await carregarContas(); toast('Perfil desconectado.'); }
+  catch (e) { toast(esc(e.message), 'erro'); }
 }
 </script>
 </body>
