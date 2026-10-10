@@ -205,6 +205,11 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
     </div>
     <div class="sidebar-nav">
       <div class="nav-item"><button class="nav-link" data-page="dashboard" onclick="showPage('dashboard')"><i class="bi bi-speedometer2"></i> Dashboard</button></div>
+      <div class="nav-grupo">Redes Sociais</div>
+      <div class="nav-item"><button class="nav-link" data-page="instagram" onclick="showPage('instagram')"><i class="bi bi-instagram"></i> Instagram</button></div>
+      <div class="nav-item"><button class="nav-link" data-page="tiktok" onclick="showPage('tiktok')"><i class="bi bi-tiktok"></i> TikTok</button></div>
+      <div class="nav-item"><button class="nav-link" data-page="youtube" onclick="showPage('youtube')"><i class="bi bi-youtube"></i> YouTube</button></div>
+      <div class="nav-item"><button class="nav-link" data-page="pinterest" onclick="showPage('pinterest')"><i class="bi bi-pinterest"></i> Pinterest</button></div>
       <div class="nav-grupo">Conteúdo</div>
       <div class="nav-item"><button class="nav-link" data-page="calendario" onclick="showPage('calendario')"><i class="bi bi-calendar3"></i> Calendário</button></div>
       <div class="nav-item"><button class="nav-link" data-page="ideias" onclick="showPage('ideias')"><i class="bi bi-lightbulb"></i> Ideias e Roteiros</button></div>
@@ -706,7 +711,7 @@ function alternarTema() {
   document.body.classList.toggle('modo-claro');
   try { localStorage.setItem('ms-tema', document.body.classList.contains('modo-claro') ? 'claro' : 'escuro'); } catch (e) {}
   atualizarBotaoTema();
-  if (paginaAtual === 'dashboard') renderDashboard();
+  if (ehPaginaDash(paginaAtual)) renderDashboard();
   if (paginaAtual === 'metricas') renderMetricas();
 }
 function atualizarBotaoTema() {
@@ -727,7 +732,7 @@ auth.onAuthStateChanged(async user => {
   setupListeners();
   let inicial = 'dashboard';
   try { inicial = localStorage.getItem('ms-pagina') || 'dashboard'; } catch (e) {}
-  if (!$('page-' + inicial)) inicial = 'dashboard';
+  if (!PAGINAS[inicial]) inicial = 'dashboard';
   setDashPeriodo('mes', true);
   showPage(inicial);
   carregarContas();
@@ -760,7 +765,7 @@ async function carregarContas() {
   }
   preencherFiltrosContas();
   renderPaginaAtual();
-  if (paginaAtual === 'dashboard' || paginaAtual === 'metricas') syncAutomaticoSeAntigo();
+  if (ehPaginaDash(paginaAtual) || paginaAtual === 'metricas') syncAutomaticoSeAntigo();
 }
 
 window.addEventListener('message', e => {
@@ -773,6 +778,10 @@ window.addEventListener('beforeunload', e => { if (ytEnviando) { e.preventDefaul
 // ============================================================
 // NAVEGAÇÃO
 // ============================================================
+// Instagram, TikTok, YouTube e Pinterest têm cada um a sua página no menu (mesma tela do Dashboard, só com a rede escolhida)
+const PAGINAS_REDE = ['instagram', 'tiktok', 'youtube', 'pinterest'];
+function ehPaginaDash(p) { return p === 'dashboard' || PAGINAS_REDE.includes(p); }
+function botaoSync() { return `<button class="btn btn-outline-secondary btn-sm" id="btn-sync" onclick="sincronizarMetricas()"><i class="bi bi-arrow-repeat"></i> Atualizar métricas</button>`; }
 const PAGINAS = {
   dashboard: ['Dashboard', 'Crescimento, alcance e resultados das automações', () => `<button class="btn btn-outline-secondary btn-sm" id="btn-sync" onclick="sincronizarMetricas()"><i class="bi bi-arrow-repeat"></i> Atualizar métricas</button>`],
   calendario: ['Calendário de Conteúdo', 'Planeje e acompanhe cada post dos 3 perfis', () => `<button class="btn btn-primary btn-sm" onclick="novoConteudo()"><i class="bi bi-plus-lg"></i> Novo conteúdo</button>`],
@@ -789,13 +798,18 @@ const PAGINAS = {
       <li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="#" onclick="novoFluxo('vazio');return false">Começar do zero</a></li></ul></div>`],
   contatos: ['Contatos e Leads', 'Quem conversou com as automações', () => `<button class="btn btn-outline-secondary btn-sm" onclick="exportarContatosExcel()"><i class="bi bi-file-earmark-excel"></i> Excel</button><button class="btn btn-outline-secondary btn-sm" onclick="exportarContatosMeta()"><i class="bi bi-meta"></i> Meta Ads</button>`],
   comentarios: ['Comentários do YouTube', 'Responda quem comentou nos seus vídeos sem sair do sistema', () => `<button class="btn btn-outline-secondary btn-sm" id="btn-cm-atualizar" onclick="carregarComentarios(true)"><i class="bi bi-arrow-repeat"></i> Atualizar</button>`],
+  instagram: ['Instagram', 'Seguidores, alcance e automações de cada perfil do Instagram', botaoSync],
+  tiktok: ['TikTok', 'Seguidores e visualizações de cada conta do TikTok', botaoSync],
+  youtube: ['YouTube', 'Inscritos, visualizações e horas assistidas de cada canal', botaoSync],
+  pinterest: ['Pinterest', 'Impressões, salvamentos e cliques de cada conta do Pinterest', botaoSync],
   configuracoes: ['Perfis Conectados', 'Instagram, TikTok, Pinterest e YouTube ligados ao sistema', () => ''],
 };
 
 function showPage(id) {
   paginaAtual = id;
   try { localStorage.setItem('ms-pagina', id); } catch (e) {}
-  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + id));
+  const tela = ehPaginaDash(id) ? 'dashboard' : id;
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + tela));
   document.querySelectorAll('.nav-link').forEach(n => n.classList.toggle('active', n.dataset.page === id));
   const [t, s] = PAGINAS[id];
   $('topbar-titulo').textContent = t;
@@ -808,7 +822,7 @@ function atualizarAcoesTopo() { $('topbar-acoes').innerHTML = PAGINAS[paginaAtua
 
 function renderPaginaAtual(abrindo) {
   const p = paginaAtual;
-  if (p === 'dashboard') { Promise.all([carregarDadosMetricas(), cache.logs ? null : carregarLogs()]).then(renderDashboard); if (abrindo) syncAutomaticoSeAntigo(); }
+  if (ehPaginaDash(p)) { Promise.all([carregarDadosMetricas(), cache.logs ? null : carregarLogs()]).then(renderDashboard); if (abrindo) syncAutomaticoSeAntigo(); }
   else if (p === 'calendario') renderCalendario();
   else if (p === 'ideias') renderIdeias();
   else if (p === 'inspiracoes') { renderReferencias(); renderPerfisInsp(); }
@@ -970,18 +984,19 @@ function desenharGrafico(id, config) {
   charts[id] = new Chart($(id), config);
 }
 
-// Uma aba por perfil e rede: o Dashboard mostra sempre um perfil só
-let dashConta = '';
-try { dashConta = localStorage.getItem('ms-dash-conta') || ''; } catch (e) {}
-function contaDash() { const t = todasContas(); return t.find(c => c.id === dashConta) || t[0] || null; }
+// Uma aba por perfil: o Dashboard mostra sempre um perfil só. Nas páginas de rede, só as contas daquela rede
+let dashConta = {};
+try { dashConta = JSON.parse(localStorage.getItem('ms-dash-contas') || '{}'); } catch (e) {}
+function contasDaPagina() { const t = todasContas(); return PAGINAS_REDE.includes(paginaAtual) ? t.filter(c => c.rede === paginaAtual) : t; }
+function contaDash() { const t = contasDaPagina(); return t.find(c => c.id === dashConta[paginaAtual]) || t[0] || null; }
 function renderDashTabs() {
-  const t = todasContas(), atual = contaDash();
+  const t = contasDaPagina(), atual = contaDash();
   $('dash-tabs').style.display = t.length ? 'flex' : 'none';
   $('dash-tabs').innerHTML = t.map(c => `<button class="${atual && c.id === atual.id ? 'ativo' : ''}" onclick="abaDash('${esc(c.id)}')"><i class="bi ${ICONE_REDE[c.rede]}"></i>@${esc(c.username)}</button>`).join('');
 }
 function abaDash(id) {
-  dashConta = id;
-  try { localStorage.setItem('ms-dash-conta', id); } catch (e) {}
+  dashConta[paginaAtual] = id;
+  try { localStorage.setItem('ms-dash-contas', JSON.stringify(dashConta)); } catch (e) {}
   renderDashboard();
 }
 
@@ -993,8 +1008,11 @@ function renderDashboard() {
   const dentro = d => d >= de && d <= ate;
   const kpi = ([l, v, s, i]) => `<div class="kpi-card"><div class="kpi-label"><i class="bi ${i} me-1"></i>${l}</div><div class="kpi-value">${v}</div><div class="kpi-sub">${s}</div></div>`;
 
+  const nomeRede = PAGINAS_REDE.includes(paginaAtual) ? NOME_REDE[paginaAtual] : '';
   $('dash-aviso').innerHTML = !c
-    ? `<div class="alerta mb-3"><i class="bi bi-exclamation-triangle"></i> Nenhum perfil conectado ainda. Vá em <a href="#" onclick="showPage('configuracoes');return false" style="color:var(--cor-secundaria)">Perfis Conectados</a> para começar a puxar as métricas.</div>` : '';
+    ? `<div class="alerta mb-3"><i class="bi bi-exclamation-triangle"></i> ${nomeRede ? `Nenhuma conta do ${nomeRede} conectada ainda.` : 'Nenhum perfil conectado ainda.'} Vá em <a href="#" onclick="showPage('configuracoes');return false" style="color:var(--cor-secundaria)">Perfis Conectados</a> para começar a puxar as métricas.</div>` : '';
+  // Sem conta nesta rede: limpa tudo para não sobrar gráfico ou post de outra rede
+  document.querySelectorAll('#page-dashboard > .row').forEach(r => r.style.display = c ? '' : 'none');
   if (!c) { $('dash-kpis').innerHTML = ''; return; }
 
   const perfil = (cache.perfisIg || []).find(p => p.igId === c.id) || {};
