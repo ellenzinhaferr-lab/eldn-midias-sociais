@@ -152,7 +152,6 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
 .pin-bloco{background:rgba(230,0,35,.06);border:1px solid rgba(230,0,35,.3);border-radius:12px;padding:16px}
 .pin-preview{width:90px;height:130px;object-fit:cover;border-radius:8px;background:rgba(124,58,237,.1)}
 .yt-bloco{background:rgba(255,0,0,.05);border:1px solid rgba(255,0,0,.3);border-radius:12px;padding:16px}
-.li-bloco{background:rgba(10,102,194,.07);border:1px solid rgba(10,102,194,.35);border-radius:12px;padding:16px}
 .barra-envio{height:8px;border-radius:4px;background:rgba(124,58,237,.15);overflow:hidden}
 .barra-envio div{height:100%;width:0;background:#FF0000;transition:width .3s}
 .thumb-mini{width:42px;height:42px;object-fit:cover;border-radius:6px;background:rgba(124,58,237,.1)}
@@ -405,7 +404,6 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
         <div class="bloco" id="cfg-tiktok"></div>
         <div class="bloco" id="cfg-pinterest"></div>
         <div class="bloco" id="cfg-youtube"></div>
-        <div class="bloco" id="cfg-linkedin"></div>
         <div class="bloco">
           <h6><i class="bi bi-info-circle me-2"></i>O que o Instagram permite nas automações</h6>
           <div class="row g-3" style="font-size:13px">
@@ -447,7 +445,6 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
       <div class="col-12 col-md-6"><label class="form-label">Automação ligada (opcional)</label><select class="form-select" id="mc-fluxo"></select></div>
       <div class="col-12" id="mc-pin-bloco" style="display:none"></div>
       <div class="col-12" id="mc-yt-bloco" style="display:none"></div>
-      <div class="col-12" id="mc-li-bloco" style="display:none"></div>
       <div class="col-12"><label class="form-label">Gancho (primeiros 3 segundos)</label><input class="form-control" id="mc-gancho"></div>
       <div class="col-12"><label class="form-label">Roteiro</label><textarea class="form-control" id="mc-roteiro" rows="5"></textarea></div>
       <div class="col-12"><label class="form-label">Legenda</label><textarea class="form-control" id="mc-legenda" rows="4"></textarea></div>
@@ -608,16 +605,16 @@ const PERFIS = [
   { u: 'meulugardecura', cor: '#F59E0B' },
   { u: 'ellatemfe', cor: '#EC4899' },
 ];
-const FORMATOS = ['Reels', 'Carrossel', 'Estático', 'Stories', 'Live', 'TikTok', 'Pin', 'Shorts', 'Vídeo YouTube', 'Post LinkedIn'];
-const REDES_CAL = ['Instagram', 'TikTok', 'Pinterest', 'YouTube', 'LinkedIn', 'Facebook'];
-const NOME_REDE = { instagram: 'Instagram', tiktok: 'TikTok', pinterest: 'Pinterest', youtube: 'YouTube', linkedin: 'LinkedIn' };
-const ICONE_REDE = { instagram: 'bi-instagram', tiktok: 'bi-tiktok', pinterest: 'bi-pinterest', youtube: 'bi-youtube', linkedin: 'bi-linkedin' };
-const ICONE_FORMATO = { Reels: 'bi-camera-reels', Carrossel: 'bi-images', 'Estático': 'bi-image', Stories: 'bi-phone', Live: 'bi-broadcast', TikTok: 'bi-tiktok', Pin: 'bi-pinterest', Shorts: 'bi-youtube', 'Vídeo YouTube': 'bi-play-btn', 'Post LinkedIn': 'bi-linkedin' };
+const FORMATOS = ['Reels', 'Carrossel', 'Estático', 'Stories', 'Live', 'TikTok', 'Pin', 'Shorts', 'Vídeo YouTube'];
+const REDES_CAL = ['Instagram', 'TikTok', 'Pinterest', 'YouTube', 'Facebook'];
+const NOME_REDE = { instagram: 'Instagram', tiktok: 'TikTok', pinterest: 'Pinterest', youtube: 'YouTube' };
+const ICONE_REDE = { instagram: 'bi-instagram', tiktok: 'bi-tiktok', pinterest: 'bi-pinterest', youtube: 'bi-youtube' };
+const ICONE_FORMATO = { Reels: 'bi-camera-reels', Carrossel: 'bi-images', 'Estático': 'bi-image', Stories: 'bi-phone', Live: 'bi-broadcast', TikTok: 'bi-tiktok', Pin: 'bi-pinterest', Shorts: 'bi-youtube', 'Vídeo YouTube': 'bi-play-btn' };
 const OBJETIVOS = ['Vender', 'Ganhar seguidores', 'Conectar', 'Ensinar', 'Trend', 'Humor'];
 const STATUS_CAL = ['Ideia', 'Roteiro', 'Gravado', 'Editado', 'Agendado', 'Postado'];
 const COR_STATUS_CAL = { Ideia: '#9D8EC4', Roteiro: '#60A5FA', Gravado: '#F59E0B', Editado: '#EC4899', Agendado: '#A78BFA', Postado: '#10B981' };
 const STATUS_IDEIA = ['Nova', 'Aprovada', 'Agendada', 'Usada', 'Descartada'];
-const PLATAFORMAS = ['Instagram', 'TikTok', 'YouTube', 'Pinterest', 'LinkedIn', 'Facebook', 'Outro'];
+const PLATAFORMAS = ['Instagram', 'TikTok', 'YouTube', 'Pinterest', 'Facebook', 'Outro'];
 const STATUS_REF = ['Salva', 'Modelando', 'Replicada'];
 const EVENTOS = {
   entrou: ['Entrou na automação', 'selo-roxo'], clique: ['Tocou num botão', 'selo-azul'], link: ['Abriu o link', 'selo-verde'],
@@ -630,9 +627,8 @@ let contasIG = [];
 let contasRedes = [], appsRedes = {}, redirectUri = '';
 // O login do Google volta por esta página-ponte (o ModSecurity do servidor bloqueia o retorno direto)
 const redirectUriGoogle = new URL('oauth-google.html', location.href).href.split('?')[0];
-function redeDoId(id) { const p = { tt: 'tiktok', pin: 'pinterest', yt: 'youtube', li: 'linkedin' }[String(id || '').split('_')[0]]; return p || 'instagram'; }
-// Contas com métricas (o LinkedIn pessoal só publica: a API não libera métricas do perfil)
-function contasMetricas() { return contasRedes.filter(c => c.rede !== 'linkedin'); }
+function redeDoId(id) { const p = { tt: 'tiktok', pin: 'pinterest', yt: 'youtube' }[String(id || '').split('_')[0]]; return p || 'instagram'; }
+function contasMetricas() { return contasRedes; }
 function todasContas() { return [...contasIG.map(c => ({ id: c.igId, rede: 'instagram', username: c.username })), ...contasMetricas().map(c => ({ id: c.id, rede: c.rede, username: c.username }))]; }
 let cache = { metricasDia: null, posts: null, perfisIg: null, logs: null, contatos: null };
 let unsubscribers = [];
@@ -793,7 +789,7 @@ const PAGINAS = {
       <li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="#" onclick="novoFluxo('vazio');return false">Começar do zero</a></li></ul></div>`],
   contatos: ['Contatos e Leads', 'Quem conversou com as automações', () => `<button class="btn btn-outline-secondary btn-sm" onclick="exportarContatosExcel()"><i class="bi bi-file-earmark-excel"></i> Excel</button><button class="btn btn-outline-secondary btn-sm" onclick="exportarContatosMeta()"><i class="bi bi-meta"></i> Meta Ads</button>`],
   comentarios: ['Comentários do YouTube', 'Responda quem comentou nos seus vídeos sem sair do sistema', () => `<button class="btn btn-outline-secondary btn-sm" id="btn-cm-atualizar" onclick="carregarComentarios(true)"><i class="bi bi-arrow-repeat"></i> Atualizar</button>`],
-  configuracoes: ['Perfis Conectados', 'Instagram, TikTok, Pinterest, YouTube e LinkedIn ligados ao sistema', () => ''],
+  configuracoes: ['Perfis Conectados', 'Instagram, TikTok, Pinterest e YouTube ligados ao sistema', () => ''],
 };
 
 function showPage(id) {
@@ -1138,9 +1134,9 @@ function conteudosFiltrados() {
   const pf = $('cal-perfil').value, st = $('cal-status').value;
   return dados.calendario.filter(c => (!pf || c.perfil === pf) && (!st || c.status === st));
 }
-// ⏰ = vai publicar sozinho (pin, post do LinkedIn ou vídeo agendado no YouTube); ⚠️ = a última tentativa falhou
+// ⏰ = vai publicar sozinho (pin ou vídeo agendado no YouTube); ⚠️ = a última tentativa falhou
 function marcaAgendado(c) {
-  const pend = [c.pin, c.li].find(x => x && x.agendado && !x.publicadoEm);
+  const pend = [c.pin].find(x => x && x.agendado && !x.publicadoEm);
   if (pend) return pend.erro ? '⚠️ ' : '⏰ ';
   return c.yt && c.yt.videoId && c.yt.publishAt && new Date(c.yt.publishAt) > new Date() ? '⏰ ' : '';
 }
@@ -1201,11 +1197,10 @@ function preencherModalConteudo(c) {
   $('mc-data').value = c.data || '';
   $('mc-hora').value = c.hora || '';
   $('mc-perfil').innerHTML = opts(PERFIS.map(p => [p.u, '@' + p.u]), c.perfil || PERFIS[0].u);
-  const redeDoFormato = { Pin: 'Pinterest', TikTok: 'TikTok', Shorts: 'YouTube', 'Vídeo YouTube': 'YouTube', 'Post LinkedIn': 'LinkedIn' };
+  const redeDoFormato = { Pin: 'Pinterest', TikTok: 'TikTok', Shorts: 'YouTube', 'Vídeo YouTube': 'YouTube' };
   $('mc-rede').innerHTML = opts(REDES_CAL, c.rede || redeDoFormato[c.formato] || 'Instagram');
   pinAtual = Object.assign({ contaId: '', boardId: '', boardNome: '', imagemUrl: '', link: '', altText: '', agendado: false }, c.pin || {});
   ytAtual = Object.assign({ contaId: '', privacidade: 'public', tags: '', videoId: '', publishAt: '', enviadoEm: '' }, c.yt || {});
-  liAtual = Object.assign({ contaId: '', imagemUrl: '', altText: '', agendado: false }, c.li || {});
   $('mc-formato').innerHTML = opts(FORMATOS, c.formato || 'Reels');
   $('mc-objetivo').innerHTML = opts(OBJETIVOS, c.objetivo || 'Conectar');
   $('mc-status').innerHTML = opts(STATUS_CAL, c.status || 'Ideia');
@@ -1249,19 +1244,6 @@ async function salvarConteudo() {
     }
   }
   if (obj.rede === 'YouTube') { lerYtBloco(); obj.yt = { ...ytAtual }; }
-  if (obj.rede === 'LinkedIn') {
-    lerLiBloco();
-    obj.li = { ...liAtual };
-    if (obj.li.agendado && !obj.li.publicadoEm) {
-      const falta = [];
-      if (!obj.data || !obj.hora) falta.push('data e horário');
-      if (!obj.li.contaId) falta.push('conta do LinkedIn');
-      if (!obj.legenda.trim() && !obj.titulo) falta.push('texto do post (legenda)');
-      if (falta.length) return alert('Para agendar o post, falta: ' + falta.join(', ') + '.');
-      obj.li.erro = ''; obj.li.tentativas = 0;
-      if (obj.status !== 'Postado') obj.status = 'Agendado';
-    }
-  }
   const id = await gravarConteudo(obj);
   $('mc-id').value = id;
   if (obj.ideiaId) {
@@ -1285,13 +1267,10 @@ function alternarRedeConteudo() {
   const formato = $('mc-formato').value;
   if (rede === 'Pinterest' && formato !== 'Pin') $('mc-formato').value = 'Pin';
   if (rede === 'YouTube' && formato !== 'Shorts' && formato !== 'Vídeo YouTube') $('mc-formato').value = 'Shorts';
-  if (rede === 'LinkedIn' && formato !== 'Post LinkedIn') $('mc-formato').value = 'Post LinkedIn';
   $('mc-pin-bloco').style.display = rede === 'Pinterest' ? 'block' : 'none';
   $('mc-yt-bloco').style.display = rede === 'YouTube' ? 'block' : 'none';
-  $('mc-li-bloco').style.display = rede === 'LinkedIn' ? 'block' : 'none';
   if (rede === 'Pinterest') renderPinBloco();
   if (rede === 'YouTube') renderYtBloco();
-  if (rede === 'LinkedIn') renderLiBloco();
 }
 function avisoConectar(rede, icone, cor, extra) {
   return `<i class="bi ${icone}" style="color:${cor}"></i> Para publicar daqui, conecte ${rede} em <a href="#" onclick="modal('modalConteudo').hide();showPage('configuracoes');return false" style="color:var(--cor-secundaria)">Perfis Conectados</a>. ${extra}`;
@@ -1392,72 +1371,6 @@ async function enviarVideoYt(agendar) {
   }
 }
 
-// ---------- LinkedIn dentro do conteúdo ----------
-let liAtual = {};
-function lerLiBloco() {
-  if (!$('li-conta')) return;
-  Object.assign(liAtual, { contaId: $('li-conta').value, imagemUrl: $('li-img').value.trim(), altText: $('li-alt').value.trim(), agendado: $('li-agendar').checked });
-}
-function textoLinkedin() { return $('mc-legenda').value.trim() || $('mc-titulo').value.trim(); }
-function renderLiBloco() {
-  const contas = contasRedes.filter(c => c.rede === 'linkedin');
-  const box = $('mc-li-bloco');
-  if (!contas.length) { box.innerHTML = `<div class="li-bloco">${avisoConectar('seu perfil do LinkedIn', 'bi-linkedin', '#0A66C2', 'Você já pode planejar o post normalmente.')}</div>`; return; }
-  if (!liAtual.contaId) liAtual.contaId = contas[0].id;
-  const pub = liAtual.publicadoEm;
-  const conta = contas.find(c => c.id === liAtual.contaId) || contas[0];
-  const diasLogin = conta.expiraLogin ? Math.floor((conta.expiraLogin * 1000 - Date.now()) / 86400000) : null;
-  box.innerHTML = `<div class="li-bloco">
-    <h6 style="margin:0 0 12px;color:var(--cor-titulo)"><i class="bi bi-linkedin" style="color:#0A66C2"></i> Publicar no LinkedIn</h6>
-    ${pub ? `<div class="dica mb-3"><i class="bi bi-check-circle" style="color:var(--cor-verde)"></i> Publicado em ${fmtDataHora(pub)}. <a href="${esc($('mc-linkpost').value)}" target="_blank" style="color:var(--cor-secundaria)">Ver post</a></div>` : ''}
-    ${liAtual.erro ? `<div class="alerta mb-3"><i class="bi bi-exclamation-triangle"></i> Última tentativa falhou: ${esc(liAtual.erro)}</div>` : ''}
-    ${diasLogin != null && diasLogin < 7 && !pub ? `<div class="alerta mb-3"><i class="bi bi-exclamation-triangle"></i> ${diasLogin < 0 ? 'O login do LinkedIn venceu.' : `O login do LinkedIn vence em ${diasLogin} dia(s).`} Conecte de novo em Perfis Conectados para não falhar o agendamento.</div>` : ''}
-    <div class="d-flex gap-3 flex-wrap">
-      <div><img id="li-preview" class="pin-preview" style="height:90px;${liAtual.imagemUrl ? '' : 'visibility:hidden'}" src="${esc(liAtual.imagemUrl)}" referrerpolicy="no-referrer"></div>
-      <div class="flex-fill row g-2" style="min-width:260px">
-        <div class="col-md-6"><label class="form-label">Perfil</label><select class="form-select form-select-sm" id="li-conta">${opts(contas.map(c => [c.id, c.username]), liAtual.contaId)}</select></div>
-        <div class="col-12"><label class="form-label">Imagem (opcional)</label>
-          <div class="d-flex gap-2"><input type="file" accept="image/*" class="form-control form-control-sm" onchange="enviarImagemLi(this)"><span id="li-up" class="form-text"></span></div>
-          <input class="form-control form-control-sm mt-1" id="li-img" placeholder="ou cole o link de uma imagem https://..." value="${esc(liAtual.imagemUrl)}" oninput="$('li-preview').src=this.value;$('li-preview').style.visibility=this.value?'':'hidden'"></div>
-        <div class="col-12"><label class="form-label">Texto alternativo da imagem</label><input class="form-control form-control-sm" id="li-alt" value="${esc(liAtual.altText)}"></div>
-      </div>
-    </div>
-    <div class="form-text mt-2">O texto do post é a <b>legenda</b> (até 3.000 caracteres; se estiver vazia, vai o título). Hashtags com # viram links. Links colados no texto funcionam normalmente.</div>
-    ${pub ? '<input type="checkbox" id="li-agendar" class="d-none">' : `<div class="d-flex flex-wrap gap-3 align-items-center mt-3">
-      <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="li-agendar" ${liAtual.agendado ? 'checked' : ''}><label class="form-check-label" for="li-agendar" style="font-size:13px">Publicar sozinho na data e horário marcados</label></div>
-      <button class="btn btn-sm ms-auto" style="background:#0A66C2;color:#fff;border-radius:8px" id="li-btn-agora" onclick="publicarLiAgora()"><i class="bi bi-send"></i> Publicar agora</button></div>`}
-  </div>`;
-}
-async function enviarImagemLi(input) {
-  const f = input.files[0];
-  if (!f) return;
-  $('li-up').innerHTML = '<span class="spinner-sm"></span> enviando...';
-  try {
-    const r = await api('upload_imagem', { dataUrl: await comprimirImagem(f) });
-    $('li-img').value = r.url; $('li-preview').src = r.url; $('li-preview').style.visibility = '';
-    $('li-up').textContent = 'imagem enviada ✔';
-  } catch (e) { $('li-up').textContent = ''; toast(esc(e.message), 'erro'); }
-}
-async function publicarLiAgora() {
-  lerLiBloco();
-  const texto = textoLinkedin();
-  if (!texto) return alert('Escreva o texto do post na legenda.');
-  if (texto.length > 3000) return alert(`O LinkedIn aceita até 3.000 caracteres. A legenda está com ${texto.length}.`);
-  if (!confirm('Publicar este post agora no LinkedIn?')) return;
-  const btn = $('li-btn-agora');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner-sm"></span> Publicando...';
-  try {
-    const r = await api('linkedin_publicar', { id: liAtual.contaId, texto, imagemUrl: liAtual.imagemUrl, altText: liAtual.altText });
-    Object.assign(liAtual, { publicadoEm: agoraIso(), postId: r.postId, erro: '', agendado: false });
-    $('mc-status').value = 'Postado';
-    $('mc-linkpost').value = r.url;
-    await salvarConteudo();
-    toast('Post publicado no LinkedIn!');
-  } catch (e) {
-    alert('O LinkedIn recusou a publicação:\n\n' + e.message);
-    btn.disabled = false; btn.innerHTML = '<i class="bi bi-send"></i> Publicar agora';
-  }
-}
 function lerPinBloco() {
   if (!$('pin-conta')) return;
   const pasta = $('pin-pasta');
@@ -1564,7 +1477,6 @@ function duplicarConteudo() {
   if (!c) return;
   const copia = { ...c }; delete copia._id; copia.status = 'Ideia'; copia.linkPost = ''; copia.titulo = c.titulo + ' (cópia)';
   if (copia.pin) copia.pin = { ...copia.pin, publicadoEm: '', pinId: '', erro: '', agendado: false };
-  if (copia.li) copia.li = { ...copia.li, publicadoEm: '', postId: '', erro: '', agendado: false };
   if (copia.yt) copia.yt = { ...copia.yt, videoId: '', enviadoEm: '', publishAt: '' };
   modal('modalConteudo').hide();
   setTimeout(() => preencherModalConteudo(copia), 300);
@@ -2465,26 +2377,8 @@ const GUIA_REDE = {
       'Para os vídeos enviados pelo sistema poderem ficar <b>públicos</b>, peça a auditoria no <a href="https://support.google.com/youtube/contact/yt_api_form" target="_blank">formulário da API do YouTube</a>. Até aprovar, o YouTube deixa esses vídeos como privados (métricas e comentários funcionam normalmente)',
     ],
   },
-  linkedin: {
-    nome: 'LinkedIn', icone: 'bi-linkedin', cor: '#0A66C2', campoId: 'Client ID', campoSecret: 'Primary Client Secret',
-    passos: () => [
-      'O LinkedIn exige uma <b>Página de empresa</b> para criar o app. Se ainda não tiver, crie a página <b>ELDN Digital</b> em <a href="https://www.linkedin.com/company/setup/new/" target="_blank">linkedin.com/company/setup/new</a> (é grátis)',
-      'Entre em <a href="https://www.linkedin.com/developers/apps/new" target="_blank">linkedin.com/developers/apps</a> e crie o app: nome <b>ELDN Mídias Sociais</b>, Página ELDN Digital, política de privacidade e a logo',
-      'Na aba <b>Settings</b>, clique em <b>Verify</b> e aprove pelo link (como administradora da Página)',
-      'Na aba <b>Products</b>, peça <b>Sign In with LinkedIn using OpenID Connect</b> e <b>Share on LinkedIn</b> (a liberação é na hora)',
-      `Na aba <b>Auth</b>, em <b>Authorized redirect URLs</b>, adicione: <code>${esc(redirectUri)}</code> <button class="btn-sm-action" onclick="copiar('${esc(redirectUri)}')"><i class="bi bi-copy"></i></button>`,
-      'Ainda na aba <b>Auth</b>, copie o <b>Client ID</b> e o <b>Primary Client Secret</b> e cole abaixo',
-      'O login do LinkedIn vale <b>60 dias</b>. O sistema avisa quando estiver perto de vencer, aí é só clicar em conectar de novo. O LinkedIn não libera métricas de perfil pessoal para apps, então aqui é só para publicar e agendar',
-    ],
-  },
 };
 let editandoApp = {};
-function seloLogin(c) {
-  if (!c.expiraLogin) return '<span class="selo selo-verde">conectado</span>';
-  const dias = Math.floor((c.expiraLogin * 1000 - Date.now()) / 86400000);
-  if (dias < 0) return '<span class="selo selo-vermelho">login vencido: conecte de novo</span>';
-  return dias < 7 ? `<span class="selo selo-amarelo">login vence em ${dias} dia(s)</span>` : '<span class="selo selo-verde">conectado</span>';
-}
 function renderBlocoRede(rede) {
   const G = GUIA_REDE[rede];
   const contas = contasRedes.filter(c => c.rede === rede);
@@ -2492,7 +2386,7 @@ function renderBlocoRede(rede) {
   if (appsRedes[rede] && !editandoApp[rede]) {
     html += contas.length ? contas.map(c => `<div class="conta-card" style="padding:10px 0;border-bottom:1px solid var(--cor-borda)">
         ${c.foto ? `<img src="${esc(c.foto)}" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">` : '<img>'}
-        <div style="flex:1;min-width:0"><b style="color:var(--cor-titulo)">${rede === 'linkedin' ? '' : '@'}${esc(c.username)}</b> ${seloLogin(c)}<div class="form-text">${esc(c.nome)} · conectado em ${fmtData(c.conectadoEm)}${c.expiraLogin ? ` · login vale até ${fmtData(new Date(c.expiraLogin * 1000).toISOString())}` : ''}</div></div>
+        <div style="flex:1;min-width:0"><b style="color:var(--cor-titulo)">@${esc(c.username)}</b> <span class="selo selo-verde">conectado</span><div class="form-text">${esc(c.nome)} · conectado em ${fmtData(c.conectadoEm)}</div></div>
         <button class="btn btn-outline-secondary btn-sm" onclick="desconectarRede('${c.id}')">Desconectar</button></div>`).join('')
       : `<div class="form-text mb-2">Nenhuma conta do ${G.nome} conectada ainda.</div>`;
     html += `<div class="d-flex gap-2 flex-wrap mt-3"><button class="btn btn-primary btn-sm" onclick="conectarRede('${rede}')"><i class="bi bi-box-arrow-in-right"></i> Conectar ${contas.length ? 'outra ' : ''}conta do ${G.nome}</button>
