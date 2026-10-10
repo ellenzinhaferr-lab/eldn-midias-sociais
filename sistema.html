@@ -112,6 +112,8 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
 .tabs-linha{display:flex;gap:4px;border-bottom:1px solid var(--cor-borda);margin-bottom:20px}
 .tabs-linha button{background:none;border:none;color:var(--cor-texto-suave);padding:10px 16px;font-size:14px;border-bottom:2px solid transparent;margin-bottom:-1px}
 .tabs-linha button.ativo{color:var(--cor-titulo);border-bottom-color:var(--cor-primaria);font-weight:600}
+.tabs-perfis{overflow-x:auto;scrollbar-width:thin}
+.tabs-perfis button{white-space:nowrap;display:flex;align-items:center;gap:6px}
 /* Calendário */
 .cal-head{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
 .cal-head div{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--cor-texto-suave);text-align:center}
@@ -237,6 +239,7 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
 
       <!-- ======================= DASHBOARD ======================= -->
       <div class="page" id="page-dashboard">
+        <div class="tabs-linha tabs-perfis" id="dash-tabs"></div>
         <div class="filtros mb-3">
           <button class="dp-btn" data-per="mes" onclick="setDashPeriodo('mes')">Este Mês</button>
           <button class="dp-btn" data-per="mesAnt" onclick="setDashPeriodo('mesAnt')">Mês Anterior</button>
@@ -245,14 +248,12 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
           <button class="dp-btn" data-per="tudo" onclick="setDashPeriodo('tudo')">Tudo</button>
           <span style="font-size:12px;color:var(--cor-texto-suave)">De</span><input type="date" class="form-control" id="dash-de" onchange="setDashPeriodo('custom')">
           <span style="font-size:12px;color:var(--cor-texto-suave)">Até</span><input type="date" class="form-control" id="dash-ate" onchange="setDashPeriodo('custom')">
-          <select class="form-select" id="dash-perfil" onchange="renderDashboard()"></select>
         </div>
         <div id="dash-aviso"></div>
         <div class="kpi-grid" id="dash-kpis"></div>
-        <div id="dash-redes"></div>
         <div class="row g-3">
-          <div class="col-lg-7"><div class="chart-card"><h6>Alcance por dia</h6><div style="height:260px"><canvas id="ch-alcance"></canvas></div></div></div>
-          <div class="col-lg-5"><div class="chart-card"><h6>Novos seguidores por dia</h6><div style="height:260px"><canvas id="ch-seguidores"></canvas></div></div></div>
+          <div class="col-lg-7"><div class="chart-card"><h6 id="ch1-titulo">Alcance por dia</h6><div style="height:260px"><canvas id="ch-alcance"></canvas></div></div></div>
+          <div class="col-lg-5"><div class="chart-card"><h6 id="ch2-titulo">Novos seguidores por dia</h6><div style="height:260px"><canvas id="ch-seguidores"></canvas></div></div></div>
         </div>
         <div class="row g-3">
           <div class="col-lg-7"><div class="table-card"><div class="table-header"><h6><i class="bi bi-trophy me-2" style="color:var(--cor-acento)"></i>Posts campeões do período</h6></div><div class="table-responsive"><table class="gestao" id="dash-top"><tbody></tbody></table></div></div></div>
@@ -804,8 +805,7 @@ function preencherFiltros() {
   preencherFiltrosContas();
 }
 function preencherFiltrosContas() {
-  const sel = $('dash-perfil').value;
-  $('dash-perfil').innerHTML = opts(contasIG.map(c => [c.igId, '@' + c.username]), sel, 'Todos os perfis');
+  renderDashTabs();
   const mt = $('mt-perfil').value;
   const todas = todasContas();
   $('mt-perfil').innerHTML = todas.length ? opts(todas.map(c => [c.id, `${NOME_REDE[c.rede]} · @${c.username}`]), mt || todas[0].id) : '<option value="">Nenhum perfil conectado</option>';
@@ -938,97 +938,131 @@ function desenharGrafico(id, config) {
   charts[id] = new Chart($(id), config);
 }
 
-function renderDashboard() {
-  if (!cache.metricasDia) return;
-  const { de, ate } = dashPer;
-  const igSel = $('dash-perfil').value;
-  const contas = igSel ? contasIG.filter(c => c.igId === igSel) : contasIG;
-  const ids = new Set(contas.map(c => c.igId));
-  const dentro = d => d >= de && d <= ate;
-
-  $('dash-aviso').innerHTML = !contasIG.length && !contasRedes.length
-    ? `<div class="alerta mb-3"><i class="bi bi-exclamation-triangle"></i> Nenhum perfil conectado ainda. Vá em <a href="#" onclick="showPage('configuracoes');return false" style="color:var(--cor-secundaria)">Perfis Conectados</a> para começar a puxar as métricas.</div>` : '';
-
-  const dias = cache.metricasDia.filter(m => ids.has(m.igId) && dentro(m.data));
-  const soma = campo => dias.reduce((s, m) => s + (Number(m[campo]) || 0), 0);
-  const seguidores = contas.reduce((s, c) => s + (((cache.perfisIg || []).find(p => p.igId === c.igId) || {}).seguidores || 0), 0);
-  const posts = (cache.posts || []).filter(p => ids.has(p.igId) && dentro(dataLocalDeIso(p.data)));
-  const logs = (cache.logs || []).filter(l => (!igSel || l.perfil === igSel) && dentro(dataLocalDeIso(l.criadoEm)));
-  const conta = ev => logs.filter(l => l.evento === ev).length;
-  const plan = dados.calendario.filter(c => c.data && dentro(c.data) && (!igSel || c.perfil === usernameDoIg(igSel)));
-  const alcance = soma('alcance'), inter = soma('interacoes');
-
-  const kpis = [
-    ['Seguidores', fmtNum(seguidores), 'total atual', 'bi-people'],
-    ['Novos seguidores', fmtNum(soma('novosSeguidores')), 'no período', 'bi-person-plus'],
-    ['Alcance', fmtNum(alcance), 'soma diária do período', 'bi-broadcast'],
-    ['Interações', fmtNum(inter), alcance ? `${pct(inter / alcance * 100)} do alcance` : 'curtidas, comentários, salvos...', 'bi-heart'],
-    ['Visitas ao perfil', fmtNum(soma('visitasPerfil')), 'no período', 'bi-person-badge'],
-    ['Posts publicados', fmtNum(posts.length), `${plan.filter(c => c.status === 'Postado').length} de ${plan.length} planejados postados`, 'bi-grid-3x3'],
-    ['Entraram nas automações', fmtNum(conta('entrou')), `${conta('link')} abriram o link`, 'bi-robot'],
-    ['Leads capturados', fmtNum(conta('lead')), 'e-mails e telefones', 'bi-envelope-heart'],
-  ];
-  $('dash-kpis').innerHTML = kpis.map(([l, v, s, i]) => `<div class="kpi-card"><div class="kpi-label"><i class="bi ${i} me-1"></i>${l}</div><div class="kpi-value">${v}</div><div class="kpi-sub">${s}</div></div>`).join('');
-  renderDashRedes(de, ate, igSel);
-
-  // Gráficos por dia (um conjunto por perfil)
-  const listaDias = [];
-  const ini = de === '2020-01-01' ? (dias.map(d => d.data).sort()[0] || ate) : de;
-  for (let d = parseYmd(ini); ymd(d) <= ate && listaDias.length < 400; d = addDias(d, 1)) listaDias.push(ymd(d));
-  const serie = (campo) => contas.map(c => {
-    const mapa = {}; dias.filter(m => m.igId === c.igId).forEach(m => mapa[m.data] = m[campo]);
-    return { label: '@' + c.username, data: listaDias.map(d => mapa[d] ?? null), borderColor: perfilCor(c.username), backgroundColor: perfilCor(c.username) + '99', tension: .3, spanGaps: true, pointRadius: 0, borderWidth: 2 };
-  });
-  const rotulos = listaDias.map(d => fmtData(d).slice(0, 5));
-  desenharGrafico('ch-alcance', { type: 'line', data: { labels: rotulos, datasets: serie('alcance') } });
-  desenharGrafico('ch-seguidores', { type: 'bar', data: { labels: rotulos, datasets: serie('novosSeguidores').map(s => ({ ...s, borderWidth: 0, borderRadius: 4 })) }, options: { scales: { x: { stacked: true, ticks: { color: corTexto(), maxRotation: 0, autoSkip: true }, grid: { display: false } }, y: { stacked: true, beginAtZero: true, ticks: { color: corTexto() }, grid: { color: corGrade() } } } } });
-
-  // Top posts
-  const top = posts.slice().sort((a, b) => (b.interacoes ?? (b.curtidas + b.comentarios)) - (a.interacoes ?? (a.curtidas + a.comentarios))).slice(0, 6);
-  $('dash-top').querySelector('tbody').innerHTML = top.length ? top.map(p => `<tr>
-      <td style="width:54px"><a href="${esc(p.permalink)}" target="_blank"><img class="thumb-mini" src="${esc(p.thumbnail)}" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'"></a></td>
-      <td><div style="font-size:12px">${esc((p.legenda || '').slice(0, 70))}</div><div class="form-text">${perfilTag(p.username)} · ${fmtData(p.data)} · ${nomeTipo(p)}</div></td>
-      <td style="text-align:right;white-space:nowrap;font-size:12px"><b>${fmtNum(p.interacoes ?? p.curtidas + p.comentarios)}</b> interações<br><span class="form-text">${fmtNum(p.alcance)} alcance</span></td></tr>`).join('')
-    : '<tr><td><div class="empty-state"><i class="bi bi-trophy"></i>Nenhum post neste período</div></td></tr>';
-
-  // Próximos 7 dias do calendário
-  const fim = ymd(addDias(new Date(), 7));
-  const prox = dados.calendario.filter(c => c.data && c.data >= hojeStr() && c.data <= fim && c.status !== 'Postado').sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || '')));
-  $('dash-proximos').innerHTML = prox.length ? prox.map(c => `<div style="padding:8px 20px;border-bottom:1px solid var(--cor-borda);cursor:pointer" onclick="editarConteudo('${c._id}')">
-      <div style="font-size:13px"><span class="status-pip" style="background:${COR_STATUS_CAL[c.status] || '#999'}"></span>${esc(c.titulo)}</div>
-      <div class="form-text">${fmtData(c.data)}${c.hora ? ' ' + esc(c.hora) : ''} · ${perfilTag(c.perfil)} · ${esc(c.formato || '')} · ${esc(c.status || '')}</div></div>`).join('')
-    : '<div class="empty-state" style="padding:24px"><i class="bi bi-calendar-x"></i>Nada planejado para os próximos dias</div>';
+// Uma aba por perfil e rede: o Dashboard mostra sempre um perfil só
+let dashConta = '';
+try { dashConta = localStorage.getItem('ms-dash-conta') || ''; } catch (e) {}
+function contaDash() { const t = todasContas(); return t.find(c => c.id === dashConta) || t[0] || null; }
+function renderDashTabs() {
+  const t = todasContas(), atual = contaDash();
+  $('dash-tabs').style.display = t.length ? 'flex' : 'none';
+  $('dash-tabs').innerHTML = t.map(c => `<button class="${atual && c.id === atual.id ? 'ativo' : ''}" onclick="abaDash('${esc(c.id)}')"><i class="bi ${ICONE_REDE[c.rede]}"></i>@${esc(c.username)}</button>`).join('');
+}
+function abaDash(id) {
+  dashConta = id;
+  try { localStorage.setItem('ms-dash-conta', id); } catch (e) {}
+  renderDashboard();
 }
 
-// Bloco do TikTok e do Pinterest no Dashboard
-function renderDashRedes(de, ate, igSel) {
-  if (igSel || !contasRedes.length) { $('dash-redes').innerHTML = ''; return; }
+function renderDashboard() {
+  if (!cache.metricasDia) return;
+  renderDashTabs();
+  const { de, ate } = dashPer;
+  const c = contaDash();
   const dentro = d => d >= de && d <= ate;
-  const kpi = (l, v, s, i) => `<div class="kpi-card"><div class="kpi-label"><i class="bi ${i} me-1"></i>${l}</div><div class="kpi-value">${v}</div><div class="kpi-sub">${s}</div></div>`;
-  $('dash-redes').innerHTML = contasRedes.map(c => {
-    const perfil = (cache.perfisIg || []).find(p => p.igId === c.id) || {};
-    const dias = (cache.metricasDia || []).filter(m => m.igId === c.id).sort((a, b) => a.data.localeCompare(b.data));
-    const noPer = dias.filter(m => dentro(m.data));
-    const soma = campo => noPer.reduce((s, m) => s + (Number(m[campo]) || 0), 0);
-    const snaps = dias.filter(m => m.seguidoresTotal != null);
-    const fimSnap = snaps.filter(m => m.data <= ate).pop();
-    const iniSnap = snaps.filter(m => m.data < de).pop() || snaps.find(m => dentro(m.data));
-    const novos = fimSnap && iniSnap && fimSnap !== iniSnap ? fimSnap.seguidoresTotal - iniSnap.seguidoresTotal : null;
-    const posts = (cache.posts || []).filter(p => p.igId === c.id && dentro(dataLocalDeIso(p.data)));
-    let cards;
-    if (c.rede === 'tiktok') {
-      const views = posts.reduce((s, p) => s + (p.visualizacoes || 0), 0), inter = posts.reduce((s, p) => s + (p.interacoes || 0), 0);
-      cards = [kpi('Seguidores', fmtNum(perfil.seguidores), 'total atual', 'bi-people'), kpi('Novos seguidores', novos == null ? '—' : fmtNum(novos), novos == null ? 'aparece a partir do 2º dia de uso' : 'no período', 'bi-person-plus'),
-        kpi('Vídeos publicados', fmtNum(posts.length), 'no período', 'bi-camera-reels'), kpi('Visualizações', fmtNum(views), 'dos vídeos do período', 'bi-eye'),
-        kpi('Interações', fmtNum(inter), views ? `${pct(inter / views * 100)} das visualizações` : 'curtidas, comentários e compart.', 'bi-heart')];
-    } else {
-      const imp = soma('impressoes');
-      cards = [kpi('Seguidores', fmtNum(perfil.seguidores), 'total atual', 'bi-people'), kpi('Impressões', fmtNum(imp), 'no período', 'bi-eye'),
-        kpi('Salvamentos', fmtNum(soma('salvos')), imp ? `${pct(soma('salvos') / imp * 100)} das impressões` : 'no período', 'bi-pin-angle'),
-        kpi('Cliques no pin', fmtNum(soma('cliquesPin')), 'no período', 'bi-hand-index'), kpi('Cliques no link', fmtNum(soma('cliquesLink')), 'foram para o seu site', 'bi-box-arrow-up-right')];
-    }
-    return `<h6 style="color:var(--cor-titulo);font-size:14px;margin:4px 0 12px"><i class="bi ${ICONE_REDE[c.rede]} me-1"></i>${NOME_REDE[c.rede]} · @${esc(c.username)}</h6><div class="kpi-grid">${cards.join('')}</div>`;
-  }).join('');
+  const kpi = ([l, v, s, i]) => `<div class="kpi-card"><div class="kpi-label"><i class="bi ${i} me-1"></i>${l}</div><div class="kpi-value">${v}</div><div class="kpi-sub">${s}</div></div>`;
+
+  $('dash-aviso').innerHTML = !c
+    ? `<div class="alerta mb-3"><i class="bi bi-exclamation-triangle"></i> Nenhum perfil conectado ainda. Vá em <a href="#" onclick="showPage('configuracoes');return false" style="color:var(--cor-secundaria)">Perfis Conectados</a> para começar a puxar as métricas.</div>` : '';
+  if (!c) { $('dash-kpis').innerHTML = ''; return; }
+
+  const perfil = (cache.perfisIg || []).find(p => p.igId === c.id) || {};
+  const todosDias = cache.metricasDia.filter(m => m.igId === c.id).sort((a, b) => a.data.localeCompare(b.data));
+  const dias = todosDias.filter(m => dentro(m.data));
+  const soma = campo => dias.reduce((s, m) => s + (Number(m[campo]) || 0), 0);
+  const posts = (cache.posts || []).filter(p => p.igId === c.id && dentro(dataLocalDeIso(p.data)));
+  const doPerfil = x => c.rede === 'instagram' ? x.perfil === c.username && (!x.rede || x.rede === 'Instagram') : x.rede === NOME_REDE[c.rede];
+  const plan = dados.calendario.filter(x => x.data && dentro(x.data) && doPerfil(x));
+  const postados = `${plan.filter(x => x.status === 'Postado').length} de ${plan.length} planejados postados`;
+  // TikTok e Pinterest: novos seguidores = diferença entre as fotos diárias do total
+  const snaps = todosDias.filter(m => m.seguidoresTotal != null);
+  const fimSnap = snaps.filter(m => m.data <= ate).pop();
+  const iniSnap = snaps.filter(m => m.data < de).pop() || snaps.find(m => dentro(m.data));
+  const novosSnap = fimSnap && iniSnap && fimSnap !== iniSnap ? fimSnap.seguidoresTotal - iniSnap.seguidoresTotal : null;
+  const kpiNovosSnap = ['Novos seguidores', novosSnap == null ? '—' : fmtNum(novosSnap), novosSnap == null ? 'aparece a partir do 2º dia de uso' : 'no período', 'bi-person-plus'];
+
+  let kpis;
+  if (c.rede === 'instagram') {
+    const logs = (cache.logs || []).filter(l => l.perfil === c.id && dentro(dataLocalDeIso(l.criadoEm)));
+    const conta = ev => logs.filter(l => l.evento === ev).length;
+    const alcance = soma('alcance'), inter = soma('interacoes');
+    kpis = [
+      ['Seguidores', fmtNum(perfil.seguidores), 'total atual', 'bi-people'],
+      ['Novos seguidores', fmtNum(soma('novosSeguidores')), 'no período', 'bi-person-plus'],
+      ['Alcance', fmtNum(alcance), 'soma diária do período', 'bi-broadcast'],
+      ['Interações', fmtNum(inter), alcance ? `${pct(inter / alcance * 100)} do alcance` : 'curtidas, comentários, salvos...', 'bi-heart'],
+      ['Visitas ao perfil', fmtNum(soma('visitasPerfil')), 'no período', 'bi-person-badge'],
+      ['Posts publicados', fmtNum(posts.length), postados, 'bi-grid-3x3'],
+      ['Entraram nas automações', fmtNum(conta('entrou')), `${conta('link')} abriram o link`, 'bi-robot'],
+      ['Leads capturados', fmtNum(conta('lead')), 'e-mails e telefones', 'bi-envelope-heart'],
+    ];
+  } else if (c.rede === 'tiktok') {
+    const views = posts.reduce((s, p) => s + (p.visualizacoes || 0), 0), inter = posts.reduce((s, p) => s + (p.interacoes || 0), 0);
+    kpis = [
+      ['Seguidores', fmtNum(perfil.seguidores), 'total atual', 'bi-people'],
+      kpiNovosSnap,
+      ['Vídeos publicados', fmtNum(posts.length), postados, 'bi-camera-reels'],
+      ['Visualizações', fmtNum(views), 'dos vídeos do período', 'bi-eye'],
+      ['Interações', fmtNum(inter), views ? `${pct(inter / views * 100)} das visualizações` : 'curtidas, comentários e compart.', 'bi-heart'],
+    ];
+  } else {
+    const imp = soma('impressoes');
+    kpis = [
+      ['Seguidores', fmtNum(perfil.seguidores), 'total atual', 'bi-people'],
+      kpiNovosSnap,
+      ['Impressões', fmtNum(imp), 'no período', 'bi-eye'],
+      ['Salvamentos', fmtNum(soma('salvos')), imp ? `${pct(soma('salvos') / imp * 100)} das impressões` : 'no período', 'bi-pin-angle'],
+      ['Cliques no pin', fmtNum(soma('cliquesPin')), 'no período', 'bi-hand-index'],
+      ['Cliques no link', fmtNum(soma('cliquesLink')), 'foram para o seu site', 'bi-box-arrow-up-right'],
+      ['Pins publicados', fmtNum(posts.length), postados, 'bi-pinterest'],
+    ];
+  }
+  $('dash-kpis').innerHTML = kpis.map(kpi).join('');
+
+  // Gráficos por dia do perfil da aba
+  const listaDias = [];
+  const ini = de === '2020-01-01' ? ([...dias.map(d => d.data), ...posts.map(p => dataLocalDeIso(p.data))].sort()[0] || ate) : de;
+  for (let d = parseYmd(ini); ymd(d) <= ate && listaDias.length < 400; d = addDias(d, 1)) listaDias.push(ymd(d));
+  const rotulos = listaDias.map(d => fmtData(d).slice(0, 5));
+  const porDia = campo => { const mapa = {}; dias.forEach(m => { if (m[campo] != null) mapa[m.data] = m[campo]; }); return listaDias.map(d => mapa[d] ?? null); };
+  const linha = (label, data, cor) => ({ label, data, borderColor: cor, backgroundColor: cor + '99', tension: .3, spanGaps: true, pointRadius: 0, borderWidth: 2 });
+  const barra = (label, data, cor) => ({ label, data, backgroundColor: cor, borderWidth: 0, borderRadius: 4 });
+  const cor = c.rede === 'instagram' ? perfilCor(c.username) : c.rede === 'tiktok' ? '#EC4899' : '#E60023';
+  let g1, g2;
+  if (c.rede === 'instagram') {
+    g1 = ['Alcance por dia', [linha('Alcance', porDia('alcance'), cor)]];
+    g2 = ['Novos seguidores por dia', [barra('Novos seguidores', porDia('novosSeguidores'), cor)]];
+  } else if (c.rede === 'tiktok') {
+    const views = {}; posts.forEach(p => { const d = dataLocalDeIso(p.data); views[d] = (views[d] || 0) + (p.visualizacoes || 0); });
+    g1 = ['Total de seguidores por dia', [linha('Seguidores', porDia('seguidoresTotal'), cor)]];
+    g2 = ['Visualizações dos vídeos (pelo dia em que foram postados)', [barra('Visualizações', listaDias.map(d => views[d] ?? null), cor)]];
+  } else {
+    g1 = ['Impressões por dia', [linha('Impressões', porDia('impressoes'), cor)]];
+    g2 = ['Salvamentos e cliques no link por dia', [barra('Salvamentos', porDia('salvos'), '#F59E0B'), barra('Cliques no link', porDia('cliquesLink'), '#10B981')]];
+  }
+  $('ch1-titulo').textContent = g1[0];
+  $('ch2-titulo').textContent = g2[0];
+  const legenda = n => ({ legend: { display: n > 1, labels: { color: corTexto(), boxWidth: 12 } } });
+  desenharGrafico('ch-alcance', { type: 'line', data: { labels: rotulos, datasets: g1[1] }, options: { plugins: legenda(1) } });
+  desenharGrafico('ch-seguidores', { type: 'bar', data: { labels: rotulos, datasets: g2[1] }, options: { plugins: legenda(g2[1].length),
+    scales: { x: { ticks: { color: corTexto(), maxRotation: 0, autoSkip: true }, grid: { display: false } }, y: { beginAtZero: true, ticks: { color: corTexto() }, grid: { color: corGrade() } } } } });
+
+  // Posts campeões do perfil
+  const peso = p => c.rede === 'pinterest' ? (p.salvos || 0) + (p.cliquesLink || 0) : (p.interacoes ?? ((p.curtidas || 0) + (p.comentarios || 0)));
+  const alcanceDe = p => c.rede === 'tiktok' ? `${fmtNum(p.visualizacoes)} visualizações` : c.rede === 'pinterest' ? `${fmtNum(p.impressoes)} impressões` : `${fmtNum(p.alcance)} alcance`;
+  const top = posts.slice().sort((a, b) => peso(b) - peso(a)).slice(0, 6);
+  $('dash-top').querySelector('tbody').innerHTML = top.length ? top.map(p => `<tr>
+      <td style="width:54px"><a href="${esc(p.permalink)}" target="_blank"><img class="thumb-mini" src="${esc(p.thumbnail)}" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'"></a></td>
+      <td><div style="font-size:12px">${esc((p.legenda || p.titulo || '').slice(0, 70))}</div><div class="form-text">${fmtData(p.data)} · ${nomeTipo(p)}</div></td>
+      <td style="text-align:right;white-space:nowrap;font-size:12px"><b>${fmtNum(peso(p))}</b> ${c.rede === 'pinterest' ? 'salvos + cliques' : 'interações'}<br><span class="form-text">${alcanceDe(p)}</span></td></tr>`).join('')
+    : '<tr><td><div class="empty-state"><i class="bi bi-trophy"></i>Nenhum post neste período</div></td></tr>';
+
+  // Próximos 7 dias do calendário deste perfil
+  const fim = ymd(addDias(new Date(), 7));
+  const prox = dados.calendario.filter(x => x.data && x.data >= hojeStr() && x.data <= fim && x.status !== 'Postado' && doPerfil(x)).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || '')));
+  $('dash-proximos').innerHTML = prox.length ? prox.map(x => `<div style="padding:8px 20px;border-bottom:1px solid var(--cor-borda);cursor:pointer" onclick="editarConteudo('${x._id}')">
+      <div style="font-size:13px"><span class="status-pip" style="background:${COR_STATUS_CAL[x.status] || '#999'}"></span>${esc(x.titulo)}</div>
+      <div class="form-text">${fmtData(x.data)}${x.hora ? ' ' + esc(x.hora) : ''} · ${esc(x.formato || '')} · ${esc(x.status || '')}</div></div>`).join('')
+    : '<div class="empty-state" style="padding:24px"><i class="bi bi-calendar-x"></i>Nada planejado para os próximos dias</div>';
 }
 
 function nomeTipo(p) {
