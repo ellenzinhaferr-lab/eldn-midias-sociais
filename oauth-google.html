@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Conectando YouTube</title>
+<style>body{font-family:Segoe UI,system-ui,sans-serif;background:#0F0A1E;color:#E2D9F3;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:16px}</style>
+</head>
+<body>
+<p>Conectando seu canal do YouTube...</p>
+<script>
+// Ponte do login do Google: o Google devolve "iss=https://accounts.google.com" na URL e o ModSecurity
+// da Hostgator bloqueia (406). Aqui tiramos esse parâmetro e repassamos o resto para o oauth.php.
+(function () {
+  var q = new URLSearchParams(location.search);
+  q.delete('iss');
+  q.delete('scope');
+  location.replace('https://app.eldndigital.com/instagram-webhook/oauth.php?' + q.toString());
+})();
+</script>
+</body>
+</html>

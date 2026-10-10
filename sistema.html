@@ -628,6 +628,8 @@ const EVENTOS = {
 let dados = { calendario: [], ideias: [], inspiracoes: [], perfisInsp: [], fluxos: [] };
 let contasIG = [];
 let contasRedes = [], appsRedes = {}, redirectUri = '';
+// O login do Google volta por esta página-ponte (o ModSecurity do servidor bloqueia o retorno direto)
+const redirectUriGoogle = new URL('oauth-google.html', location.href).href.split('?')[0];
 function redeDoId(id) { const p = { tt: 'tiktok', pin: 'pinterest', yt: 'youtube', li: 'linkedin' }[String(id || '').split('_')[0]]; return p || 'instagram'; }
 // Contas com métricas (o LinkedIn pessoal só publica: a API não libera métricas do perfil)
 function contasMetricas() { return contasRedes.filter(c => c.rede !== 'linkedin'); }
@@ -2457,7 +2459,7 @@ const GUIA_REDE = {
       'Em <b>APIs e serviços → Biblioteca</b>, ative a <b>YouTube Data API v3</b> e a <b>YouTube Analytics API</b>',
       'Em <b>Google Auth Platform → Branding</b> (tela de consentimento): tipo <b>Externo</b>, nome do app, seu e-mail, domínio <b>eldndigital.com</b> e a política de privacidade das páginas',
       'Em <b>Público-alvo</b>, clique em <b>Publicar app</b> (status "Em produção"). Sem isso o Google derruba o login a cada 7 dias',
-      `Em <b>Clientes → Criar cliente</b>, tipo <b>Aplicativo da Web</b>. Em <b>URIs de redirecionamento autorizados</b>, cole: <code>${esc(redirectUri)}</code> <button class="btn-sm-action" onclick="copiar('${esc(redirectUri)}')"><i class="bi bi-copy"></i></button>`,
+      `Em <b>Clientes → Criar cliente</b>, tipo <b>Aplicativo da Web</b>. Em <b>URIs de redirecionamento autorizados</b>, cole: <code>${esc(redirectUriGoogle)}</code> <button class="btn-sm-action" onclick="copiar('${esc(redirectUriGoogle)}')"><i class="bi bi-copy"></i></button>`,
       'Copie o <b>ID do cliente</b> e a <b>Chave secreta</b> e cole abaixo',
       'Ao conectar, o Google avisa "O Google não verificou este app". É o seu próprio app: clique em <b>Avançado → Acessar</b>',
       'Para os vídeos enviados pelo sistema poderem ficar <b>públicos</b>, peça a auditoria no <a href="https://support.google.com/youtube/contact/yt_api_form" target="_blank">formulário da API do YouTube</a>. Até aprovar, o YouTube deixa esses vídeos como privados (métricas e comentários funcionam normalmente)',
