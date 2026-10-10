@@ -341,6 +341,19 @@ body.modo-claro{--cor-numero:#5B4B8A}
 .btn-primary{font-weight:600}
 .dp-btn{font-weight:600}
 @media (max-width:640px){.kpi-value{font-size:22px}}
+
+/* Galeria de modelos de automação */
+.mm-grupo{font-family:'Fredoka',sans-serif;font-size:17px;color:var(--cor-numero);margin:18px 0 10px}
+.mm-grupo:first-child{margin-top:0}
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.mm-card{background:var(--cor-fundo);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;cursor:pointer;box-shadow:0 6px 0 -2px color-mix(in srgb,var(--k) 55%,transparent),0 12px 24px -12px rgba(0,0,0,.35);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.mm-card:hover{transform:translateY(-5px) rotate(-.5deg)}
+.mm-card:hover .kpi-ico{animation:pular .6s cubic-bezier(.34,1.56,.64,1)}
+.mm-card h6{margin:0 0 4px;font-size:15px;font-weight:500;color:var(--cor-numero)}
+.mm-card p{margin:0;font-size:12.5px;color:var(--cor-texto-suave)}
+.mm-chip{display:inline-block;font-size:11px;padding:2px 10px;border-radius:20px;background:color-mix(in srgb,var(--k) 18%,transparent);color:var(--cor-texto)}
+.mm-previa{font-size:12px;background:color-mix(in srgb,var(--k) 10%,var(--cor-card));border-radius:14px 14px 14px 4px;padding:10px 12px;color:var(--cor-texto);max-height:76px;overflow:hidden}
+.mm-card .kpi-ico{background:var(--k)!important}
 </style>
 </head>
 <body>
@@ -613,7 +626,7 @@ body.modo-claro{--cor-numero:#5B4B8A}
       <div class="col-6 col-md-4"><label class="form-label">Formato</label><select class="form-select" id="mc-formato"></select></div>
       <div class="col-6 col-md-4"><label class="form-label">Objetivo</label><select class="form-select" id="mc-objetivo"></select></div>
       <div class="col-6 col-md-4"><label class="form-label">Status</label><select class="form-select" id="mc-status"></select></div>
-      <div class="col-12 col-md-6"><label class="form-label">Automação ligada (opcional)</label><select class="form-select" id="mc-fluxo"></select></div>
+      <div class="col-12 col-md-6"><label class="form-label">Automação do post (opcional)</label><div class="d-flex gap-2"><select class="form-select" id="mc-fluxo"></select><button type="button" class="btn btn-outline-secondary btn-sm" style="white-space:nowrap" title="Ver os modelos prontos" onclick="modelosDoConteudo()"><i class="bi bi-magic"></i> Modelos</button></div><div class="form-text">Escolha um modelo pronto ou uma automação que você já tem.</div></div>
       <div class="col-12" id="mc-pin-bloco" style="display:none"></div>
       <div class="col-12" id="mc-yt-bloco" style="display:none"></div>
       <div class="col-12"><label class="form-label">Gancho (primeiros 3 segundos)</label><input class="form-control" id="mc-gancho"></div>
@@ -719,6 +732,10 @@ body.modo-claro{--cor-numero:#5B4B8A}
 </div></div></div>
 
 <!-- ======================= MODAL CONSTRUTOR DE AUTOMAÇÃO ======================= -->
+<div class="modal fade" id="modalModelos" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-scrollable modal-fullscreen-lg-down"><div class="modal-content">
+  <div class="modal-header"><div><h5 class="modal-title"><i class="bi bi-magic me-2" style="color:var(--c1)"></i>Modelos de automação</h5><div class="form-text" id="mm-sub"></div></div><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body" id="mm-lista"></div>
+</div></div></div>
 <div class="modal fade" id="modalFluxo" tabindex="-1" data-bs-backdrop="static"><div class="modal-dialog modal-fullscreen-lg-down modal-xl modal-dialog-scrollable"><div class="modal-content">
   <div class="modal-header"><h5 class="modal-title" id="mf-titulo-modal">Nova automação</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
   <div class="modal-body">
@@ -976,12 +993,7 @@ const PAGINAS = {
     ? `<button class="btn btn-primary btn-sm" onclick="novaRef()"><i class="bi bi-plus-lg"></i> Nova referência</button>`
     : `<button class="btn btn-primary btn-sm" onclick="novoPerfilInsp()"><i class="bi bi-plus-lg"></i> Novo perfil</button>`],
   metricas: ['Métricas dos Posts', 'Desempenho de cada publicação no Instagram, TikTok, YouTube e Pinterest', () => `<button class="btn btn-outline-secondary btn-sm" id="btn-sync" onclick="sincronizarMetricas()"><i class="bi bi-arrow-repeat"></i> Atualizar métricas</button>`],
-  automacoes: ['Automações', 'Seu Manychat próprio: comentário, Direct e Stories', () => `<div class="dropdown"><button class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-plus-lg"></i> Nova automação</button><ul class="dropdown-menu dropdown-menu-end">
-      <li><a class="dropdown-item" href="#" onclick="novoFluxo('link');return false"><b>Comentou, recebe o link</b><br><small class="text-muted">Palavra no comentário → botão → link</small></a></li>
-      <li><a class="dropdown-item" href="#" onclick="novoFluxo('seguidor');return false"><b>Só para quem me segue</b><br><small class="text-muted">Pede para seguir antes de liberar o link</small></a></li>
-      <li><a class="dropdown-item" href="#" onclick="novoFluxo('email');return false"><b>Captura de e-mail</b><br><small class="text-muted">Pede o e-mail no Direct e entrega o material</small></a></li>
-      <li><a class="dropdown-item" href="#" onclick="novoFluxo('story');return false"><b>Agradecer menção no Story</b><br><small class="text-muted">Quem te marca recebe uma mensagem</small></a></li>
-      <li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="#" onclick="novoFluxo('vazio');return false">Começar do zero</a></li></ul></div>`],
+  automacoes: ['Automações', 'Seu Manychat próprio: comentário, Direct e Stories', () => `<button class="btn btn-primary btn-sm" onclick="abrirGaleriaModelos()"><i class="bi bi-magic"></i> Nova automação</button>`],
   contatos: ['Contatos e Leads', 'Quem conversou com as automações', () => `<button class="btn btn-outline-secondary btn-sm" onclick="exportarContatosExcel()"><i class="bi bi-file-earmark-excel"></i> Excel</button><button class="btn btn-outline-secondary btn-sm" onclick="exportarContatosMeta()"><i class="bi bi-meta"></i> Meta Ads</button>`],
   comentarios: ['Comentários do YouTube', 'Responda quem comentou nos seus vídeos sem sair do sistema', () => `<button class="btn btn-outline-secondary btn-sm" id="btn-cm-atualizar" onclick="carregarComentarios(true)"><i class="bi bi-arrow-repeat"></i> Atualizar</button>`],
   instagram: ['Instagram', 'Seguidores, alcance e automações de cada perfil do Instagram', botaoSync],
@@ -1432,7 +1444,9 @@ function preencherModalConteudo(c) {
   $('mc-formato').innerHTML = opts(FORMATOS, c.formato || 'Reels');
   $('mc-objetivo').innerHTML = opts(OBJETIVOS, c.objetivo || 'Conectar');
   $('mc-status').innerHTML = opts(STATUS_CAL, c.status || 'Ideia');
-  $('mc-fluxo').innerHTML = opts(dados.fluxos.map(f => [f._id, f.nome]), c.fluxoId || '', 'Nenhuma');
+  $('mc-fluxo').innerHTML = '<option value="">Nenhuma</option>'
+    + `<optgroup label="✨ Modelos prontos (cria uma automação nova)">${Object.entries(MODELOS_FLUXO).map(([k, m]) => `<option value="modelo:${k}">${esc(m.nome)}</option>`).join('')}</optgroup>`
+    + (dados.fluxos.length ? `<optgroup label="Minhas automações">${dados.fluxos.map(f => `<option value="${f._id}" ${f._id === c.fluxoId ? 'selected' : ''}>${esc(f.nome)}</option>`).join('')}</optgroup>` : '');
   $('mc-gancho').value = c.gancho || '';
   $('mc-roteiro').value = c.roteiro || '';
   $('mc-legenda').value = c.legenda || '';
@@ -1452,7 +1466,7 @@ async function salvarConteudo() {
   const obj = {
     titulo: $('mc-titulo').value.trim(), data: $('mc-data').value, hora: $('mc-hora').value,
     perfil: $('mc-perfil').value, formato: $('mc-formato').value, objetivo: $('mc-objetivo').value, status: $('mc-status').value,
-    fluxoId: $('mc-fluxo').value, gancho: $('mc-gancho').value.trim(), roteiro: $('mc-roteiro').value, legenda: $('mc-legenda').value,
+    fluxoId: $('mc-fluxo').value.startsWith('modelo:') ? '' : $('mc-fluxo').value, gancho: $('mc-gancho').value.trim(), roteiro: $('mc-roteiro').value, legenda: $('mc-legenda').value,
     linkReferencia: $('mc-ref').value.trim(), linkPost: $('mc-linkpost').value.trim(), observacoes: $('mc-obs').value, ideiaId: $('mc-ideiaId').value,
     rede: $('mc-rede').value, atualizadoEm: agoraIso(),
   };
@@ -1472,8 +1486,18 @@ async function salvarConteudo() {
     }
   }
   if (obj.rede === 'YouTube') { lerYtBloco(); obj.yt = { ...ytAtual }; }
+  const modeloEscolhido = $('mc-fluxo').value.startsWith('modelo:') ? $('mc-fluxo').value.slice(7) : '';
   const id = await gravarConteudo(obj);
   $('mc-id').value = id;
+  // Escolheu um modelo: depois de salvar o post, já abre a automação pronta para ajustar
+  if (modeloEscolhido && (obj.rede || 'Instagram') === 'Instagram') {
+    modal('modalConteudo').hide();
+    const f = modeloFluxo(modeloEscolhido, obj.perfil);
+    f._conteudoId = id; f.nome = `${f.nome} · ${obj.titulo}`.slice(0, 80);
+    setTimeout(() => abrirEditorFluxo(f), 350);
+    toast('Post salvo! Agora ajuste a automação.');
+    return;
+  }
   if (obj.ideiaId) {
     const novoStatus = obj.status === 'Postado' ? 'Usada' : 'Agendada';
     await db.collection('midias_ideias').doc(obj.ideiaId).set({ status: novoStatus }, { merge: true }).catch(() => {});
@@ -2163,6 +2187,7 @@ function renderFluxos() {
         <div style="min-width:0"><h6>${esc(f.nome)}</h6><div class="gatilho">${perfilTag(f.perfilUsername)} · ${descreverGatilho(f)}</div></div>
         <div class="form-check form-switch m-0" title="Ligar/desligar"><input class="form-check-input" type="checkbox" ${f.ativo ? 'checked' : ''} onchange="alternarFluxo('${f._id}',this.checked)"></div>
       </div>
+      ${f.gatilho?.tipo === 'comentario' && f.gatilho?.escopo === 'especifico' && !f.gatilho?.mediaId ? '<div><span class="selo selo-amarelo"><i class="bi bi-hourglass-split"></i> Falta escolher o post para ligar</span></div>' : ''}
       ${f.gatilho?.escopo === 'especifico' && f.gatilho?.thumbnail ? `<div class="d-flex gap-2 align-items-center"><img class="thumb-mini" src="${esc(f.gatilho.thumbnail)}" referrerpolicy="no-referrer"><span class="form-text">${esc((f.gatilho.legenda || '').slice(0, 60))}</span></div>` : ''}
       <div class="fluxo-stats">
         <div><b>${fmtNum(pessoas)}</b><span>Pessoas</span></div><div><b>${fmtNum(n('clique'))}</b><span>Cliques</span></div>
@@ -2225,50 +2250,137 @@ function novoPassoBase(tipo) {
   return p;
 }
 
-function modeloFluxo(tipo) {
-  const perfil = contasIG[0] ? contasIG[0].igId : '';
-  const base = { nome: '', perfil, perfilUsername: usernameDoIg(perfil), ativo: false, umaVezPorPessoa: false,
-    gatilho: { tipo: 'comentario', palavras: [], modo: 'contem', escopo: 'qualquer', mediaId: null, thumbnail: '', legenda: '' },
-    respostasPublicas: ['Te mandei no Direct! 💌', 'Corre no Direct que te mandei 💛', 'Acabei de te mandar no Direct ✨'], passos: [] };
-  const [a, b, c, d] = [uid(), uid(), uid(), uid()];
-  if (tipo === 'link') {
-    base.nome = 'Comentou, recebe o link';
-    base.gatilho.palavras = ['cura'];
-    base.passos = [
+// Modelos prontos de automação do Instagram. Ficam no código (não no Firebase): a Ellen escolhe um e o sistema cria a automação a partir dele.
+// Links dos botões vêm SEMPRE vazios: ela escolhe o link na hora (a validação obriga preencher).
+const RESP_DIRECT = ['Te mandei no Direct! 💌', 'Corre no Direct que te mandei 💛', 'Acabei de te mandar no Direct ✨'];
+const GRUPOS_MODELO = [['vender', 'Vender', 'bi-bag-heart'], ['contatos', 'Capturar contatos', 'bi-envelope-heart'], ['relacionamento', 'Relacionamento', 'bi-chat-heart'], ['outros', 'Outros', 'bi-magic']];
+const MODELOS_FLUXO = {
+  link: { nome: 'Comentou, recebe o link', grupo: 'vender', icone: 'bi-link-45deg', cor: 'var(--c5)', palavras: ['eu quero'],
+    desc: 'O clássico: quem comenta a palavra recebe o link no Direct. Serve para qualquer post.',
+    passos: ([a, b]) => [
       { id: a, tipo: 'mensagem', texto: 'Oi, {nome}! Que alegria ter você aqui 💛 Toque no botão abaixo que eu te mando o link agora mesmo.', imagemUrl: '', botoes: [{ titulo: 'Quero o link', acao: 'passo', alvo: b }], proximo: '' },
-      { id: b, tipo: 'mensagem', texto: 'Aqui está, com todo carinho 👇', imagemUrl: '', botoes: [{ titulo: 'Abrir', acao: 'link', url: '' }], proximo: '' },
-    ];
-  } else if (tipo === 'seguidor') {
-    base.nome = 'Só para quem me segue';
-    base.gatilho.palavras = ['quero'];
-    base.passos = [
+      { id: b, tipo: 'mensagem', texto: 'Aqui está, com todo carinho 👇', imagemUrl: '', botoes: [{ titulo: 'Abrir', acao: 'link', url: '' }], proximo: '' }] },
+  livro: { nome: 'Livro físico Meu Lugar de Cura', grupo: 'vender', icone: 'bi-book-half', cor: 'var(--c2)', palavras: ['livro'],
+    desc: 'Comentou LIVRO: apresenta o devocional de 365 dias com leveza, marca como interessada e manda o link do livro.',
+    passos: ([a, b, c]) => [
+      { id: a, tipo: 'mensagem', texto: 'Oi, {nome}! 💛 Que bom que o livro chamou o seu coração. O Meu Lugar de Cura é um devocional de 365 dias: versículo, reflexão, oração pronta e espaço para anotar. Uns 10 minutinhos por dia, no seu ritmo, sem cobrança.', imagemUrl: '', botoes: [{ titulo: 'Quero conhecer', acao: 'passo', alvo: b }], proximo: '' },
+      { id: b, tipo: 'tag', tag: 'interessada-livro', proximo: c },
+      { id: c, tipo: 'mensagem', texto: 'Aqui está o livro com todos os detalhes 👇 Ele chega na sua casa para ser o seu cantinho de encontro com Deus todos os dias. Você não está só nesse processo 💛', imagemUrl: '', botoes: [{ titulo: 'Ver o livro', acao: 'link', url: '' }], proximo: '' }] },
+  kit: { nome: 'Kit digital (acesso imediato)', grupo: 'vender', icone: 'bi-phone', cor: 'var(--c1)', palavras: ['kit'],
+    desc: 'Comentou KIT: mostra os 6 itens do kit digital, marca como interessada e manda o link de compra.',
+    passos: ([a, b, c]) => [
+      { id: a, tipo: 'mensagem', texto: 'Oi, {nome}! 💛 O kit digital chega na hora no seu e-mail: o devocional de 365 dias, a versão leve para o celular, a versão para imprimir, o caderno devocional, o caderno de orações e o guia bíblico.', imagemUrl: '', botoes: [{ titulo: 'Quero ver o kit', acao: 'passo', alvo: b }], proximo: '' },
+      { id: b, tipo: 'tag', tag: 'interessada-kit', proximo: c },
+      { id: c, tipo: 'mensagem', texto: 'Aqui está 👇 E fica tranquila: você tem 7 dias de garantia. Se não fizer sentido para você, devolvemos tudo.', imagemUrl: '', botoes: [{ titulo: 'Ver o kit', acao: 'link', url: '' }], proximo: '' }] },
+  app: { nome: 'App Meu Lugar de Cura', grupo: 'vender', icone: 'bi-app-indicator', cor: 'var(--c6)', palavras: ['app'],
+    desc: 'Comentou APP: explica o app do devocional, marca como interessada e manda o link.',
+    passos: ([a, b, c]) => [
+      { id: a, tipo: 'mensagem', texto: 'Oi, {nome}! 💛 O app é o devocional na palma da sua mão: abre, lê o dia, faz a oração e anota o que Deus falou com você. Sem pressa e sem calendário fixo.', imagemUrl: '', botoes: [{ titulo: 'Quero o app', acao: 'passo', alvo: b }], proximo: '' },
+      { id: b, tipo: 'tag', tag: 'interessada-app', proximo: c },
+      { id: c, tipo: 'mensagem', texto: 'Aqui está o link do app 👇 Que ele seja o seu lugar de descanso todos os dias.', imagemUrl: '', botoes: [{ titulo: 'Ver o app', acao: 'link', url: '' }], proximo: '' }] },
+  momento: { nome: 'Qual é o seu momento?', grupo: 'vender', icone: 'bi-signpost-split', cor: 'var(--c4)', palavras: ['cura'],
+    desc: 'Pergunta como ela está (ansiedade, tristeza ou cansaço) com 3 botões. Cada resposta recebe uma palavra de acolhimento e o link.',
+    passos: ([a, b, c, d]) => [
+      { id: a, tipo: 'mensagem', texto: 'Oi, {nome}! 💛 Antes de te mandar, me conta: o que está mais pesado no seu coração hoje?', imagemUrl: '', botoes: [{ titulo: 'Ansiedade', acao: 'passo', alvo: b }, { titulo: 'Tristeza', acao: 'passo', alvo: c }, { titulo: 'Cansaço', acao: 'passo', alvo: d }], proximo: '' },
+      { id: b, tipo: 'mensagem', texto: 'Obrigada por confiar em mim 💛 A ansiedade aperta, mas você não precisa carregar tudo sozinha. Preparei algo para você respirar um pouquinho com Deus todos os dias 👇', imagemUrl: '', botoes: [{ titulo: 'Quero ver', acao: 'link', url: '' }], proximo: '' },
+      { id: c, tipo: 'mensagem', texto: 'Sinto muito que esteja doendo assim 💛 Tristeza não é falta de fé, é um processo. Deixei aqui um lugar para você ser acolhida no seu ritmo 👇', imagemUrl: '', botoes: [{ titulo: 'Quero ver', acao: 'link', url: '' }], proximo: '' },
+      { id: d, tipo: 'mensagem', texto: 'Você tem dado conta de tanta coisa, né? 💛 Que tal 10 minutinhos por dia só para você e Deus, sem cobrança nenhuma? 👇', imagemUrl: '', botoes: [{ titulo: 'Quero ver', acao: 'link', url: '' }], proximo: '' }] },
+  seguidor: { nome: 'Só para quem me segue', grupo: 'contatos', icone: 'bi-person-heart', cor: 'var(--c7)', palavras: ['quero'],
+    desc: 'Libera o link só para quem segue o perfil. Quem não segue recebe um convite carinhoso para seguir e tenta de novo.',
+    passos: ([a, b, c, d]) => [
       { id: a, tipo: 'mensagem', texto: 'Oi, {nome}! 💛 Toque no botão abaixo para receber.', imagemUrl: '', botoes: [{ titulo: 'Quero receber', acao: 'passo', alvo: b }], proximo: '' },
       { id: b, tipo: 'verificar_seguidor', seSegue: c, naoSegue: d },
       { id: c, tipo: 'mensagem', texto: 'Prontinho! Aqui está 👇', imagemUrl: '', botoes: [{ titulo: 'Abrir', acao: 'link', url: '' }], proximo: '' },
-      { id: d, tipo: 'mensagem', texto: 'Esse conteúdo é um presente para quem me acompanha 💛 Me segue aqui no perfil e depois toque no botão abaixo.', imagemUrl: '', botoes: [{ titulo: 'Já segui', acao: 'passo', alvo: b }], proximo: '' },
-    ];
-  } else if (tipo === 'email') {
-    base.nome = 'Captura de e-mail';
-    base.gatilho = { tipo: 'dm', palavras: ['material'], modo: 'contem', escopo: 'qualquer', mediaId: null };
-    base.respostasPublicas = [];
-    base.passos = [
-      { id: a, tipo: 'pergunta', texto: 'Que bom que você quer, {nome}! 💛 Me manda aqui o seu melhor e-mail que eu te envio.', campo: 'email', salvarComo: '', msgInvalido: '', proximo: b },
-      { id: b, tipo: 'mensagem', texto: 'Prontinho, recebi! Aqui está o seu material 👇', imagemUrl: '', botoes: [{ titulo: 'Abrir', acao: 'link', url: '' }], proximo: '' },
-    ];
-  } else if (tipo === 'story') {
-    base.nome = 'Agradecer menção no Story';
-    base.gatilho = { tipo: 'story_mencao', palavras: [], modo: 'qualquer', escopo: 'qualquer', mediaId: null };
-    base.respostasPublicas = [];
-    base.umaVezPorPessoa = true;
-    base.passos = [{ id: a, tipo: 'mensagem', texto: 'Que presente ver você me marcando, {nome}! 💛 Obrigada de coração por compartilhar.', imagemUrl: '', botoes: [], proximo: '' }];
-  } else {
-    base.nome = 'Nova automação';
-    base.passos = [novoPassoBase('mensagem')];
-  }
+      { id: d, tipo: 'mensagem', texto: 'Esse conteúdo é um presente para quem me acompanha 💛 Me segue aqui no perfil e depois toque no botão abaixo.', imagemUrl: '', botoes: [{ titulo: 'Já segui', acao: 'passo', alvo: b }], proximo: '' }] },
+  email: { nome: 'Material grátis por e-mail', grupo: 'contatos', icone: 'bi-envelope-paper-heart', cor: 'var(--c8)', palavras: ['devocional'],
+    desc: 'Comentou a palavra: pede o e-mail no Direct, guarda em Contatos e entrega o material.',
+    passos: ([a, b, c]) => [
+      { id: a, tipo: 'pergunta', texto: 'Oi, {nome}! 💛 Que bom que você quer receber. Me manda aqui o seu melhor e-mail que eu te envio com carinho.', campo: 'email', salvarComo: '', msgInvalido: 'Hmm, acho que esse e-mail ficou com algum errinho. Pode mandar de novo? 💛', proximo: b },
+      { id: b, tipo: 'tag', tag: 'lead-material', proximo: c },
+      { id: c, tipo: 'mensagem', texto: 'Recebi! 💛 Aqui está o seu material. Separe uns minutinhos só para você 👇', imagemUrl: '', botoes: [{ titulo: 'Abrir material', acao: 'link', url: '' }], proximo: '' }] },
+  whatsapp: { nome: 'Lista VIP no WhatsApp', grupo: 'contatos', icone: 'bi-whatsapp', cor: 'var(--c4)', palavras: ['vip'],
+    desc: 'Pede o WhatsApp da pessoa, guarda em Contatos e manda o link do grupo ou da lista.',
+    passos: ([a, b, c]) => [
+      { id: a, tipo: 'pergunta', texto: 'Oi, {nome}! 💛 Que alegria ter você com a gente. Me manda o seu WhatsApp com DDD para eu te colocar na lista VIP.', campo: 'telefone', salvarComo: '', msgInvalido: 'Acho que faltou algum número 🙈 Manda de novo com o DDD, por favor?', proximo: b },
+      { id: b, tipo: 'tag', tag: 'lista-vip', proximo: c },
+      { id: c, tipo: 'mensagem', texto: 'Prontinho, você está na lista! 💛 Toque abaixo para entrar 👇', imagemUrl: '', botoes: [{ titulo: 'Entrar na lista', acao: 'link', url: '' }], proximo: '' }] },
+  oracao: { nome: 'Pedido de oração', grupo: 'relacionamento', icone: 'bi-heart-pulse', cor: 'var(--c1)', palavras: ['oração', 'oracao'],
+    desc: 'Comentou ORAÇÃO: abre espaço para ela contar o pedido no Direct, guarda em Contatos e responde com acolhimento. Sem link.',
+    resp: ['Te chamei no Direct 💛', 'Olha o Direct, deixei uma mensagem para você 💛', 'Te mandei uma mensagem no Direct ✨'],
+    passos: ([a, b, c]) => [
+      { id: a, tipo: 'pergunta', texto: 'Oi, {nome} 💛 Aqui é um lugar seguro. Me conta, do jeitinho que der, pelo que você quer que eu ore.', campo: 'texto', salvarComo: 'pedido de oração', msgInvalido: '', proximo: b },
+      { id: b, tipo: 'tag', tag: 'pedido-oracao', proximo: c },
+      { id: c, tipo: 'mensagem', texto: 'Recebi o seu pedido com muito carinho 💛 Vou levar você em oração. Lembre: você não está só, Deus está presente nesse processo com você.', imagemUrl: '', botoes: [], proximo: '' }] },
+  story_resposta: { nome: 'Respondeu o Story, recebe o link', grupo: 'relacionamento', icone: 'bi-chat-square-heart', cor: 'var(--c3)', palavras: ['quero'], gatilho: 'story_resposta',
+    desc: 'Para Stories com caixinha ou "responda QUERO": quem responde com a palavra recebe o link.',
+    passos: ([a]) => [
+      { id: a, tipo: 'mensagem', texto: 'Oi, {nome}! Que bom que você respondeu 💛 Aqui está o que eu prometi no Story 👇', imagemUrl: '', botoes: [{ titulo: 'Abrir', acao: 'link', url: '' }], proximo: '' }] },
+  story: { nome: 'Agradecer menção no Story', grupo: 'relacionamento', icone: 'bi-stars', cor: 'var(--c6)', gatilho: 'story_mencao', umaVez: true,
+    desc: 'Quem te marca num Story recebe um agradecimento no Direct (uma vez por pessoa).',
+    passos: ([a]) => [
+      { id: a, tipo: 'mensagem', texto: 'Que presente ver você me marcando, {nome}! 💛 Obrigada de coração por compartilhar.', imagemUrl: '', botoes: [], proximo: '' }] },
+  dm: { nome: 'Palavra no Direct (para a bio)', grupo: 'outros', icone: 'bi-send-check', cor: 'var(--c2)', palavras: ['livro'], gatilho: 'dm',
+    desc: 'Para a bio ou legenda: "me manda LIVRO no Direct". Quem manda a palavra recebe o link.',
+    passos: ([a]) => [
+      { id: a, tipo: 'mensagem', texto: 'Oi, {nome}! 💛 Que bom que você me chamou. Aqui está 👇', imagemUrl: '', botoes: [{ titulo: 'Abrir', acao: 'link', url: '' }], proximo: '' }] },
+};
+
+function modeloFluxo(tipo, perfilUser) {
+  const perfil = (perfilUser && contasIG.find(c => c.username === perfilUser)) ? contasIG.find(c => c.username === perfilUser).igId : (contasIG[0] ? contasIG[0].igId : '');
+  const base = { nome: '', perfil, perfilUsername: usernameDoIg(perfil), ativo: false, umaVezPorPessoa: false,
+    gatilho: { tipo: 'comentario', palavras: [], modo: 'contem', escopo: 'especifico', mediaId: null, thumbnail: '', legenda: '' },
+    respostasPublicas: RESP_DIRECT.slice(), passos: [] };
+  const m = MODELOS_FLUXO[tipo];
+  if (!m) { base.nome = 'Nova automação'; base.gatilho.escopo = 'qualquer'; base.passos = [novoPassoBase('mensagem')]; return base; }
+  base.nome = m.nome;
+  base.modelo = tipo;
+  base.umaVezPorPessoa = !!m.umaVez;
+  const g = m.gatilho || 'comentario';
+  if (g !== 'comentario') { base.gatilho = { tipo: g, palavras: m.palavras || [], modo: g === 'story_mencao' ? 'qualquer' : 'contem', escopo: 'qualquer', mediaId: null }; base.respostasPublicas = []; }
+  else { base.gatilho.palavras = m.palavras.slice(); if (m.resp) base.respostasPublicas = m.resp.slice(); }
+  base.passos = m.passos([uid(), uid(), uid(), uid(), uid()]);
   return base;
 }
 
-function novoFluxo(tipo) { abrirEditorFluxo(modeloFluxo(tipo)); }
+// Galeria dos modelos (botão "Nova automação" e atalho do Calendário)
+let galeriaCtx = null; // { conteudoId, perfil, titulo } quando vem de um post do Calendário
+function abrirGaleriaModelos(ctx) {
+  galeriaCtx = ctx || null;
+  const chip = m => { const g = m.gatilho || 'comentario';
+    return g === 'story_mencao' ? 'Marcou no Story' : `${{ comentario: 'Comentário', dm: 'Direct', story_resposta: 'Resposta ao Story' }[g]}: <b>${esc((m.palavras || []).map(x => x.toUpperCase()).join(', '))}</b>`; };
+  $('mm-sub').innerHTML = galeriaCtx ? `Para o post <b>${esc(galeriaCtx.titulo || '')}</b> de <b>@${esc(galeriaCtx.perfil || '')}</b>. Escolha um modelo; o texto, a palavra e o link você ajusta na próxima tela.` : 'Escolha um modelo pronto. O texto, a palavra-chave e o link você ajusta na próxima tela.';
+  $('mm-lista').innerHTML = GRUPOS_MODELO.map(([g, nomeG, icG]) => {
+    const itens = Object.entries(MODELOS_FLUXO).filter(([, m]) => m.grupo === g);
+    if (!itens.length) return '';
+    return `<div class="mm-grupo"><i class="bi ${icG}"></i> ${nomeG}</div><div class="mm-grid">${itens.map(([k, m]) => `
+      <div class="mm-card" style="--k:${m.cor}" onclick="usarModelo('${k}')">
+        <div class="d-flex gap-3 align-items-start"><span class="kpi-ico" style="margin:0;flex:none"><i class="bi ${m.icone}"></i></span>
+        <div style="min-width:0"><h6>${esc(m.nome)}</h6><div class="mm-chip">${chip(m)}</div></div></div>
+        <p>${esc(m.desc)}</p>
+        <div class="mm-previa">${esc(m.passos([1, 2, 3, 4, 5])[0].texto.replace('{nome}', 'Maria'))}</div>
+        <div class="d-flex justify-content-between align-items-center mt-auto"><span class="form-text">${m.passos([1, 2, 3, 4, 5]).length} passo(s)</span><button class="btn btn-primary btn-sm">Usar este modelo</button></div>
+      </div>`).join('')}</div>`;
+  }).join('') + `<div class="text-center mt-3"><button class="btn btn-outline-secondary btn-sm" onclick="usarModelo('vazio')"><i class="bi bi-plus-lg"></i> Começar do zero</button></div>`;
+  modal('modalModelos').show();
+}
+async function modelosDoConteudo() {
+  if (!$('mc-titulo').value.trim()) return alert('Dê um título ao post antes.');
+  if (($('mc-rede').value || 'Instagram') !== 'Instagram') return alert('As automações funcionam só no Instagram.');
+  $('mc-fluxo').value = '';
+  const ctxPerfil = $('mc-perfil').value, ctxTitulo = $('mc-titulo').value.trim();
+  await salvarConteudo();
+  if (!$('mc-id').value) return;
+  setTimeout(() => abrirGaleriaModelos({ conteudoId: $('mc-id').value, perfil: ctxPerfil, titulo: ctxTitulo }), 350);
+}
+function usarModelo(tipo) {
+  const ctx = galeriaCtx;
+  const f = modeloFluxo(tipo, ctx && ctx.perfil);
+  if (ctx) { f._conteudoId = ctx.conteudoId; if (ctx.titulo) f.nome = `${f.nome} · ${ctx.titulo}`.slice(0, 80); }
+  modal('modalModelos').hide();
+  setTimeout(() => abrirEditorFluxo(f), 300);
+}
+
+function novoFluxo(tipo) { if (!tipo) return abrirGaleriaModelos(); abrirEditorFluxo(modeloFluxo(tipo)); }
 function editarFluxo(id) { const f = dados.fluxos.find(x => x._id === id); if (f) abrirEditorFluxo(JSON.parse(JSON.stringify(f))); }
 
 function abrirEditorFluxo(f) {
@@ -2418,7 +2530,7 @@ function validarFluxo(f, paraLigar) {
   if (!f.nome || !f.nome.trim()) erros.push('Dê um nome à automação.');
   if (!f.passos || !f.passos.length) erros.push('Adicione pelo menos um passo.');
   if (g.tipo !== 'story_mencao' && g.modo !== 'qualquer' && !(g.palavras || []).length) erros.push('Escreva pelo menos uma palavra-chave.');
-  if (g.tipo === 'comentario' && g.escopo === 'especifico' && !g.mediaId) erros.push('Escolha o post da automação.');
+  if (paraLigar && g.tipo === 'comentario' && g.escopo === 'especifico' && !g.mediaId) erros.push('Escolha o post da automação (dá para salvar desligada e escolher depois de postar).');
   const ids = new Set((f.passos || []).map(p => p.id));
   (f.passos || []).forEach((p, i) => {
     const n = `Passo ${i + 1}`;
@@ -2458,11 +2570,15 @@ async function salvarFluxo() {
   if (conf.length && !confirm(`A automação "${conf.join('", "')}" já usa a mesma palavra-chave neste perfil. Só uma delas vai disparar. Salvar mesmo assim?`)) return;
   const obj = JSON.parse(JSON.stringify(ed));
   const id = obj._id; delete obj._id;
+  const conteudoId = obj._conteudoId; delete obj._conteudoId;
   obj.atualizadoEm = agoraIso();
+  let novoId = id;
   if (id) await db.collection('midias_fluxos').doc(id).set(obj);
-  else { obj.criadoEm = agoraIso(); await db.collection('midias_fluxos').add(obj); }
+  else { obj.criadoEm = agoraIso(); novoId = (await db.collection('midias_fluxos').add(obj)).id; }
+  if (conteudoId) await db.collection('midias_calendario').doc(conteudoId).set({ fluxoId: novoId }, { merge: true }).catch(() => {});
   modal('modalFluxo').hide();
-  toast(ed.ativo ? 'Automação salva e ligada!' : 'Automação salva (desligada).');
+  const faltaPost = !ed.ativo && ed.gatilho.tipo === 'comentario' && ed.gatilho.escopo === 'especifico' && !ed.gatilho.mediaId;
+  toast(ed.ativo ? 'Automação salva e ligada!' : faltaPost ? 'Automação salva! Depois de postar, abra ela, escolha o post e ligue.' : 'Automação salva (desligada).');
 }
 
 // ============================================================
