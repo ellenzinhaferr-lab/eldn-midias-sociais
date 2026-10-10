@@ -7,7 +7,7 @@
 <link rel="icon" href="Azul.png">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -27,7 +27,7 @@ body.modo-claro table.gestao td{border-bottom-color:#EDE9FE}
 body.modo-claro .toast-msg{color:var(--cor-texto)}
 body.modo-claro .passo-card,body.modo-claro .fluxo-stats div{background:#F9F7FF}
 *{box-sizing:border-box}
-body{background:var(--cor-fundo);color:var(--cor-texto);font-family:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;min-height:100vh;margin:0}
+body{background:var(--cor-fundo);color:var(--cor-texto);font-family:'Nunito','Segoe UI',system-ui,sans-serif;min-height:100vh;margin:0}
 .sidebar{width:240px;height:100vh;background:var(--cor-card);border-right:1px solid var(--cor-borda);position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:1040;overflow:hidden;transition:transform .2s}
 .sidebar-brand{padding:24px 20px 16px;border-bottom:1px solid var(--cor-borda)}
 .sidebar-brand h6{color:var(--cor-secundaria);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 4px}
@@ -241,6 +241,91 @@ body.modo-claro{background:radial-gradient(900px 500px at 85% -10%,rgba(192,38,2
 .bloco h6 .rede-logo{margin-right:8px;vertical-align:middle}
 .login-redes{display:flex;justify-content:center;gap:8px;margin-top:14px}
 @media (max-width:640px){.hero{padding:18px}.hero-txt h2{font-size:21px}.hero-insp{max-width:none;width:100%}}
+
+/* ===== Estilo Pixar: cores de bala, volume 3D de massinha, bolhas flutuando e movimento com pulo ===== */
+:root{--c1:#FF5DA2;--c2:#FF9F1C;--c3:#FFD23F;--c4:#2EC4B6;--c5:#3A86FF;--c6:#8338EC;--c7:#FF4365;--c8:#00BBF9;
+  --grad-marca:linear-gradient(135deg,#8338EC 0%,#FF5DA2 50%,#FF9F1C 100%);--borda-r:22px}
+h1,h2,h3,h4,h5,h6,.topbar h4,.kpi-value,.hero-txt h2,.nav-grupo,.sidebar-brand h5{font-family:'Fredoka','Nunito',sans-serif}
+body{background:
+  radial-gradient(600px 380px at 92% 4%,rgba(255,93,162,.22),transparent 65%),
+  radial-gradient(520px 360px at 4% 96%,rgba(0,187,249,.20),transparent 65%),
+  radial-gradient(480px 320px at 55% 55%,rgba(131,56,236,.14),transparent 70%),
+  radial-gradient(420px 300px at 30% 0%,rgba(255,210,63,.10),transparent 70%),var(--cor-fundo);background-attachment:fixed}
+body.modo-claro{--cor-fundo:#EEF4FF;--cor-borda:#D9DEFF;background:
+  radial-gradient(600px 380px at 92% 4%,rgba(255,93,162,.20),transparent 65%),
+  radial-gradient(520px 360px at 4% 96%,rgba(0,187,249,.22),transparent 65%),
+  radial-gradient(480px 320px at 55% 55%,rgba(255,210,63,.18),transparent 70%),linear-gradient(180deg,#E3F0FF 0%,#FFF4FA 100%);background-attachment:fixed}
+/* Volume de massinha: brilho em cima, sombra embaixo */
+.rede-logo,.kpi-ico,.nav-link:not(.nav-rede) > i{box-shadow:inset 0 3px 0 rgba(255,255,255,.45),inset 0 -4px 0 rgba(0,0,0,.22),0 6px 14px -4px rgba(0,0,0,.35)!important}
+.rede-logo{border-radius:30%!important}
+.rede-logo.lg{width:64px;height:64px;font-size:32px}
+/* Ícones do menu: cada item com sua cor de bala */
+.nav-link{border-radius:16px;font-weight:700;transition:transform .25s cubic-bezier(.34,1.56,.64,1),background .2s}
+.nav-link:hover{transform:translateX(4px)}
+.nav-link:not(.nav-rede) > i{color:#fff!important;border-radius:30%!important}
+[data-page="dashboard"] > i{background:var(--c6)!important}
+[data-page="calendario"] > i{background:var(--c5)!important}
+[data-page="ideias"] > i{background:var(--c3)!important;color:#7a4b00!important}
+[data-page="inspiracoes"] > i{background:var(--c1)!important}
+[data-page="metricas"] > i{background:var(--c4)!important}
+[data-page="comentarios"] > i{background:var(--c7)!important}
+[data-page="automacoes"] > i{background:var(--c8)!important}
+[data-page="contatos"] > i{background:var(--c2)!important}
+[data-page="configuracoes"] > i{background:#94A3B8!important}
+.nav-link.active{background:linear-gradient(90deg,rgba(131,56,236,.35),rgba(255,93,162,.15));box-shadow:none}
+.nav-link.active > i,.nav-link.active .rede-logo{animation:pular .6s cubic-bezier(.34,1.56,.64,1)}
+.nav-link:hover > i,.nav-link:hover .rede-logo{transform:scale(1.12) rotate(-6deg)}
+.nav-link > i,.nav-link .rede-logo{transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.nav-grupo{font-size:12px;letter-spacing:.5px;text-transform:none;font-weight:600;opacity:.85}
+/* Cartões fofinhos */
+.kpi-card,.chart-card,.table-card,.bloco,.card-item,.modal-content{border-radius:var(--borda-r)}
+.kpi-card{border:none;background:var(--cor-card);box-shadow:0 8px 0 -2px color-mix(in srgb,var(--k) 55%,transparent),0 14px 28px -10px rgba(0,0,0,.35);transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s}
+.kpi-card::before{display:none}
+.kpi-card:hover{transform:translateY(-6px) rotate(-.6deg);box-shadow:0 12px 0 -2px color-mix(in srgb,var(--k) 70%,transparent),0 22px 34px -12px rgba(0,0,0,.4)}
+.kpi-card:hover .kpi-ico{animation:pular .6s cubic-bezier(.34,1.56,.64,1)}
+.kpi-ico{width:44px;height:44px;border-radius:30%;font-size:20px;color:#fff!important;background:var(--k)!important}
+.kpi-value{font-size:28px;font-weight:700;color:var(--cor-titulo)}
+.kpi-label{font-weight:800;letter-spacing:.6px}
+.kpi-card:nth-child(8n+1){--k:var(--c1)} .kpi-card:nth-child(8n+2){--k:var(--c2)} .kpi-card:nth-child(8n+3){--k:var(--c4)} .kpi-card:nth-child(8n+4){--k:var(--c5)}
+.kpi-card:nth-child(8n+5){--k:var(--c6)} .kpi-card:nth-child(8n+6){--k:var(--c8)} .kpi-card:nth-child(8n+7){--k:var(--c7)} .kpi-card:nth-child(8n+8){--k:var(--c3)}
+.kpi-card:nth-child(8n+8) .kpi-ico{color:#7a4b00!important}
+/* Banner com bolhas 3D flutuando */
+.hero{border-radius:28px;padding:28px 30px;box-shadow:0 10px 0 -3px rgba(0,0,0,.18),0 24px 40px -14px rgba(0,0,0,.45)}
+.hero::before,.hero::after{display:none}
+.bolha{position:absolute;border-radius:50%;pointer-events:none;z-index:0!important;animation:flutuar 7s ease-in-out infinite;
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.95) 0 8%,var(--b) 30%,color-mix(in srgb,var(--b) 70%,#000) 100%);box-shadow:0 14px 24px -8px rgba(0,0,0,.35)}
+.bolha.b1{--b:#FFD23F;width:70px;height:70px;right:6%;top:-18px}
+.bolha.b2{--b:#00BBF9;width:38px;height:38px;right:34%;bottom:-10px;animation-delay:-2.5s;animation-duration:6s}
+.bolha.b3{--b:#FF5DA2;width:26px;height:26px;right:24%;top:16px;animation-delay:-4s;animation-duration:5s}
+.bolha.b4{--b:#2EC4B6;width:110px;height:110px;right:-34px;bottom:-46px;animation-delay:-1s;animation-duration:9s;opacity:.9}
+.hero-txt h2{font-size:30px;font-weight:700;text-shadow:0 3px 0 rgba(0,0,0,.18)}
+.hero-insp{border-radius:20px;background:rgba(255,255,255,.22);box-shadow:inset 0 2px 0 rgba(255,255,255,.35)}
+.hero-foto{width:80px;height:80px;box-shadow:0 8px 18px -6px rgba(0,0,0,.45);animation:respirar 4s ease-in-out infinite}
+.hero > .rede-logo.lg{animation:respirar 4s ease-in-out infinite}
+.hero-redes .rede-logo{border-radius:30%!important}
+.hero-redes button:hover{transform:translateY(-4px) scale(1.12) rotate(-6deg)}
+.hero-redes button{transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+/* Abas de perfil como balas */
+.tabs-perfis button{border:none;border-radius:40px;font-weight:700;box-shadow:0 4px 0 -1px var(--cor-borda),0 8px 14px -8px rgba(0,0,0,.3);transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.tabs-perfis button:hover{transform:translateY(-2px)}
+.tabs-perfis button.ativo{color:#fff;background:var(--rede-cor);box-shadow:0 4px 0 -1px color-mix(in srgb,var(--rede-cor) 60%,#000),0 10px 18px -8px var(--rede-cor)}
+.tabs-perfis{padding:4px 2px 10px}
+/* Botões com volume e efeito de apertar */
+.btn-primary{border-radius:14px;background:linear-gradient(180deg,#9B5CFF,#7C3AED);box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 4px 0 #5B21B6;font-weight:800;transition:transform .1s,box-shadow .1s}
+.btn-primary:hover{background:linear-gradient(180deg,#A970FF,#8B4BF5)}
+.btn-primary:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 1px 0 #5B21B6}
+.dp-btn{border-radius:30px;font-weight:700}
+.dp-btn.ativo{background:linear-gradient(180deg,#FF7DB5,#FF5DA2);color:#fff;border-color:transparent;box-shadow:0 3px 0 #D63F82}
+.chart-card,.table-card,.bloco{box-shadow:0 6px 0 -2px var(--cor-borda),0 16px 30px -14px rgba(0,0,0,.35);border:none}
+.chart-card h6,.table-header h6,.bloco h6{font-size:16px;font-weight:600}
+.sidebar-brand img{border-radius:18px!important;box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 6px 14px -4px rgba(0,0,0,.35);animation:respirar 5s ease-in-out infinite}
+.login-redes .rede-logo{animation:pular 2.4s cubic-bezier(.34,1.56,.64,1) infinite}
+.login-redes .rede-logo:nth-child(2){animation-delay:.15s}.login-redes .rede-logo:nth-child(3){animation-delay:.3s}.login-redes .rede-logo:nth-child(4){animation-delay:.45s}
+@keyframes pular{0%,100%{transform:translateY(0) scale(1)}30%{transform:translateY(-6px) scale(1.08,.94)}55%{transform:translateY(0) scale(.94,1.06)}75%{transform:translateY(-2px) scale(1.02)}}
+@keyframes flutuar{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-12px) rotate(8deg)}}
+@keyframes respirar{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media (max-width:640px){.bolha.b1{width:46px;height:46px}.bolha.b4{display:none}.hero-txt h2{font-size:23px}.kpi-value{font-size:22px}}
 </style>
 </head>
 <body>
@@ -1174,8 +1259,8 @@ function renderDashboard() {
   for (let d = parseYmd(ini); ymd(d) <= ate && listaDias.length < 400; d = addDias(d, 1)) listaDias.push(ymd(d));
   const rotulos = listaDias.map(d => fmtData(d).slice(0, 5));
   const porDia = campo => { const mapa = {}; dias.forEach(m => { if (m[campo] != null) mapa[m.data] = m[campo]; }); return listaDias.map(d => mapa[d] ?? null); };
-  const linha = (label, data, cor) => ({ label, data, borderColor: cor, backgroundColor: cor + '99', tension: .3, spanGaps: true, pointRadius: 0, borderWidth: 2 });
-  const barra = (label, data, cor) => ({ label, data, backgroundColor: cor, borderWidth: 0, borderRadius: 4 });
+  const linha = (label, data, cor) => ({ label, data, borderColor: cor, backgroundColor: cor + '33', fill: true, tension: .45, spanGaps: true, pointRadius: 0, pointHoverRadius: 7, borderWidth: 4, borderCapStyle: 'round' });
+  const barra = (label, data, cor) => ({ label, data, backgroundColor: cor, borderWidth: 0, borderRadius: 10, borderSkipped: false });
   const cor = c.rede === 'instagram' ? perfilCor(c.username) : { tiktok: '#EC4899', youtube: '#FF0000', pinterest: '#E60023' }[c.rede];
   let g1, g2;
   if (c.rede === 'instagram') {
@@ -1224,7 +1309,7 @@ function renderHero(c) {
   const insp = `<div class="hero-insp"><b><i class="bi bi-stars"></i> Inspiração do dia</b>${esc(fraseDoDia())}</div>`;
   if (!rede) {
     const conectadas = PAGINAS_REDE.filter(r => todasContas().some(x => x.rede === r));
-    $('dash-hero').innerHTML = `<div class="hero hero-geral">${logoRede('geral', 'lg')}
+    $('dash-hero').innerHTML = `<div class="hero hero-geral"><span class="bolha b1"></span><span class="bolha b2"></span><span class="bolha b3"></span><span class="bolha b4"></span>${logoRede('geral', 'lg')}
       <div class="hero-txt"><small>${new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</small><h2>${saudacao()}, Ellen!</h2>
       <p>${todasContas().length} perfis conectados. Toque numa rede para ver só ela:</p>
       <div class="hero-redes">${conectadas.map(r => `<button title="${NOME_REDE[r]}" onclick="showPage('${r}')">${logoRede(r)}</button>`).join('')}</div></div>${insp}</div>`;
@@ -1234,7 +1319,7 @@ function renderHero(c) {
   const foto = perfil.foto ? `<div class="hero-foto"><img src="${esc(perfil.foto)}" referrerpolicy="no-referrer" onerror="this.parentNode.outerHTML=logoRede('${rede}','lg')"></div>` : logoRede(rede, 'lg');
   const qtd = todasContas().filter(x => x.rede === rede).length;
   const seg = perfil.seguidores != null ? `${fmtNum(perfil.seguidores)} ${rede === 'youtube' ? 'inscritos' : 'seguidores'}` : '';
-  $('dash-hero').innerHTML = `<div class="hero hero-${rede}">${foto}
+  $('dash-hero').innerHTML = `<div class="hero hero-${rede}"><span class="bolha b1"></span><span class="bolha b2"></span><span class="bolha b3"></span><span class="bolha b4"></span>${foto}
     <div class="hero-txt"><small>${logoRede(rede, 'sm')} ${NOME_REDE[rede]}${qtd > 1 ? ` · ${qtd} contas` : ''}</small>
     <h2>${c ? '@' + esc(c.username) : NOME_REDE[rede]}</h2><p>${c ? seg : 'Nenhuma conta conectada ainda'}</p></div>${insp}</div>`;
 }
