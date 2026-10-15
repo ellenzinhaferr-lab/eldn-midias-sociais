@@ -159,6 +159,10 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
 .thumb-mini{width:42px;height:42px;object-fit:cover;border-radius:6px;background:rgba(124,58,237,.1)}
 .conta-card{display:flex;gap:14px;align-items:center}
 .conta-card img{width:52px;height:52px;border-radius:50%;object-fit:cover;background:rgba(124,58,237,.15)}
+.ordem-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--cor-borda);border-radius:10px;margin-bottom:6px;background:rgba(124,58,237,.04)}
+.ordem-item.arrastando{opacity:.4}
+.ordem-item .alca{cursor:grab;color:var(--cor-texto-suave);font-size:18px}
+.ordem-item .btn-sm-action:disabled{opacity:.3;cursor:default}
 .toast-msg{position:fixed;bottom:24px;right:24px;background:#1A1030;border:1px solid var(--cor-borda);border-radius:12px;padding:14px 18px;color:var(--cor-texto);font-size:13px;z-index:9999;display:none;align-items:center;gap:10px;box-shadow:0 4px 24px rgba(0,0,0,.5);max-width:380px}
 .spinner-sm{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:var(--cor-secundaria);border-radius:50%;animation:girar .7s linear infinite;display:inline-block;vertical-align:middle}
 @keyframes girar{to{transform:rotate(360deg)}}
@@ -571,6 +575,9 @@ body.modo-claro{--cor-numero:#5B4B8A}
 
       <!-- ======================= CONFIGURAÇÕES ======================= -->
       <div class="page" id="page-configuracoes">
+        <div class="bloco"><h6><i class="bi bi-arrow-down-up me-2"></i>Ordem dos perfis</h6>
+          <div class="form-text mb-2">Arraste pelo <i class="bi bi-grip-vertical"></i> para mudar a ordem (no celular, use as setas). A ordem vale para as abas do Dashboard, os filtros e as listas do sistema.</div>
+          <div id="ordem-lista"></div></div>
         <div class="bloco"><h6><span class="rede-logo rl-instagram"><i class="bi bi-instagram"></i></span>Instagram: perfis conectados</h6><div id="contas-lista"></div></div>
         <div class="bloco">
           <h6><i class="bi bi-plug me-2"></i>Conectar ou atualizar perfis do Instagram</h6>
@@ -817,7 +824,12 @@ let contasRedes = [], appsRedes = {}, redirectUri = '';
 const redirectUriGoogle = new URL('oauth-google.html', location.href).href.split('?')[0];
 function redeDoId(id) { const p = { tt: 'tiktok', pin: 'pinterest', yt: 'youtube' }[String(id || '').split('_')[0]]; return p || 'instagram'; }
 function contasMetricas() { return contasRedes; }
-function todasContas() { return [...contasIG.map(c => ({ id: c.igId, rede: 'instagram', username: c.username })), ...contasMetricas().map(c => ({ id: c.id, rede: c.rede, username: c.username }))]; }
+function todasContas() { return ordenarPorPerfil([...contasIG.map(c => ({ id: c.igId, rede: 'instagram', username: c.username })), ...contasMetricas().map(c => ({ id: c.id, rede: c.rede, username: c.username }))], 'id'); }
+// Ordem dos perfis escolhida pela Ellen (arrastar em Perfis Conectados). Vale para abas, filtros e listas
+let ordemPerfis = [], ordemArrastando = '';
+try { ordemPerfis = JSON.parse(localStorage.getItem('ms-ordem-perfis') || '[]'); } catch (e) {}
+function posPerfil(id) { const i = ordemPerfis.indexOf(id); return i < 0 ? 9999 : i; }
+function ordenarPorPerfil(lista, chave) { return lista.slice().sort((a, b) => posPerfil(a[chave]) - posPerfil(b[chave])); }
 let cache = { metricasDia: null, posts: null, perfisIg: null, logs: null, contatos: null };
 let unsubscribers = [];
 let paginaAtual = 'dashboard';
@@ -948,6 +960,10 @@ function setupListeners() {
     renderPaginaAtual();
   }, e => console.error(col, e)));
   const recentes = (a, b) => String(b.criadoEm || '').localeCompare(String(a.criadoEm || ''));
+  unsubscribers.push(db.collection('midias_config').doc('ordem_perfis').onSnapshot(d => {
+    const ids = (d.data() || {}).ids;
+    if (Array.isArray(ids)) aplicarOrdemPerfis(ids);
+  }, e => console.warn('ordem_perfis', e)));
   ouvir('midias_calendario', 'calendario');
   ouvir('midias_ideias', 'ideias', recentes);
   ouvir('midias_inspiracoes', 'inspiracoes', recentes);
@@ -958,8 +974,8 @@ function setupListeners() {
 async function carregarContas() {
   try {
     const r = await api('contas');
-    contasIG = r.contas;
-    contasRedes = r.redes || [];
+    contasIG = ordenarPorPerfil(r.contas, 'igId');
+    contasRedes = ordenarPorPerfil(r.redes || [], 'id');
     appsRedes = r.apps || {};
     redirectUri = r.redirectUri || '';
   } catch (e) {
@@ -2673,7 +2689,45 @@ function exportarContatosMeta() {
 // ============================================================
 // PERFIS CONECTADOS
 // ============================================================
+function aplicarOrdemPerfis(ids) {
+  ordemPerfis = ids;
+  try { localStorage.setItem('ms-ordem-perfis', JSON.stringify(ids)); } catch (e) {}
+  contasIG = ordenarPorPerfil(contasIG, 'igId');
+  contasRedes = ordenarPorPerfil(contasRedes, 'id');
+  preencherFiltrosContas();
+  renderPaginaAtual();
+}
+function salvarOrdemPerfis(ids) {
+  aplicarOrdemPerfis(ids);
+  db.collection('midias_config').doc('ordem_perfis').set({ ids, atualizadoEm: agoraIso() })
+    .catch(e => { console.warn('ordem_perfis', e); toast('Não consegui salvar a ordem na nuvem. Ficou salva só neste aparelho.', 'erro'); });
+}
+function soltarPerfil(alvo) {
+  const ids = todasContas().map(c => c.id);
+  if (!ordemArrastando || ordemArrastando === alvo) return;
+  ids.splice(ids.indexOf(ordemArrastando), 1);
+  ids.splice(ids.indexOf(alvo), 0, ordemArrastando);
+  ordemArrastando = '';
+  salvarOrdemPerfis(ids);
+}
+function moverPerfil(id, passo) {
+  const ids = todasContas().map(c => c.id), i = ids.indexOf(id), j = i + passo;
+  if (i < 0 || j < 0 || j >= ids.length) return;
+  [ids[i], ids[j]] = [ids[j], ids[i]];
+  salvarOrdemPerfis(ids);
+}
+function renderOrdemPerfis() {
+  const t = todasContas();
+  $('ordem-lista').innerHTML = t.length ? t.map((c, i) => `<div class="ordem-item" draggable="true" data-id="${esc(c.id)}"
+      ondragstart="ordemArrastando=this.dataset.id;this.classList.add('arrastando')" ondragend="this.classList.remove('arrastando')"
+      ondragover="event.preventDefault()" ondrop="event.preventDefault();soltarPerfil(this.dataset.id)">
+      <i class="bi bi-grip-vertical alca"></i>${logoRede(c.rede, 'sm')}<b style="color:var(--cor-titulo)">@${esc(c.username)}</b><span class="form-text m-0">${NOME_REDE[c.rede]}</span>
+      <span class="ms-auto d-flex gap-1"><button class="btn-sm-action" title="Subir" ${i === 0 ? 'disabled' : ''} onclick="moverPerfil('${esc(c.id)}',-1)"><i class="bi bi-chevron-up"></i></button>
+      <button class="btn-sm-action" title="Descer" ${i === t.length - 1 ? 'disabled' : ''} onclick="moverPerfil('${esc(c.id)}',1)"><i class="bi bi-chevron-down"></i></button></span></div>`).join('')
+    : '<div class="form-text">Nenhum perfil conectado ainda.</div>';
+}
 function renderContas() {
+  renderOrdemPerfis();
   Object.keys(GUIA_REDE).forEach(renderBlocoRede);
   $('contas-lista').innerHTML = contasIG.length ? contasIG.map(c => `<div class="conta-card" style="padding:12px 0;border-bottom:1px solid var(--cor-borda)">
       ${c.foto ? `<img src="${esc(c.foto)}" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">` : '<img>'}
