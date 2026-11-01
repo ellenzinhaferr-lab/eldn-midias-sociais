@@ -127,6 +127,22 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
 .cal-num{font-size:12px;color:var(--cor-texto-suave);font-weight:600}
 .cal-chip{font-size:11px;padding:3px 6px;border-radius:6px;background:rgba(124,58,237,.12);border-left:3px solid var(--cor-primaria);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:grab;color:var(--cor-texto)}
 .cal-chip.postado{opacity:.6;text-decoration:line-through}
+/* Posts que já foram ao ar (puxados do Instagram) + painel de hoje */
+.cal-tabs{margin-bottom:12px}
+.cal-real{display:flex;align-items:center;gap:5px;font-size:11px;padding:2px 6px 2px 2px;border-radius:6px;background:rgba(16,185,129,.14);border-left:3px solid var(--cor-verde);color:var(--cor-texto);text-decoration:none;white-space:nowrap;overflow:hidden;min-width:0}
+.cal-real span{overflow:hidden;text-overflow:ellipsis}
+.cal-real img{width:20px;height:20px;border-radius:4px;object-fit:cover;flex:none}
+.cal-real:hover{color:var(--cor-titulo);background:rgba(16,185,129,.24)}
+.cal-legenda{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--cor-texto-suave);margin-top:8px}
+.cal-legenda i{margin-right:4px}
+.cal-hoje{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:640px){.cal-hoje{grid-template-columns:1fr}}
+.cal-hoje .bloco{background:var(--cor-card);border:1px solid var(--cor-borda);border-radius:14px;padding:12px 14px;min-width:0}
+.cal-hoje h6{font-size:14px;margin:0 0 6px;color:var(--cor-titulo);display:flex;align-items:center;gap:6px}
+.item-hoje{display:flex;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--cor-borda);text-decoration:none;color:var(--cor-texto);cursor:pointer;min-width:0}
+.item-hoje img{width:44px;height:44px;border-radius:8px;object-fit:cover;flex:none}
+.item-hoje .tx{flex:1;min-width:0;font-size:13px}
+.item-hoje .tx div:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--cor-titulo)}
 .status-pip{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
 /* Automações */
 .fluxo-card .gatilho{font-size:12px;color:var(--cor-texto-suave)}
@@ -455,6 +471,8 @@ body.modo-claro{--cor-numero:#5B4B8A}
 
       <!-- ======================= CALENDÁRIO ======================= -->
       <div class="page" id="page-calendario">
+        <div class="tabs-linha tabs-perfis cal-tabs" id="cal-tabs"></div>
+        <div class="cal-hoje" id="cal-hoje"></div>
         <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
           <div class="d-flex gap-2 align-items-center">
             <button class="btn btn-outline-secondary btn-sm" onclick="mudarMes(-1)"><i class="bi bi-chevron-left"></i></button>
@@ -463,14 +481,15 @@ body.modo-claro{--cor-numero:#5B4B8A}
             <button class="btn btn-outline-secondary btn-sm" onclick="calHoje()">Hoje</button>
           </div>
           <div class="filtros">
-            <select class="form-select" id="cal-perfil" onchange="renderCalendario()"></select>
             <select class="form-select" id="cal-status" onchange="renderCalendario()"></select>
+            <button class="dp-btn" id="cal-sync" onclick="atualizarPostsCal(true)"><i class="bi bi-arrow-repeat"></i> Atualizar posts</button>
             <button class="dp-btn" id="cal-modo" onclick="alternarModoCal()"><i class="bi bi-list-ul"></i> Lista</button>
           </div>
         </div>
         <div id="cal-mes">
           <div class="cal-head"><div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div></div>
           <div class="cal-grid" id="cal-grid"></div>
+          <div class="cal-legenda"><span><i class="bi bi-check-circle-fill" style="color:var(--cor-verde)"></i>Já foi ao ar (vem do Instagram, clique para abrir)</span><span><i class="bi bi-calendar-check" style="color:var(--cor-secundaria)"></i>Planejado / programado no sistema</span></div>
           <div class="form-text mt-2"><i class="bi bi-info-circle"></i> Clique num dia para criar um conteúdo. Arraste um conteúdo para outro dia para remarcar.</div>
         </div>
         <div id="cal-lista" style="display:none"></div>
@@ -1003,7 +1022,7 @@ function ehPaginaDash(p) { return p === 'dashboard' || PAGINAS_REDE.includes(p);
 function botaoSync() { return `<button class="btn btn-outline-secondary btn-sm" id="btn-sync" onclick="sincronizarMetricas()"><i class="bi bi-arrow-repeat"></i> Atualizar métricas</button>`; }
 const PAGINAS = {
   dashboard: ['Dashboard', 'Crescimento, alcance e resultados das automações', () => `<button class="btn btn-outline-secondary btn-sm" id="btn-sync" onclick="sincronizarMetricas()"><i class="bi bi-arrow-repeat"></i> Atualizar métricas</button>`],
-  calendario: ['Calendário de Conteúdo', 'Planeje e acompanhe cada post dos 3 perfis', () => `<button class="btn btn-primary btn-sm" onclick="novoConteudo()"><i class="bi bi-plus-lg"></i> Novo conteúdo</button>`],
+  calendario: ['Calendário de Conteúdo', 'O que já foi ao ar e o que está programado, um perfil por aba', () => `<button class="btn btn-primary btn-sm" onclick="novoConteudo()"><i class="bi bi-plus-lg"></i> Novo conteúdo</button>`],
   ideias: ['Ideias e Roteiros', 'Seu banco de ideias, ganchos e roteiros prontos para gravar', () => `<button class="btn btn-primary btn-sm" onclick="novaIdeia()"><i class="bi bi-plus-lg"></i> Nova ideia</button>`],
   inspiracoes: ['Inspirações', 'Referências para replicar e perfis que te inspiram', () => abaInspAtual === 'ref'
     ? `<button class="btn btn-primary btn-sm" onclick="novaRef()"><i class="bi bi-plus-lg"></i> Nova referência</button>`
@@ -1037,7 +1056,7 @@ function atualizarAcoesTopo() { $('topbar-acoes').innerHTML = PAGINAS[paginaAtua
 function renderPaginaAtual(abrindo) {
   const p = paginaAtual;
   if (ehPaginaDash(p)) { Promise.all([carregarDadosMetricas(), cache.logs ? null : carregarLogs()]).then(renderDashboard); if (abrindo) syncAutomaticoSeAntigo(); }
-  else if (p === 'calendario') renderCalendario();
+  else if (p === 'calendario') { renderCalendario(); if (abrindo) atualizarPostsCal(); }
   else if (p === 'ideias') renderIdeias();
   else if (p === 'inspiracoes') { renderReferencias(); renderPerfisInsp(); }
   else if (p === 'metricas') carregarDadosMetricas().then(renderMetricas);
@@ -1049,7 +1068,6 @@ function renderPaginaAtual(abrindo) {
 
 function preencherFiltros() {
   const perfisOpts = PERFIS.map(p => [p.u, '@' + p.u]);
-  $('cal-perfil').innerHTML = opts(perfisOpts, '', 'Todos os perfis');
   $('cal-status').innerHTML = opts(STATUS_CAL, '', 'Todos os status');
   $('id-perfil').innerHTML = opts(perfisOpts, '', 'Todos os perfis');
   $('id-formato').innerHTML = opts(FORMATOS, '', 'Todos os formatos');
@@ -1386,8 +1404,78 @@ function mudarMes(n) { calMes = new Date(calMes.getFullYear(), calMes.getMonth()
 function calHoje() { calMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1); renderCalendario(); }
 function alternarModoCal() { calModoLista = !calModoLista; renderCalendario(); }
 
+// Uma aba por perfil do Instagram: mostra os posts que já foram ao ar (puxados do Instagram) + o que está planejado/programado
+let calPerfil = '', calBuscando = false, calBuscaEm = {};
+try { calPerfil = localStorage.getItem('ms-cal-perfil') || ''; } catch (e) {}
+function perfisCal() { const us = contasIG.map(c => c.username); return us.length ? us : PERFIS.map(p => p.u); }
+function perfilCalAtual() { const l = perfisCal(); return l.includes(calPerfil) ? calPerfil : (l[0] || ''); }
+function abaCal(u) { calPerfil = u; try { localStorage.setItem('ms-cal-perfil', u); } catch (e) {} renderCalendario(); atualizarPostsCal(); }
+function renderCalTabs() {
+  const atual = perfilCalAtual();
+  $('page-calendario').style.setProperty('--rede-cor', perfilCor(atual));
+  $('cal-tabs').innerHTML = perfisCal().map(u => { const c = contaPorUsername(u), f = c && ((cache.perfisIg || []).find(p => p.igId === c.igId) || {}).foto;
+    return `<button class="${u === atual ? 'ativo' : ''}" onclick="abaCal('${esc(u)}')">${f ? `<img class="tab-foto" src="${esc(f)}" referrerpolicy="no-referrer" onerror="this.outerHTML=logoRede('instagram','sm')">` : logoRede('instagram', 'sm')}@${esc(u)}</button>`; }).join('');
+}
+function postsReaisCal() {
+  const st = $('cal-status').value, c = contaPorUsername(perfilCalAtual());
+  if (!c || (st && st !== 'Postado')) return [];
+  return (cache.posts || []).filter(p => p.igId === c.igId && p.data);
+}
+function horaPost(p) { const d = new Date(p.data); return isNaN(d) ? '' : d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
+function chipPostReal(p) {
+  const txt = (p.legenda || '').replace(/\s+/g, ' ').trim().slice(0, 40) || nomeTipo(p);
+  return `<a class="cal-real" href="${esc(p.permalink)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Foi ao ar às ${horaPost(p)} · ${esc(nomeTipo(p))} · ${fmtNum(p.curtidas)} curtidas · ${fmtNum(p.comentarios)} comentários&#10;${esc((p.legenda || '').slice(0, 160))}">${p.thumbnail ? `<img src="${esc(p.thumbnail)}" referrerpolicy="no-referrer" onerror="this.style.display='none'">` : '<i class="bi bi-check-circle-fill" style="color:var(--cor-verde)"></i>'}<span>${horaPost(p)} ${esc(txt)}</span></a>`;
+}
+function linhaPostReal(p) {
+  return `<a class="d-flex" style="padding:10px 20px;border-bottom:1px solid var(--cor-borda);gap:12px;align-items:center;text-decoration:none;color:inherit" href="${esc(p.permalink)}" target="_blank" rel="noopener">
+    <div style="min-width:74px;font-size:12px;color:var(--cor-texto-suave)">${fmtData(dataLocalDeIso(p.data)).slice(0, 5)}<br>${horaPost(p)}</div>
+    ${p.thumbnail ? `<img class="thumb-mini" src="${esc(p.thumbnail)}" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">` : ''}
+    <div style="flex:1;min-width:0"><div style="font-size:13px;color:var(--cor-titulo);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc((p.legenda || '').slice(0, 90) || nomeTipo(p))}</div><div class="form-text">${esc(nomeTipo(p))} · ${fmtNum(p.curtidas)} curtidas · ${fmtNum(p.comentarios)} comentários</div></div>
+    <span class="selo" style="background:#10B98122;color:#10B981">No ar</span></a>`;
+}
+// Painel do topo: o que foi ao ar hoje + o que está programado (hoje e próximos dias)
+function renderCalHoje() {
+  const u = perfilCalAtual(), conta = contaPorUsername(u), hoje = hojeStr();
+  const noAr = (cache.posts || []).filter(p => conta && p.igId === conta.igId && p.data && dataLocalDeIso(p.data) === hoje).sort((a, b) => a.data.localeCompare(b.data));
+  const prog = dados.calendario.filter(c => c.perfil === u && c.data && c.data >= hoje && c.status !== 'Postado')
+    .sort((a, b) => (a.data + (a.hora || '99')).localeCompare(b.data + (b.hora || '99'))).slice(0, 6);
+  const atualizado = conta && calBuscaEm[conta.igId] ? ` · atualizado às ${new Date(calBuscaEm[conta.igId]).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : '';
+  const blocoNoAr = !conta
+    ? '<div class="form-text">Conecte este perfil em Perfis Conectados para os posts aparecerem aqui sozinhos.</div>'
+    : noAr.length ? noAr.map(p => `<a class="item-hoje" href="${esc(p.permalink)}" target="_blank" rel="noopener">${p.thumbnail ? `<img src="${esc(p.thumbnail)}" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">` : ''}<div class="tx"><div>${esc((p.legenda || '').slice(0, 80) || nomeTipo(p))}</div><div class="form-text">${horaPost(p)} · ${esc(nomeTipo(p))} · ${fmtNum(p.curtidas)} curtidas</div></div></a>`).join('')
+    : `<div class="form-text">${calBuscando ? '<span class="spinner-sm"></span> Buscando no Instagram...' : 'Nada publicado hoje ainda.'}</div>`;
+  const blocoProg = prog.length ? prog.map(c => `<div class="item-hoje" onclick="editarConteudo('${c._id}')"><div class="tx"><div><i class="bi ${ICONE_FORMATO[c.formato] || 'bi-dot'}"></i> ${marcaAgendado(c)}${esc(c.titulo)}</div><div class="form-text">${c.data === hoje ? '<b style="color:var(--cor-acento)">Hoje</b>' : fmtData(c.data).slice(0, 5)}${c.hora ? ' às ' + esc(c.hora) : ''} · ${esc(c.formato || '')}</div></div><span class="selo" style="background:${COR_STATUS_CAL[c.status] || '#999'}22;color:${COR_STATUS_CAL[c.status] || '#999'}">${esc(c.status || '')}</span></div>`).join('')
+    : '<div class="form-text">Nada programado a partir de hoje. Clique num dia do calendário para planejar.</div>';
+  $('cal-hoje').innerHTML = `<div class="bloco"><h6><i class="bi bi-check-circle-fill" style="color:var(--cor-verde)"></i> Foi ao ar hoje <span class="form-text" style="font-weight:400">${noAr.length ? '(' + noAr.length + ')' : ''}${atualizado}</span></h6>${blocoNoAr}</div>
+    <div class="bloco"><h6><i class="bi bi-calendar-check" style="color:var(--cor-secundaria)"></i> Programados <span class="form-text" style="font-weight:400">hoje e próximos dias</span></h6>${blocoProg}</div>`;
+}
+// Busca os últimos posts do perfil da aba direto no Instagram (no máximo a cada 10 min, ou na hora pelo botão)
+async function atualizarPostsCal(forcar) {
+  if (!cache.posts) { await carregarDadosMetricas(); if (paginaAtual === 'calendario') renderCalendario(); }
+  const conta = contaPorUsername(perfilCalAtual());
+  if (!conta || calBuscando) return;
+  if (!forcar && calBuscaEm[conta.igId] && Date.now() - calBuscaEm[conta.igId] < 10 * 60 * 1000) return;
+  calBuscando = true;
+  $('cal-sync').innerHTML = '<span class="spinner-sm"></span> Atualizando...';
+  if (paginaAtual === 'calendario') renderCalHoje();
+  try {
+    const r = await api('metricas_posts', { igId: conta.igId, limite: 25 });
+    const novos = (r.posts || []).map(p => ({ ...p, igId: conta.igId, username: conta.username, atualizadoEm: agoraIso() }));
+    const batch = db.batch();
+    novos.forEach(p => batch.set(db.collection('midias_posts').doc(p.id), p, { merge: true }));
+    await batch.commit();
+    const ids = new Set(novos.map(p => p.id));
+    cache.posts = [...(cache.posts || []).filter(p => !ids.has(p.id)), ...novos];
+    calBuscaEm[conta.igId] = Date.now();
+    if (forcar) toast('Posts de @' + conta.username + ' atualizados');
+  } catch (e) { toast('Não consegui buscar os posts de @' + conta.username + ': ' + e.message, 'erro'); }
+  calBuscando = false;
+  $('cal-sync').innerHTML = '<i class="bi bi-arrow-repeat"></i> Atualizar posts';
+  if (paginaAtual === 'calendario') renderCalendario();
+}
+
 function conteudosFiltrados() {
-  const pf = $('cal-perfil').value, st = $('cal-status').value;
+  const pf = perfilCalAtual(), st = $('cal-status').value;
   return dados.calendario.filter(c => (!pf || c.perfil === pf) && (!st || c.status === st));
 }
 // ⏰ = vai publicar sozinho (pin ou vídeo agendado no YouTube); ⚠️ = a última tentativa falhou
@@ -1406,10 +1494,15 @@ function renderCalendario() {
   $('cal-modo').innerHTML = calModoLista ? '<i class="bi bi-calendar3"></i> Mês' : '<i class="bi bi-list-ul"></i> Lista';
   $('cal-mes').style.display = calModoLista ? 'none' : 'block';
   $('cal-lista').style.display = calModoLista ? 'block' : 'none';
+  renderCalTabs();
+  renderCalHoje();
   const lista = conteudosFiltrados();
   const porDia = {};
   lista.filter(c => c.data).forEach(c => (porDia[c.data] = porDia[c.data] || []).push(c));
   Object.values(porDia).forEach(l => l.sort((a, b) => (a.hora || '99').localeCompare(b.hora || '99')));
+  const reais = postsReaisCal(), reaisDia = {};
+  reais.forEach(p => { const d = dataLocalDeIso(p.data); (reaisDia[d] = reaisDia[d] || []).push(p); });
+  Object.values(reaisDia).forEach(l => l.sort((a, b) => a.data.localeCompare(b.data)));
 
   if (!calModoLista) {
     const inicio = addDias(calMes, -calMes.getDay());
@@ -1420,13 +1513,16 @@ function renderCalendario() {
       const itens = porDia[ds] || [];
       html += `<div class="cal-dia ${d.getMonth() !== calMes.getMonth() ? 'fora' : ''} ${ds === hojeStr() ? 'hoje' : ''}" onclick="novoConteudo('${ds}')"
         ondragover="event.preventDefault();this.classList.add('drop')" ondragleave="this.classList.remove('drop')" ondrop="soltarNoDia(event,'${ds}')">
-        <div class="cal-num">${d.getDate()}</div>${itens.map(chipConteudo).join('')}</div>`;
+        <div class="cal-num">${d.getDate()}</div>${(reaisDia[ds] || []).map(chipPostReal).join('')}${itens.map(chipConteudo).join('')}</div>`;
     }
     $('cal-grid').innerHTML = html;
   } else {
     const ini = ymd(calMes), fim = ymd(new Date(calMes.getFullYear(), calMes.getMonth() + 1, 0));
-    const doMes = lista.filter(c => c.data && c.data >= ini && c.data <= fim).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || '')));
-    $('cal-lista').innerHTML = `<div class="table-card"><div style="padding:6px 0">${doMes.length ? doMes.map(linhaConteudo).join('') : '<div class="empty-state"><i class="bi bi-calendar"></i>Nada planejado neste mês</div>'}</div></div>`;
+    const doMes = [
+      ...lista.filter(c => c.data && c.data >= ini && c.data <= fim).map(c => [c.data + ' ' + (c.hora || '99:99'), linhaConteudo(c)]),
+      ...reais.filter(p => { const d = dataLocalDeIso(p.data); return d >= ini && d <= fim; }).map(p => [dataLocalDeIso(p.data) + ' ' + horaPost(p), linhaPostReal(p)]),
+    ].sort((a, b) => a[0].localeCompare(b[0]));
+    $('cal-lista').innerHTML = `<div class="table-card"><div style="padding:6px 0">${doMes.length ? doMes.map(x => x[1]).join('') : '<div class="empty-state"><i class="bi bi-calendar"></i>Nada planejado nem publicado neste mês</div>'}</div></div>`;
   }
   const semData = lista.filter(c => !c.data);
   $('cal-semdata').innerHTML = semData.length ? semData.map(linhaConteudo).join('') : '<div class="empty-state" style="padding:20px">Tudo com data marcada 💜</div>';
@@ -1452,7 +1548,8 @@ function preencherModalConteudo(c) {
   $('mc-titulo').value = c.titulo || '';
   $('mc-data').value = c.data || '';
   $('mc-hora').value = c.hora || '';
-  $('mc-perfil').innerHTML = opts(PERFIS.map(p => [p.u, '@' + p.u]), c.perfil || PERFIS[0].u);
+  const perfisMc = [...new Set([...PERFIS.map(p => p.u), ...contasIG.map(x => x.username), c.perfil].filter(Boolean))];
+  $('mc-perfil').innerHTML = opts(perfisMc.map(u => [u, '@' + u]), c.perfil || PERFIS[0].u);
   const redeDoFormato = { Pin: 'Pinterest', TikTok: 'TikTok', Shorts: 'YouTube', 'Vídeo YouTube': 'YouTube' };
   $('mc-rede').innerHTML = opts(REDES_CAL, c.rede || redeDoFormato[c.formato] || 'Instagram');
   pinAtual = Object.assign({ contaId: '', boardId: '', boardNome: '', imagemUrl: '', link: '', altText: '', agendado: false }, c.pin || {});
@@ -1475,7 +1572,7 @@ function preencherModalConteudo(c) {
   alternarRedeConteudo();
   modal('modalConteudo').show();
 }
-function novoConteudo(data) { preencherModalConteudo({ data: data || '', perfil: $('cal-perfil').value || PERFIS[0].u }); }
+function novoConteudo(data) { preencherModalConteudo({ data: data || '', perfil: perfilCalAtual() || PERFIS[0].u }); }
 function editarConteudo(id) { const c = dados.calendario.find(x => x._id === id); if (c) preencherModalConteudo(c); }
 
 async function salvarConteudo() {
