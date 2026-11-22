@@ -115,6 +115,12 @@ table.gestao tbody tr:hover{background:rgba(124,58,237,.06)}
 .semana-dia{border-radius:16px;padding:12px 12px 14px;cursor:pointer;border:2px solid transparent;transition:transform .15s;min-height:150px;display:flex;flex-direction:column;gap:6px;background:var(--cor-fundo)}
 .semana-dia:hover{transform:translateY(-3px)}
 .semana-dia.hoje{border-color:var(--cor-acento)}
+.semana-dia.sel{box-shadow:0 0 0 3px var(--cor-primaria) inset}
+.semana-det{margin-top:14px;border-radius:14px;padding:14px 16px;background:var(--cor-fundo)}
+.semana-det .sdd-lin{display:grid;grid-template-columns:130px 1fr;gap:8px;font-size:13px;padding:5px 0;border-bottom:1px dashed var(--cor-borda)}
+.semana-det .sdd-lin:last-child{border-bottom:none}
+.semana-det .sdd-lin b{color:var(--cor-texto-suave);font-weight:500}
+@media (max-width:640px){.semana-det .sdd-lin{grid-template-columns:1fr;gap:2px}}
 .semana-dia .sd-nome{font-family:Fredoka,Nunito,sans-serif;font-size:15px;color:var(--cor-texto-suave)}
 .semana-dia .sd-obj{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:600;align-self:flex-start}
 .semana-dia .sd-tema{font-size:13px;color:var(--cor-titulo)}
@@ -563,9 +569,10 @@ body.modo-claro{--cor-numero:#5B4B8A}
         <div class="bloco" id="le-semana-bloco">
           <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
             <h6 class="m-0" style="font-family:Fredoka,Nunito,sans-serif;font-weight:400;font-size:18px;color:var(--cor-titulo)"><i class="bi bi-calendar-week me-1"></i> Minha semana</h6>
-            <span class="form-text m-0">O tema de cada dia. Toque no dia para mudar.</span>
+            <span class="form-text m-0">O tema de cada dia. Toque no dia para ver os detalhes.</span>
           </div>
           <div class="semana-grid" id="le-semana"></div>
+          <div class="semana-det" id="le-semana-det"></div>
         </div>
         <div id="le-aviso"></div>
         <div id="le-ver" class="bloco le-doc"></div>
@@ -806,15 +813,20 @@ body.modo-claro{--cor-numero:#5B4B8A}
 </div></div></div>
 
 <!-- ======================= MODAL REFERÊNCIA ======================= -->
-<div class="modal fade" id="modalDiaSemana" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+<div class="modal fade" id="modalDiaSemana" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
   <div class="modal-header"><h5 class="modal-title" id="ms-titulo">Dia da semana</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
   <div class="modal-body">
     <input type="hidden" id="ms-dia">
     <div class="row g-3">
-      <div class="col-12"><label class="form-label">Objetivo do dia</label><select class="form-select" id="ms-objetivo"></select></div>
-      <div class="col-12"><label class="form-label">Tema ou quadro</label><input class="form-control" id="ms-tema" placeholder="Ex.: Diário de afiliada, Placar de sexta"></div>
+      <div class="col-md-6"><label class="form-label">Objetivo (define a cor)</label><select class="form-select" id="ms-objetivo"></select></div>
+      <div class="col-md-6"><label class="form-label">Objetivo do seu jeito <span class="form-text">(opcional)</span></label><input class="form-control" id="ms-objtexto" placeholder="Ex.: Vender (comissão)"></div>
+      <div class="col-12"><label class="form-label">Quadro</label><input class="form-control" id="ms-tema" placeholder="Ex.: Diário de afiliada"></div>
       <div class="col-6"><label class="form-label">Formato</label><select class="form-select" id="ms-formato"></select></div>
-      <div class="col-6"><label class="form-label">Observação</label><input class="form-control" id="ms-nota" placeholder="Ex.: Trial Reels"></div>
+      <div class="col-6"><label class="form-label">Linha</label><input class="form-control" id="ms-linha" placeholder="Temão, Tema ou Teminha"></div>
+      <div class="col-12"><label class="form-label">CTA padrão</label><input class="form-control" id="ms-cta" placeholder="Ex.: Salva pra usar hoje"></div>
+      <div class="col-12"><label class="form-label">Rodízio</label><textarea class="form-control" id="ms-rodizio" rows="2" placeholder="Ex.: Semana 1: ... · Semana 2: ..."></textarea></div>
+      <div class="col-12"><label class="form-label">Stories do dia</label><textarea class="form-control" id="ms-stories" rows="2" placeholder="Manhã: ... · Tarde: ... · Noite: ..."></textarea></div>
+      <div class="col-12"><label class="form-label">Observação</label><input class="form-control" id="ms-nota"></div>
     </div>
   </div>
   <div class="modal-footer"><button class="btn btn-outline-secondary me-auto" onclick="limparDiaSemana()"><i class="bi bi-eraser"></i> Limpar dia</button><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" onclick="salvarDiaSemana()"><i class="bi bi-check-lg"></i> Salvar</button></div>
@@ -2419,7 +2431,7 @@ async function salvarLinha() {
   toast('Linha editorial salva!');
 }
 function copiarLinha() {
-  const sem = semanaDoPerfil(lePerfil), linhas = DIAS_SEMANA.filter(([k]) => sem[k] && (sem[k].objetivo || sem[k].tema)).map(([k, nome]) => `- ${nome}: ${[sem[k].objetivo, sem[k].tema, sem[k].formato, sem[k].nota].filter(Boolean).join(' · ')}`);
+  const sem = semanaDoPerfil(lePerfil), linhas = DIAS_SEMANA.filter(([k]) => sem[k] && (sem[k].objetivo || sem[k].tema)).map(([k, nome]) => `- ${nome}: ${[sem[k].objetivoTexto || sem[k].objetivo, sem[k].tema, sem[k].formato, sem[k].linha && 'Linha: ' + sem[k].linha, sem[k].cta && 'CTA: ' + sem[k].cta, sem[k].rodizio && 'Rodízio: ' + sem[k].rodizio, sem[k].stories && 'Stories: ' + sem[k].stories, sem[k].nota].filter(Boolean).join(' | ')}`);
   copiar(`Linha editorial do perfil @${lePerfil}:\n\n${linhas.length ? 'Minha semana:\n' + linhas.join('\n') + '\n\n' : ''}${leTexto(lePerfil)}`);
 }
 
@@ -2432,26 +2444,42 @@ const OBJ_VISUAL = {
   'Ensinar': ['bi-mortarboard', '#3B82F6'], 'Trend': ['bi-fire', '#F59E0B'], 'Humor': ['bi-emoji-laughing', '#F97316'], 'Folga': ['bi-moon-stars', '#94A3B8'],
 };
 function semanaDoPerfil(u) { const d = (dados.linhas || []).find(x => x._id === u); return (d && d.semana) || {}; }
+let semanaSel = null;
 function renderSemana() {
   const sem = semanaDoPerfil(lePerfil), hoje = DIAS_SEMANA[(new Date().getDay() + 6) % 7][0];
+  if (!semanaSel) semanaSel = hoje;
   $('le-semana').innerHTML = DIAS_SEMANA.map(([k, nome]) => {
     const d = sem[k] || {}, [ic, cor] = OBJ_VISUAL[d.objetivo] || ['bi-plus-circle', '#9D8EC4'];
-    return `<div class="semana-dia ${k === hoje ? 'hoje' : ''}" onclick="editarDiaSemana('${k}')" style="${d.objetivo ? `background:${cor}1f` : ''}">
+    const vazio = !d.objetivo && !d.tema && !d.objetivoTexto;
+    return `<div class="semana-dia ${k === hoje ? 'hoje' : ''} ${k === semanaSel ? 'sel' : ''}" onclick="${vazio ? `editarDiaSemana('${k}')` : `selDiaSemana('${k}')`}" style="${d.objetivo ? `background:${cor}1f` : ''}">
       <div class="sd-nome">${nome}${k === hoje ? ' <span class="selo selo-amarelo" style="font-size:10px">hoje</span>' : ''}</div>
-      ${d.objetivo ? `<span class="sd-obj" style="background:${cor}33;color:${cor}"><i class="bi ${ic}"></i>${esc(d.objetivo)}</span>` : ''}
+      ${d.objetivo || d.objetivoTexto ? `<span class="sd-obj" style="background:${cor}33;color:${cor}"><i class="bi ${ic}"></i>${esc(d.objetivoTexto || d.objetivo)}</span>` : ''}
       ${d.tema ? `<div class="sd-tema">${esc(d.tema)}</div>` : ''}
-      ${d.formato || d.nota ? `<div class="sd-extra">${esc([d.formato, d.nota].filter(Boolean).join(' · '))}</div>` : ''}
-      ${!d.objetivo && !d.tema ? '<div class="sd-vazio"><i class="bi bi-plus-circle"></i> Definir tema</div>' : ''}
+      ${d.formato || d.linha ? `<div class="sd-extra">${esc([d.formato, d.linha].filter(Boolean).join(' · '))}</div>` : ''}
+      ${vazio ? '<div class="sd-vazio"><i class="bi bi-plus-circle"></i> Definir tema</div>' : ''}
     </div>`;
   }).join('');
+  const d = sem[semanaSel] || {}, nomeSel = DIAS_SEMANA.find(x => x[0] === semanaSel)[1];
+  const lin = (rot, v) => v ? `<div class="sdd-lin"><b>${rot}</b><span>${esc(v)}</span></div>` : '';
+  const corpo = [lin('Objetivo', d.objetivoTexto || d.objetivo), lin('Quadro', d.tema), lin('Formato', d.formato), lin('Linha', d.linha), lin('CTA padrão', d.cta), lin('Rodízio', d.rodizio), lin('Stories do dia', d.stories), lin('Observação', d.nota)].join('');
+  $('le-semana-det').innerHTML = `<div class="d-flex justify-content-between align-items-center mb-1"><b style="font-family:Fredoka,Nunito,sans-serif;font-weight:400;font-size:16px;color:var(--cor-titulo)">${nomeSel}</b>
+    <button class="btn btn-outline-secondary btn-sm" onclick="editarDiaSemana('${semanaSel}')"><i class="bi bi-pencil"></i> Editar</button></div>
+    ${corpo || '<div class="form-text">Nada definido para este dia ainda.</div>'}`;
 }
+function selDiaSemana(k) { semanaSel = k; renderSemana(); }
 function editarDiaSemana(k) {
   const d = semanaDoPerfil(lePerfil)[k] || {};
   $('ms-dia').value = k;
   $('ms-titulo').textContent = `${DIAS_SEMANA.find(x => x[0] === k)[1]} · @${lePerfil}`;
   $('ms-objetivo').innerHTML = opts([...OBJETIVOS, 'Folga'], d.objetivo || '', 'Escolha o objetivo');
+  $('ms-objtexto').value = d.objetivoTexto || '';
   $('ms-tema').value = d.tema || '';
-  $('ms-formato').innerHTML = opts([...FORMATOS, 'Sem feed'], d.formato || '', 'Qualquer formato');
+  const formatos = [...FORMATOS, 'Trial Reels', 'Só stories', 'Sem feed'];
+  $('ms-formato').innerHTML = opts(formatos.includes(d.formato) || !d.formato ? formatos : [...formatos, d.formato], d.formato || '', 'Qualquer formato');
+  $('ms-linha').value = d.linha || '';
+  $('ms-cta').value = d.cta || '';
+  $('ms-rodizio').value = d.rodizio || '';
+  $('ms-stories').value = d.stories || '';
   $('ms-nota').value = d.nota || '';
   modal('modalDiaSemana').show();
 }
@@ -2460,11 +2488,15 @@ async function gravarDiaSemana(k, valor) {
   modal('modalDiaSemana').hide();
 }
 async function salvarDiaSemana() {
-  await gravarDiaSemana($('ms-dia').value, { objetivo: $('ms-objetivo').value, tema: $('ms-tema').value.trim(), formato: $('ms-formato').value, nota: $('ms-nota').value.trim() });
+  semanaSel = $('ms-dia').value;
+  await gravarDiaSemana(semanaSel, {
+    objetivo: $('ms-objetivo').value, objetivoTexto: $('ms-objtexto').value.trim(), tema: $('ms-tema').value.trim(), formato: $('ms-formato').value,
+    linha: $('ms-linha').value.trim(), cta: $('ms-cta').value.trim(), rodizio: $('ms-rodizio').value.trim(), stories: $('ms-stories').value.trim(), nota: $('ms-nota').value.trim(),
+  });
   toast('Dia salvo!');
 }
 async function limparDiaSemana() {
-  await gravarDiaSemana($('ms-dia').value, { objetivo: '', tema: '', formato: '', nota: '' });
+  await gravarDiaSemana($('ms-dia').value, { objetivo: '', objetivoTexto: '', tema: '', formato: '', linha: '', cta: '', rodizio: '', stories: '', nota: '' });
   toast('Dia limpo.');
 }
 // Cada linha da tabela de quadros vira um atalho para criar ideia já com o quadro e o formato
