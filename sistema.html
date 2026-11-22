@@ -527,6 +527,7 @@ body.modo-claro{--cor-numero:#5B4B8A}
             <select class="form-select" id="rf-plataforma" onchange="renderReferencias()"></select>
             <select class="form-select" id="rf-destino" onchange="renderReferencias()"></select>
             <select class="form-select" id="rf-status" onchange="renderReferencias()"></select>
+            <select class="form-select" id="rf-origem" onchange="renderReferencias()"><option value="">Todas as origens</option><option value="salvos">Salvos do Instagram</option><option value="manual">Adicionadas por mim</option></select>
           </div>
           <div class="cards-grid" id="ref-grid"></div>
         </div>
@@ -1064,6 +1065,7 @@ function setupListeners() {
   const ouvir = (col, chave, ordenar) => unsubscribers.push(db.collection(col).onSnapshot(snap => {
     dados[chave] = snap.docs.map(d => ({ ...d.data(), _id: d.id }));
     if (ordenar) dados[chave].sort(ordenar);
+    if (chave === 'inspiracoes') salvosProntos();
     renderPaginaAtual();
   }, e => console.error(col, e)));
   const recentes = (a, b) => String(b.criadoEm || '').localeCompare(String(a.criadoEm || ''));
@@ -2080,8 +2082,9 @@ function abaInsp(a) {
 function iconePlataforma(p) { return { Instagram: 'bi-instagram', TikTok: 'bi-tiktok', YouTube: 'bi-youtube', Pinterest: 'bi-pinterest', Facebook: 'bi-facebook' }[p] || 'bi-link-45deg'; }
 
 function renderReferencias() {
-  const busca = $('rf-busca').value.toLowerCase(), pl = $('rf-plataforma').value, de = $('rf-destino').value, st = $('rf-status').value;
+  const busca = $('rf-busca').value.toLowerCase(), pl = $('rf-plataforma').value, de = $('rf-destino').value, st = $('rf-status').value, og = $('rf-origem').value;
   const lista = dados.inspiracoes.filter(r => (!pl || r.plataforma === pl) && (!de || r.perfilDestino === de) && (!st || r.status === st) &&
+    (!og || (og === 'salvos') === (r.origem === 'salvos-instagram')) &&
     (!busca || [r.perfilOrigem, r.oQueFunciona, r.comoAdaptar, r.legenda, (r.tags || []).join(' ')].join(' ').toLowerCase().includes(busca)));
   const corSt = { Salva: 'selo-roxo', Modelando: 'selo-amarelo', Replicada: 'selo-verde' };
   $('ref-grid').innerHTML = lista.length ? lista.map(r => `<div class="card-item">
@@ -2147,6 +2150,50 @@ async function excluirRef(id) {
   await db.collection('midias_inspiracoes').doc(id).delete();
   toast('Referência excluída.');
 }
+// ============================================================
+// SALVOS DO INSTAGRAM (extensão "ELDN Salvos do Instagram", pasta OneDrive\CLAUDE\eldn-salvos-extensao)
+// A extensão lê a coleção "replicar" no Chrome da Ellen e entrega aqui; gravamos em midias_inspiracoes
+// com id ig_<código do post> (não duplica) e nunca sobrescrevemos uma referência que já existe.
+// ============================================================
+let salvosOk = false;
+function salvosProntos() {
+  if (salvosOk) return;
+  salvosOk = true;
+  window.postMessage({ tipo: 'eldn-salvos-pronto' }, location.origin);
+}
+window.addEventListener('message', async ev => {
+  if (ev.source !== window || !ev.data) return;
+  if (ev.data.tipo === 'eldn-salvos-extensao' && salvosOk) window.postMessage({ tipo: 'eldn-salvos-pronto' }, location.origin);
+  if (ev.data.tipo !== 'eldn-salvos' || !auth.currentUser || !Array.isArray(ev.data.itens)) return;
+  const txt = (v, n) => String(v || '').slice(0, n);
+  const codigos = [];
+  let novos = 0;
+  for (const it of ev.data.itens.slice(0, 50)) {
+    const codigo = txt(it && it.codigo, 40);
+    if (!/^[\w-]{5,40}$/.test(codigo)) continue;
+    const tipo = it.tipo === 'reel' ? 'reel' : 'p';
+    const link = `https://www.instagram.com/${tipo}/${codigo}/`;
+    try {
+      const jaTem = dados.inspiracoes.some(r => String(r.link || '').includes('/' + codigo));
+      const ref = db.collection('midias_inspiracoes').doc('ig_' + codigo);
+      if (!jaTem && !(await ref.get()).exists) {
+        const autor = txt(it.autor, 40).replace(/[^\w.]/g, '');
+        const imagem = /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(it.imagem || '') && it.imagem.length < 250000 ? it.imagem : '';
+        const quando = !isNaN(Date.parse(it.vistoEm)) ? new Date(it.vistoEm).toISOString() : agoraIso();
+        await ref.set({
+          link, plataforma: 'Instagram', perfilOrigem: autor ? '@' + autor : '', formato: FORMATOS.includes(it.formato) ? it.formato : 'Reels',
+          perfilDestino: '', status: 'Salva', imagemUrl: imagem, legenda: txt(it.legenda, 2000), oQueFunciona: '', comoAdaptar: '',
+          tags: [txt(it.colecao, 30).toLowerCase() || 'replicar'], origem: 'salvos-instagram', criadoEm: quando, atualizadoEm: agoraIso(),
+        });
+        novos++;
+      }
+      codigos.push(codigo);
+    } catch (e) { console.error('salvos', codigo, e); }
+  }
+  window.postMessage({ tipo: 'eldn-salvos-ok', codigos }, location.origin);
+  if (novos) toast(`${novos} salvo(s) do Instagram chegaram em Inspirações`);
+});
+
 function refParaIdeia(id) {
   const r = dados.inspiracoes.find(x => x._id === id);
   if (!r) return;
