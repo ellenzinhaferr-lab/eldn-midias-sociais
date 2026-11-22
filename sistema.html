@@ -940,7 +940,7 @@ const ICONE_FORMATO = { Reels: 'bi-camera-reels', Carrossel: 'bi-images', 'Está
 const OBJETIVOS = ['Vender', 'Ganhar seguidores', 'Conectar', 'Ensinar', 'Trend', 'Humor'];
 const STATUS_CAL = ['Ideia', 'Roteiro', 'Gravado', 'Editado', 'Agendado', 'Postado'];
 const COR_STATUS_CAL = { Ideia: '#9D8EC4', Roteiro: '#60A5FA', Gravado: '#F59E0B', Editado: '#EC4899', Agendado: '#A78BFA', Postado: '#10B981' };
-const STATUS_IDEIA = ['Nova', 'Aprovada', 'Agendada', 'Usada', 'Descartada'];
+const STATUS_IDEIA = ['Nova', 'Aprovada', 'Roteiro pronto', 'Agendada', 'Usada', 'Descartada'];
 const PLATAFORMAS = ['Instagram', 'TikTok', 'YouTube', 'Pinterest', 'Facebook', 'Outro'];
 const STATUS_REF = ['Salva', 'Modelando', 'Replicada'];
 const EVENTOS = {
@@ -2029,10 +2029,10 @@ function renderIdeias() {
   const lista = dados.ideias.filter(i =>
     (!pf || i.perfil === pf) && (!fm || i.formato === fm) && (!ob || i.objetivo === ob) &&
     (!st || (st === 'ativas' ? !['Usada', 'Descartada'].includes(i.status) : i.status === st)) &&
-    (!busca || [i.titulo, i.gancho, i.roteiro, (i.tags || []).join(' ')].join(' ').toLowerCase().includes(busca)));
-  const corSt = { Nova: 'selo-roxo', Aprovada: 'selo-azul', Agendada: 'selo-amarelo', Usada: 'selo-verde', Descartada: 'selo-cinza' };
+    (!busca || [i.num ? '#' + i.num : '', i.titulo, i.gancho, i.roteiro, (i.tags || []).join(' ')].join(' ').toLowerCase().includes(busca)));
+  const corSt = { Nova: 'selo-roxo', Aprovada: 'selo-azul', 'Roteiro pronto': 'selo-verde', Agendada: 'selo-amarelo', Usada: 'selo-verde', Descartada: 'selo-cinza' };
   $('ideias-grid').innerHTML = lista.length ? lista.map(i => `<div class="card-item">
-      <div class="d-flex justify-content-between gap-2"><h6>${esc(i.titulo)}</h6><span class="selo ${corSt[i.status] || 'selo-cinza'}">${esc(i.status || 'Nova')}</span></div>
+      <div class="d-flex justify-content-between gap-2"><h6>${i.num ? `<span style="color:var(--cor-texto-suave);font-weight:400">#${i.num}</span> ` : ''}${esc(i.titulo)}</h6><span class="selo ${corSt[i.status] || 'selo-cinza'}">${esc(i.status || 'Nova')}</span></div>
       ${i.gancho ? `<div class="card-gancho">"${esc(i.gancho)}"</div>` : ''}
       ${i.roteiro ? `<div class="card-texto">${esc(i.roteiro)}</div>` : ''}
       <div class="d-flex gap-1 flex-wrap">${perfilTag(i.perfil)} <span class="selo selo-cinza"><i class="bi ${ICONE_FORMATO[i.formato] || ''}"></i> ${esc(i.formato || '')}</span> <span class="selo selo-cinza">${esc(i.objetivo || '')}</span>${(i.tags || []).map(t => `<span class="selo selo-cinza">#${esc(t)}</span>`).join('')}</div>
@@ -2046,7 +2046,7 @@ function renderIdeias() {
 }
 function pedidoRoteiro(id) {
   const i = dados.ideias.find(x => x._id === id) || {};
-  return `Virginia, cria o roteiro completo desta ideia para o @${i.perfil}:\nTítulo: ${i.titulo}\nGancho: ${i.gancho || '(sugira 3 opções)'}\nFormato: ${i.formato}\nObjetivo: ${i.objetivo}\n${i.roteiro ? 'Rascunho: ' + i.roteiro : ''}`;
+  return `Valeska, cria o roteiro completo da ideia #${i.num || '?'} para o @${i.perfil}. Quando eu aprovar, grava o roteiro e a legenda nessa ideia do sistema.\nTítulo: ${i.titulo}\nGancho: ${i.gancho || '(sugira 3 opções)'}\nFormato: ${i.formato}\nObjetivo: ${i.objetivo}\n${i.roteiro ? 'Rascunho: ' + i.roteiro : ''}`;
 }
 function preencherModalIdeia(i) {
   $('mi-id').value = i._id || '';
@@ -2079,12 +2079,15 @@ async function salvarIdeia() {
   if (id) await db.collection('midias_ideias').doc(id).set(obj, { merge: true });
   else {
     obj.criadoEm = agoraIso();
+    obj.num = proximoNumIdeia();
     await db.collection('midias_ideias').add(obj);
     if (obj.inspiracaoId) await db.collection('midias_inspiracoes').doc(obj.inspiracaoId).set({ status: 'Modelando' }, { merge: true }).catch(() => {});
   }
   modal('modalIdeia').hide();
   toast('Ideia salva!');
 }
+// Número curto e sequencial de cada ideia (#1, #2...): usado no "Pedir roteiro" para o Claude achar a ideia certa
+function proximoNumIdeia() { return dados.ideias.reduce((m, i) => Math.max(m, Number(i.num) || 0), 0) + 1; }
 async function excluirIdeia(id) {
   if (!confirm('Excluir esta ideia?')) return;
   await db.collection('midias_ideias').doc(id).delete();
