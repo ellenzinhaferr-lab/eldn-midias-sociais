@@ -292,6 +292,7 @@ body.modo-claro{--cor-fundo:#EEF4FF;--cor-borda:#D9DEFF;background:
 [data-page="calendario"] > i{background:var(--c5)!important}
 [data-page="ideias"] > i{background:var(--c3)!important;color:#7a4b00!important}
 [data-page="inspiracoes"] > i{background:var(--c1)!important}
+[data-page="analise"] > i{background:var(--c7)!important}
 [data-page="metricas"] > i{background:var(--c4)!important}
 [data-page="comentarios"] > i{background:var(--c7)!important}
 [data-page="automacoes"] > i{background:var(--c8)!important}
@@ -417,6 +418,7 @@ body.modo-claro{--cor-numero:#5B4B8A}
       <div class="nav-item"><button class="nav-link" data-page="calendario" onclick="showPage('calendario')"><i class="bi bi-calendar3"></i> Calendário</button></div>
       <div class="nav-item"><button class="nav-link" data-page="ideias" onclick="showPage('ideias')"><i class="bi bi-lightbulb"></i> Ideias e Roteiros</button></div>
       <div class="nav-item"><button class="nav-link" data-page="inspiracoes" onclick="showPage('inspiracoes')"><i class="bi bi-stars"></i> Inspirações</button></div>
+      <div class="nav-item"><button class="nav-link" data-page="analise" onclick="showPage('analise')"><i class="bi bi-search-heart"></i> Análise de Conteúdo</button></div>
       <div class="nav-grupo">Resultados</div>
       <div class="nav-item"><button class="nav-link" data-page="metricas" onclick="showPage('metricas')"><i class="bi bi-bar-chart-line"></i> Métricas dos Posts</button></div>
       <div class="nav-item"><button class="nav-link" data-page="comentarios" onclick="showPage('comentarios')"><i class="bi bi-chat-dots"></i> Comentários YouTube</button></div>
@@ -531,6 +533,67 @@ body.modo-claro{--cor-numero:#5B4B8A}
         <div id="insp-perfis" style="display:none">
           <div class="dica mb-3"><i class="bi bi-lightbulb"></i> Para perfis do Instagram que sejam <b>conta comercial ou criador</b>, o botão <b>"Posts que mais engajaram"</b> mostra os posts recentes ordenados por engajamento. Daí você salva os melhores como referência com um clique.</div>
           <div class="cards-grid" id="perfis-grid"></div>
+        </div>
+      </div>
+
+      <!-- ======================= ANÁLISE DE CONTEÚDO ======================= -->
+      <div class="page" id="page-analise">
+        <div id="an-lista">
+          <div class="dica mb-3"><i class="bi bi-lightbulb"></i> Cadastre os perfis que você quer <b>estudar</b>. Para perfis do Instagram que sejam <b>conta comercial ou criador</b>, o botão <b>"Analisar"</b> puxa os últimos 40 posts e mostra: formatos que mais engajam, frequência, melhores dias e horários, ganchos, CTAs e hashtags. Cada perfil tem um <b>caderno de estudo</b> para você anotar o que vai modelar.</div>
+          <div class="filtros mb-3" id="an-filtros">
+            <input class="input-search" id="an-busca" placeholder="Buscar perfil..." oninput="renderAnalise()">
+            <select class="form-select" id="an-grupo" onchange="renderAnalise()"></select>
+          </div>
+          <div class="cards-grid" id="an-grid"></div>
+          <div class="table-card mt-4" id="an-comp-card" style="display:none">
+            <div class="table-header"><h6><i class="bi bi-columns-gap me-2"></i>Comparativo dos perfis em estudo</h6></div>
+            <div class="table-responsive"><table class="gestao" id="an-comp"><thead></thead><tbody></tbody></table></div>
+          </div>
+        </div>
+        <div id="an-detalhe" style="display:none">
+          <button class="btn btn-outline-secondary btn-sm mb-3" onclick="fecharAnalise()"><i class="bi bi-arrow-left"></i> Voltar para os perfis</button>
+          <div id="an-cab" class="mb-3"></div>
+          <div class="tabs-linha">
+            <button id="an-tab-visao" class="ativo" onclick="abaAnalise('visao')"><i class="bi bi-clipboard-data"></i> Raio-x</button>
+            <button id="an-tab-posts" onclick="abaAnalise('posts')"><i class="bi bi-grid-3x3-gap"></i> Posts</button>
+            <button id="an-tab-estudo" onclick="abaAnalise('estudo')"><i class="bi bi-journal-text"></i> Caderno de estudo</button>
+          </div>
+          <div id="an-visao">
+            <div id="an-sem-dados"></div>
+            <div class="kpi-grid" id="an-kpis"></div>
+            <div class="row g-3" id="an-blocos">
+              <div class="col-lg-6"><div class="table-card"><div class="table-header"><h6><i class="bi bi-collection-play me-2"></i>Formatos: quanto posta e quanto engaja</h6></div><div class="table-responsive"><table class="gestao" id="an-formatos"><tbody></tbody></table></div></div></div>
+              <div class="col-lg-6"><div class="chart-card"><h6>Engajamento médio por dia da semana</h6><div style="height:220px"><canvas id="ch-an-dias"></canvas></div></div></div>
+              <div class="col-lg-6"><div class="table-card"><div class="table-header"><h6><i class="bi bi-clock me-2"></i>Horários de postagem (horário de Brasília)</h6></div><div class="table-responsive"><table class="gestao" id="an-horarios"><tbody></tbody></table></div></div></div>
+              <div class="col-lg-6"><div class="table-card"><div class="table-header"><h6><i class="bi bi-megaphone me-2"></i>Chamadas para ação (CTA) nas legendas</h6></div><div class="table-responsive"><table class="gestao" id="an-ctas"><tbody></tbody></table></div></div></div>
+              <div class="col-lg-6"><div class="table-card"><div class="table-header"><h6><i class="bi bi-text-paragraph me-2"></i>Tamanho da legenda</h6></div><div class="table-responsive"><table class="gestao" id="an-legendas"><tbody></tbody></table></div></div></div>
+              <div class="col-lg-6"><div class="table-card"><div class="table-header"><h6><i class="bi bi-hash me-2"></i>Hashtags mais usadas</h6></div><div style="padding:14px" id="an-hashtags"></div></div></div>
+              <div class="col-12"><div class="table-card"><div class="table-header"><h6><i class="bi bi-lightning-charge me-2"></i>Ganchos dos posts que mais engajaram (1ª linha da legenda)</h6></div><div class="table-responsive"><table class="gestao" id="an-ganchos"><tbody></tbody></table></div></div></div>
+              <div class="col-12" id="an-hist-col"><div class="table-card"><div class="table-header"><h6><i class="bi bi-graph-up me-2"></i>Evolução entre as análises</h6></div><div class="table-responsive"><table class="gestao" id="an-hist"><tbody></tbody></table></div></div></div>
+            </div>
+          </div>
+          <div id="an-posts" style="display:none">
+            <div class="filtros mb-3">
+              <select class="form-select" id="an-ordem" onchange="renderAnPosts()"><option value="engajamento">Maior engajamento</option><option value="curtidas">Mais curtidas</option><option value="comentarios">Mais comentários</option><option value="data">Mais recentes</option></select>
+              <select class="form-select" id="an-tipo" onchange="renderAnPosts()"><option value="">Todos os formatos</option><option value="Reels">Reels</option><option value="Carrossel">Carrossel</option><option value="Imagem">Imagem</option><option value="Vídeo">Vídeo</option></select>
+            </div>
+            <div class="disc-grid" id="an-posts-grid"></div>
+          </div>
+          <div id="an-estudo" style="display:none">
+            <div class="row g-3">
+              <div class="col-md-6"><label class="form-label">✅ O que funciona nesse perfil</label><textarea class="form-control" id="ae-funciona" rows="5" placeholder="Ex: carrosséis com versículo + reflexão curta salvam muito"></textarea></div>
+              <div class="col-md-6"><label class="form-label">🪝 Ganchos e frases que posso modelar</label><textarea class="form-control" id="ae-ganchos" rows="5" placeholder="Ex: &quot;Se você está cansada de...&quot;"></textarea></div>
+              <div class="col-md-6"><label class="form-label">🎨 Padrão visual (cores, fontes, capa, edição)</label><textarea class="form-control" id="ae-visual" rows="4"></textarea></div>
+              <div class="col-md-6"><label class="form-label">🧭 Linha editorial e frequência</label><textarea class="form-control" id="ae-linha" rows="4" placeholder="Temas que repete, quantas vezes posta, que tipo de post em que dia"></textarea></div>
+              <div class="col-md-6"><label class="form-label">⛔ O que NÃO combina comigo</label><textarea class="form-control" id="ae-evitar" rows="4"></textarea></div>
+              <div class="col-md-6"><label class="form-label">💡 Ideias para os meus perfis</label><textarea class="form-control" id="ae-ideias" rows="4"></textarea></div>
+            </div>
+            <div class="d-flex gap-2 mt-3 flex-wrap">
+              <button class="btn btn-primary" onclick="salvarEstudo()"><i class="bi bi-check-lg"></i> Salvar caderno</button>
+              <button class="btn btn-outline-secondary" onclick="estudoParaIdeia()"><i class="bi bi-lightbulb"></i> Mandar as ideias para o banco de ideias</button>
+              <span class="form-text align-self-center" id="ae-salvo"></span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -736,6 +799,22 @@ body.modo-claro{--cor-numero:#5B4B8A}
   <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" onclick="salvarPerfilInsp()">Salvar</button></div>
 </div></div></div>
 
+<!-- ======================= MODAL PERFIL EM ESTUDO ======================= -->
+<div class="modal fade" id="modalAnPerfil" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title" id="ma-titulo-modal">Novo perfil para estudar</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body">
+    <input type="hidden" id="ma-id">
+    <div class="row g-3">
+      <div class="col-7"><label class="form-label">@ ou link do perfil *</label><input class="form-control" id="ma-username" placeholder="@perfil ou instagram.com/perfil"></div>
+      <div class="col-5"><label class="form-label">Plataforma</label><select class="form-select" id="ma-plataforma"></select></div>
+      <div class="col-12"><label class="form-label">Nicho / assunto</label><input class="form-control" id="ma-nicho" placeholder="Ex: devocional feminino, fé e ansiedade"></div>
+      <div class="col-12"><label class="form-label">Grupo (opcional)</label><input class="form-control" id="ma-grupo" list="ma-grupos" placeholder="Ex: Concorrentes diretos, Referência de Reels"><datalist id="ma-grupos"></datalist></div>
+      <div class="col-12"><label class="form-label">O que eu quero estudar nele</label><textarea class="form-control" id="ma-motivo" rows="3" placeholder="Ex: como faz os ganchos dos Reels, como vende sem parecer venda"></textarea></div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" onclick="salvarAnPerfil()">Salvar</button></div>
+</div></div></div>
+
 <!-- ======================= MODAL DESCOBERTA ======================= -->
 <div class="modal fade" id="modalDescobrir" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-scrollable"><div class="modal-content">
   <div class="modal-header"><h5 class="modal-title" id="md-titulo">Posts que mais engajaram</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
@@ -845,7 +924,7 @@ const EVENTOS = {
   nao_segue: ['Ainda não segue', 'selo-amarelo'], repetido: ['Já tinha recebido', 'selo-cinza'], erro: ['Erro ao enviar', 'selo-vermelho'],
 };
 
-let dados = { calendario: [], ideias: [], inspiracoes: [], perfisInsp: [], fluxos: [] };
+let dados = { calendario: [], ideias: [], inspiracoes: [], perfisInsp: [], fluxos: [], analise: [] };
 let contasIG = [];
 let contasRedes = [], appsRedes = {}, redirectUri = '';
 // O login do Google volta por esta página-ponte (o ModSecurity do servidor bloqueia o retorno direto)
@@ -996,6 +1075,7 @@ function setupListeners() {
   ouvir('midias_ideias', 'ideias', recentes);
   ouvir('midias_inspiracoes', 'inspiracoes', recentes);
   ouvir('midias_perfis_inspiracao', 'perfisInsp', (a, b) => String(a.username).localeCompare(String(b.username)));
+  ouvir('midias_analise_perfis', 'analise', (a, b) => String(a.username).localeCompare(String(b.username)));
   ouvir('midias_fluxos', 'fluxos', (a, b) => String(a.nome).localeCompare(String(b.nome)));
 }
 
@@ -1036,6 +1116,9 @@ const PAGINAS = {
   inspiracoes: ['Inspirações', 'Referências para replicar e perfis que te inspiram', () => abaInspAtual === 'ref'
     ? `<button class="btn btn-primary btn-sm" onclick="novaRef()"><i class="bi bi-plus-lg"></i> Nova referência</button>`
     : `<button class="btn btn-primary btn-sm" onclick="novoPerfilInsp()"><i class="bi bi-plus-lg"></i> Novo perfil</button>`],
+  analise: ['Análise de Conteúdo', 'Estude os perfis que te interessam: formatos, frequência, ganchos e o que mais engaja', () => anAtual
+    ? `<button class="btn btn-outline-secondary btn-sm" onclick="copiarAnaliseClaude()"><i class="bi bi-clipboard"></i> Copiar para o Claude</button><button class="btn btn-outline-secondary btn-sm" onclick="editarAnPerfil(anAtual)"><i class="bi bi-pencil"></i> Editar</button>${(anPerfilAtual() || {}).plataforma === 'Instagram' ? `<button class="btn btn-primary btn-sm" id="btn-an-analisar" onclick="analisarPerfil(anAtual)"><i class="bi bi-arrow-repeat"></i> Analisar de novo</button>` : ''}`
+    : `${(dados.analise || []).some(p => p.plataforma === 'Instagram') ? `<button class="btn btn-outline-secondary btn-sm" id="btn-an-todos" onclick="analisarTodos()"><i class="bi bi-arrow-repeat"></i> Analisar todos</button>` : ''}<button class="btn btn-primary btn-sm" onclick="novoAnPerfil()"><i class="bi bi-plus-lg"></i> Novo perfil</button>`],
   metricas: ['Métricas dos Posts', 'Desempenho de cada publicação no Instagram, TikTok, YouTube e Pinterest', () => `<button class="btn btn-outline-secondary btn-sm" id="btn-sync" onclick="sincronizarMetricas()"><i class="bi bi-arrow-repeat"></i> Atualizar métricas</button>`],
   automacoes: ['Automações', 'Seu Manychat próprio: comentário, Direct e Stories', () => `<button class="btn btn-primary btn-sm" onclick="abrirGaleriaModelos()"><i class="bi bi-magic"></i> Nova automação</button>`],
   contatos: ['Contatos e Leads', 'Quem conversou com as automações', () => `<button class="btn btn-outline-secondary btn-sm" onclick="exportarContatosExcel()"><i class="bi bi-file-earmark-excel"></i> Excel</button><button class="btn btn-outline-secondary btn-sm" onclick="exportarContatosMeta()"><i class="bi bi-meta"></i> Meta Ads</button>`],
@@ -1068,6 +1151,7 @@ function renderPaginaAtual(abrindo) {
   else if (p === 'calendario') { renderCalendario(); if (abrindo) atualizarPostsCal(); }
   else if (p === 'ideias') renderIdeias();
   else if (p === 'inspiracoes') { renderReferencias(); renderPerfisInsp(); }
+  else if (p === 'analise') { if (!anAnalisando) atualizarAcoesTopo(); renderAnalise(); }
   else if (p === 'metricas') carregarDadosMetricas().then(renderMetricas);
   else if (p === 'automacoes') { renderFluxos(); carregarLogs(abrindo); }
   else if (p === 'contatos') carregarContatos(abrindo);
@@ -2174,6 +2258,368 @@ async function salvarPostComoRef(postId) {
     comoAdaptar: '', tags: [], criadoEm: agoraIso(), atualizadoEm: agoraIso(),
   });
   toast('Salvo nas referências!');
+}
+
+// ============================================================
+// ANÁLISE DE CONTEÚDO (perfis que a Ellen quer estudar)
+// ============================================================
+let anAtual = null, anAba = 'visao', anAnalisando = false;
+const AN_DIAS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+const AN_CTAS = [
+  ['Comentar', /\b(comente|comenta|comentem|escreva nos coment|deixe (aqui )?nos coment|digit[ae])/i],
+  ['Salvar', /\b(salve|salva|salvem|guarde|guarda)\b/i],
+  ['Compartilhar / enviar', /\b(compartilh|envie|envia|manda (pra|para)|mande (pra|para)|marque|marca (aquela|alguém|uma))/i],
+  ['Seguir', /\b(siga|segue|seguir|me acompanh)/i],
+  ['Link na bio / comprar', /(link na bio|link da bio|clique no link|compre|garanta|adquira|acesse o link|na bio)/i],
+];
+const anFuso = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', weekday: 'short', hour: '2-digit', hour12: false });
+function anDiaHora(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return null;
+  const partes = anFuso.formatToParts(d);
+  const h = parseInt((partes.find(p => p.type === 'hour') || {}).value, 10) % 24;
+  const dia = new Date(d.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' })).getDay();
+  return { dia, h };
+}
+function anUser(v) { return String(v || '').trim().replace(/^@/, '').replace(/^https?:\/\/(www\.|m\.)?(instagram|tiktok|youtube)\.com\/@?/i, '').replace(/[/?#].*$/, '').trim(); }
+function anLink(p) { return p.plataforma === 'TikTok' ? `https://www.tiktok.com/@${p.username}` : p.plataforma === 'YouTube' ? `https://www.youtube.com/@${p.username}` : p.plataforma === 'Pinterest' ? `https://www.pinterest.com/${p.username}/` : `https://www.instagram.com/${p.username}/`; }
+function anMedia(l, f) { return l.length ? l.reduce((s, x) => s + (f(x) || 0), 0) / l.length : null; }
+function anEng(p, seg) { return seg ? ((p.curtidas || 0) + (p.comentarios || 0)) / seg * 100 : 0; }
+
+// Calcula o raio-x completo a partir dos posts salvos
+function anCalcular(perfil) {
+  const seg = perfil.seguidores || 0;
+  const posts = (perfil.posts || []).map(p => ({ ...p, engajamento: anEng(p, seg), tipoNome: nomeTipo(p), dh: anDiaHora(p.data) }));
+  const r = { posts, seg, total: posts.length };
+  if (!posts.length) return r;
+  r.engMedio = anMedia(posts, p => p.engajamento);
+  r.curtMedia = anMedia(posts, p => p.curtidas);
+  r.comMedia = anMedia(posts, p => p.comentarios);
+  const datas = posts.map(p => new Date(p.data)).filter(d => !isNaN(d)).sort((a, b) => a - b);
+  const dias = datas.length > 1 ? Math.max(1, (datas[datas.length - 1] - datas[0]) / 864e5) : 7;
+  r.porSemana = posts.length / (dias / 7);
+  r.periodo = datas.length ? [datas[0], datas[datas.length - 1]] : null;
+  // Formatos
+  const fm = {};
+  posts.forEach(p => { (fm[p.tipoNome] = fm[p.tipoNome] || []).push(p); });
+  r.formatos = Object.entries(fm).map(([nome, l]) => ({ nome, qtd: l.length, mix: l.length / posts.length * 100, eng: anMedia(l, p => p.engajamento), curt: anMedia(l, p => p.curtidas), com: anMedia(l, p => p.comentarios) })).sort((a, b) => b.eng - a.eng);
+  r.campeao = r.formatos.find(f => f.qtd >= 2) || r.formatos[0];
+  // Dias da semana
+  r.dias = AN_DIAS.map((nome, i) => { const l = posts.filter(p => p.dh && p.dh.dia === i); return { nome, qtd: l.length, eng: l.length ? anMedia(l, p => p.engajamento) : null }; });
+  const diasValidos = r.dias.filter(d => d.qtd >= 2);
+  r.melhorDia = (diasValidos.length ? diasValidos : r.dias.filter(d => d.qtd)).sort((a, b) => b.eng - a.eng)[0];
+  // Horários
+  const faixas = [['Madrugada (0h–5h)', 0, 5], ['Manhã (5h–12h)', 5, 12], ['Tarde (12h–18h)', 12, 18], ['Noite (18h–24h)', 18, 24]];
+  r.faixas = faixas.map(([nome, a, b]) => { const l = posts.filter(p => p.dh && p.dh.h >= a && p.dh.h < b); return { nome, qtd: l.length, eng: l.length ? anMedia(l, p => p.engajamento) : null }; });
+  const hc = {};
+  posts.forEach(p => { if (p.dh) hc[p.dh.h] = (hc[p.dh.h] || 0) + 1; });
+  r.horasTop = Object.entries(hc).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([h, q]) => `${h}h (${q}x)`);
+  // CTAs
+  r.ctas = AN_CTAS.map(([nome, re]) => {
+    const com = posts.filter(p => re.test(p.legenda || '')), sem = posts.filter(p => !re.test(p.legenda || ''));
+    return { nome, qtd: com.length, pct: com.length / posts.length * 100, eng: com.length ? anMedia(com, p => p.engajamento) : null, engSem: sem.length ? anMedia(sem, p => p.engajamento) : null };
+  });
+  // Legendas
+  const tam = p => (p.legenda || '').length;
+  r.legMedia = anMedia(posts, tam);
+  r.legendas = [['Curta (até 150 caracteres)', 0, 150], ['Média (150 a 600)', 150, 600], ['Longa (mais de 600)', 600, 1e9]].map(([nome, a, b]) => { const l = posts.filter(p => tam(p) >= a && tam(p) < b); return { nome, qtd: l.length, eng: l.length ? anMedia(l, p => p.engajamento) : null }; });
+  // Hashtags
+  const tags = {};
+  posts.forEach(p => (String(p.legenda || '').match(/#[\p{L}\p{N}_]+/gu) || []).forEach(t => { t = t.toLowerCase(); tags[t] = (tags[t] || 0) + 1; }));
+  r.hashtags = Object.entries(tags).sort((a, b) => b[1] - a[1]).slice(0, 25);
+  r.tagsPorPost = anMedia(posts, p => (String(p.legenda || '').match(/#[\p{L}\p{N}_]+/gu) || []).length);
+  // Ganchos: 1ª linha dos que mais engajaram
+  r.top = posts.slice().sort((a, b) => b.engajamento - a.engajamento);
+  r.ganchos = r.top.slice(0, 10).map(p => ({ p, gancho: (String(p.legenda || '').split('\n').map(s => s.trim()).find(s => s && !s.startsWith('#')) || '(sem legenda)').slice(0, 180) }));
+  r.virais = posts.filter(p => p.engajamento >= r.engMedio * 1.5).length;
+  return r;
+}
+
+function renderAnalise() {
+  if (anAtual) return renderAnDetalhe();
+  const todos = dados.analise || [];
+  const grupos = [...new Set(todos.map(p => p.grupo).filter(Boolean))].sort();
+  const g = $('an-grupo').value;
+  $('an-grupo').innerHTML = opts(grupos, g, 'Todos os grupos');
+  $('an-filtros').style.display = todos.length ? '' : 'none';
+  const busca = $('an-busca').value.trim().toLowerCase();
+  const lista = todos.filter(p => (!g || p.grupo === g) && (!busca || [p.username, p.nome, p.nicho, p.grupo].join(' ').toLowerCase().includes(busca)));
+  const importaveis = (dados.perfisInsp || []).filter(pi => !todos.some(a => a.username.toLowerCase() === String(pi.username).toLowerCase()));
+  $('an-grid').innerHTML = lista.length ? lista.map(p => {
+    const r = anCalcular(p);
+    return `<div class="card-item" style="cursor:pointer" onclick="abrirAnalise('${p._id}')">
+      <div class="d-flex gap-3 align-items-center">
+        ${p.foto ? `<img src="${esc(p.foto)}" referrerpolicy="no-referrer" style="width:48px;height:48px;border-radius:50%;object-fit:cover" onerror="this.style.display='none'">` : `<div style="width:48px;height:48px;border-radius:50%;background:rgba(124,58,237,.15);display:flex;align-items:center;justify-content:center;font-size:20px"><i class="bi ${iconePlataforma(p.plataforma)}"></i></div>`}
+        <div style="min-width:0"><h6>@${esc(p.username)}</h6><div class="form-text">${esc(p.nicho || p.plataforma)}${p.grupo ? ' · ' + esc(p.grupo) : ''}</div></div>
+      </div>
+      ${p.motivo ? `<div class="card-texto">${esc(p.motivo)}</div>` : ''}
+      <div class="d-flex gap-1 flex-wrap">
+        ${p.seguidores != null ? `<span class="selo selo-cinza"><i class="bi bi-people"></i> ${fmtNum(p.seguidores)}</span>` : ''}
+        ${r.total ? `<span class="selo selo-roxo">${pct(r.engMedio)} engaj. médio</span><span class="selo selo-cinza">${r.porSemana.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} posts/semana</span>` : ''}
+        ${r.campeao ? `<span class="selo selo-verde">🏆 ${esc(r.campeao.nome)}</span>` : ''}
+        ${p.ultimaAnalise ? `<span class="form-text">analisado ${fmtData(p.ultimaAnalise)}</span>` : `<span class="selo selo-amarelo">ainda não analisado</span>`}
+      </div>
+      <div class="card-acoes" onclick="event.stopPropagation()">
+        ${p.plataforma === 'Instagram' ? `<button class="btn btn-primary" id="an-btn-${p._id}" onclick="analisarPerfil('${p._id}')"><i class="bi bi-arrow-repeat"></i> Analisar</button>` : ''}
+        <a class="btn btn-outline-secondary" href="${anLink(p)}" target="_blank"><i class="bi bi-box-arrow-up-right"></i> Abrir</a>
+        <button class="btn btn-outline-secondary" onclick="editarAnPerfil('${p._id}')"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-outline-secondary ms-auto" onclick="excluirAnPerfil('${p._id}')"><i class="bi bi-trash"></i></button>
+      </div></div>`;
+  }).join('') : `<div class="empty-state" style="grid-column:1/-1"><i class="bi bi-search-heart"></i>${todos.length ? 'Nenhum perfil com esse filtro.' : 'Nenhum perfil em estudo ainda.'}<br>
+      ${todos.length ? '' : `<button class="btn btn-primary btn-sm mt-3" onclick="novoAnPerfil()">Adicionar perfil</button>`}
+      ${importaveis.length ? `<button class="btn btn-outline-secondary btn-sm mt-3 ms-1" onclick="importarInspParaAnalise()">Trazer os ${importaveis.length} perfis de inspiração</button>` : ''}</div>`;
+  // Comparativo
+  const comp = lista.map(p => ({ p, r: anCalcular(p) })).filter(x => x.r.total);
+  $('an-comp-card').style.display = comp.length >= 2 ? '' : 'none';
+  if (comp.length >= 2) {
+    comp.sort((a, b) => b.r.engMedio - a.r.engMedio);
+    $('an-comp').querySelector('thead').innerHTML = '<tr><th>Perfil</th><th>Seguidores</th><th>Posts/semana</th><th>Engaj. médio</th><th>Curtidas/post</th><th>Coment./post</th><th>Formato campeão</th><th>Melhor dia</th><th>Mais usa</th></tr>';
+    $('an-comp').querySelector('tbody').innerHTML = comp.map(({ p, r }) => {
+      const maisUsa = r.formatos.slice().sort((a, b) => b.qtd - a.qtd)[0];
+      return `<tr style="cursor:pointer" onclick="abrirAnalise('${p._id}')"><td><b>@${esc(p.username)}</b></td><td>${fmtNum(p.seguidores)}</td><td>${r.porSemana.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</td><td><span class="selo selo-roxo">${pct(r.engMedio)}</span></td><td>${fmtNum(Math.round(r.curtMedia))}</td><td>${fmtNum(Math.round(r.comMedia))}</td><td>${esc(r.campeao ? r.campeao.nome : '—')}</td><td>${esc(r.melhorDia ? r.melhorDia.nome : '—')}</td><td>${esc(maisUsa ? `${maisUsa.nome} (${Math.round(maisUsa.mix)}%)` : '—')}</td></tr>`;
+    }).join('');
+  }
+}
+
+function abrirAnalise(id) {
+  anAtual = id; anAba = 'visao';
+  $('an-lista').style.display = 'none'; $('an-detalhe').style.display = '';
+  atualizarAcoesTopo();
+  abaAnalise('visao');
+  preencherEstudo();
+  window.scrollTo(0, 0);
+}
+function fecharAnalise() {
+  anAtual = null;
+  $('an-lista').style.display = ''; $('an-detalhe').style.display = 'none';
+  atualizarAcoesTopo();
+  renderAnalise();
+}
+function abaAnalise(a) {
+  anAba = a;
+  ['visao', 'posts', 'estudo'].forEach(x => { $('an-tab-' + x).classList.toggle('ativo', x === a); $('an-' + x).style.display = x === a ? '' : 'none'; });
+  renderAnDetalhe();
+}
+function anPerfilAtual() { return (dados.analise || []).find(x => x._id === anAtual); }
+
+function renderAnDetalhe() {
+  const p = anPerfilAtual();
+  if (!p) { if (anAtual) fecharAnalise(); return; }
+  const r = anCalcular(p);
+  $('an-cab').innerHTML = `<div class="conta-card">${p.foto ? `<img src="${esc(p.foto)}" referrerpolicy="no-referrer" onerror="this.style.display='none'">` : ''}
+    <div style="flex:1;min-width:0"><b style="color:var(--cor-titulo);font-size:17px">${esc(p.nome || '@' + p.username)}</b> <span class="form-text">@${esc(p.username)} · ${esc(p.plataforma)}</span>
+    <div class="form-text">${p.seguidores != null ? fmtNum(p.seguidores) + ' seguidores · ' : ''}${p.totalPosts != null ? fmtNum(p.totalPosts) + ' posts no perfil · ' : ''}${p.ultimaAnalise ? 'analisado em ' + fmtData(p.ultimaAnalise) : 'ainda não analisado'}${r.periodo ? ` · posts de ${r.periodo[0].toLocaleDateString('pt-BR')} a ${r.periodo[1].toLocaleDateString('pt-BR')}` : ''}</div>
+    ${p.bio ? `<div style="font-size:12px;margin-top:4px;white-space:pre-line">${esc(p.bio)}</div>` : ''}
+    ${p.motivo ? `<div class="mt-2"><span class="selo selo-azul">Estudando: ${esc(p.motivo)}</span></div>` : ''}</div></div>`;
+  if (anAba === 'posts') return renderAnPosts();
+  if (anAba !== 'visao') return;
+  const vazio = !r.total;
+  $('an-blocos').style.display = vazio ? 'none' : '';
+  $('an-kpis').style.display = vazio ? 'none' : '';
+  $('an-sem-dados').innerHTML = vazio ? (p.plataforma === 'Instagram'
+    ? `<div class="empty-state"><i class="bi bi-clipboard-data"></i>Ainda não tem dados desse perfil.<br><button class="btn btn-primary btn-sm mt-3" onclick="analisarPerfil('${p._id}')"><i class="bi bi-arrow-repeat"></i> Analisar agora</button></div>`
+    : `<div class="alerta"><i class="bi bi-info-circle"></i> O ${esc(p.plataforma)} não libera os dados de perfis de outras pessoas pela API. Abra o perfil, estude os vídeos e use o <b>Caderno de estudo</b> para anotar. Para um vídeo específico, você pode pedir aqui no Claude a <b>análise de vídeo</b> mandando o link.</div>`) : '';
+  if (vazio) return;
+  const kpi = ([l, v, s]) => `<div class="kpi-card"><div class="kpi-label">${l}</div><div class="kpi-value">${v}</div><div class="kpi-sub">${s}</div></div>`;
+  $('an-kpis').innerHTML = [
+    ['Engajamento médio', pct(r.engMedio), '(curtidas + comentários) ÷ seguidores'],
+    ['Frequência', r.porSemana.toLocaleString('pt-BR', { maximumFractionDigits: 1 }), 'posts por semana'],
+    ['Curtidas por post', fmtNum(Math.round(r.curtMedia)), `${fmtNum(Math.round(r.comMedia))} comentários por post`],
+    ['Formato campeão', r.campeao ? r.campeao.nome : '—', r.campeao ? `${pct(r.campeao.eng)} de engajamento médio` : ''],
+    ['Melhor dia', r.melhorDia ? r.melhorDia.nome : '—', r.melhorDia ? `${pct(r.melhorDia.eng)} de engajamento médio` : ''],
+    ['Posts acima da média', `${r.virais} de ${r.total}`, 'engajamento 1,5x maior que a média 🔥'],
+  ].map(kpi).join('');
+  const linha = (cels) => `<tr>${cels.map(c => `<td>${c}</td>`).join('')}</tr>`;
+  const cab = (cels) => `<tr>${cels.map(c => `<th>${c}</th>`).join('')}</tr>`;
+  const engSelo = (v) => v == null ? '—' : `<span class="selo ${v >= r.engMedio * 1.2 ? 'selo-verde' : v <= r.engMedio * 0.8 ? 'selo-vermelho' : 'selo-roxo'}">${pct(v)}</span>`;
+  $('an-formatos').querySelector('tbody').innerHTML = cab(['Formato', 'Posts', '% do mix', 'Engaj.', 'Curtidas', 'Coment.']) + r.formatos.map(f => linha([`<b>${esc(f.nome)}</b>`, f.qtd, pct(f.mix), engSelo(f.eng), fmtNum(Math.round(f.curt)), fmtNum(Math.round(f.com))])).join('');
+  $('an-horarios').querySelector('tbody').innerHTML = cab(['Faixa', 'Posts', 'Engaj.']) + r.faixas.map(f => linha([f.nome, f.qtd, engSelo(f.eng)])).join('') + `<tr><td colspan="3" class="form-text">Horários que mais posta: ${esc(r.horasTop.join(' · ') || '—')}</td></tr>`;
+  $('an-ctas').querySelector('tbody').innerHTML = cab(['CTA', 'Usa em', 'Engaj. com', 'Engaj. sem']) + r.ctas.map(c => linha([c.nome, `${c.qtd} (${Math.round(c.pct)}%)`, engSelo(c.eng), engSelo(c.engSem)])).join('');
+  $('an-legendas').querySelector('tbody').innerHTML = cab(['Tamanho', 'Posts', 'Engaj.']) + r.legendas.map(f => linha([f.nome, f.qtd, engSelo(f.eng)])).join('') + `<tr><td colspan="3" class="form-text">Média de ${fmtNum(Math.round(r.legMedia))} caracteres por legenda</td></tr>`;
+  $('an-hashtags').innerHTML = r.hashtags.length ? `<div class="form-text mb-2">Média de ${r.tagsPorPost.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} hashtags por post</div><div class="d-flex gap-1 flex-wrap">${r.hashtags.map(([t, q]) => `<span class="selo selo-roxo">${esc(t)} <b>${q}</b></span>`).join('')}</div>` : '<span class="form-text">Esse perfil não usa hashtags nos últimos posts.</span>';
+  $('an-ganchos').querySelector('tbody').innerHTML = cab(['#', 'Gancho', 'Formato', 'Engaj.', '']) + r.ganchos.map(({ p: x, gancho }, i) => linha([i + 1, esc(gancho), esc(x.tipoNome), engSelo(x.engajamento), `<a class="btn btn-outline-secondary btn-sm" href="${esc(x.permalink)}" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a> <button class="btn btn-outline-secondary btn-sm" title="Copiar gancho" onclick="copiarTexto(${JSON.stringify(gancho).replace(/"/g, '&quot;')})"><i class="bi bi-clipboard"></i></button>`])).join('');
+  const hist = (p.historico || []).slice().sort((a, b) => String(a.data).localeCompare(String(b.data)));
+  $('an-hist-col').style.display = hist.length >= 2 ? '' : 'none';
+  if (hist.length >= 2) $('an-hist').querySelector('tbody').innerHTML = cab(['Data', 'Seguidores', 'Variação', 'Posts no perfil', 'Engaj. médio']) + hist.map((h, i) => {
+    const ant = hist[i - 1], dif = ant && h.seguidores != null && ant.seguidores != null ? h.seguidores - ant.seguidores : null;
+    return linha([fmtData(h.data), fmtNum(h.seguidores), dif == null ? '—' : `<span class="selo ${dif >= 0 ? 'selo-verde' : 'selo-vermelho'}">${dif >= 0 ? '+' : ''}${fmtNum(dif)}</span>`, fmtNum(h.totalPosts), pct(h.engMedio)]);
+  }).reverse().join('');
+  desenharGrafico('ch-an-dias', { type: 'bar', data: { labels: r.dias.map(d => `${d.nome} (${d.qtd})`), datasets: [{ label: 'Engajamento médio (%)', data: r.dias.map(d => d.eng == null ? 0 : Math.round(d.eng * 100) / 100), backgroundColor: '#A78BFA', borderRadius: 6 }] }, options: { plugins: { legend: { display: false } } } });
+}
+async function copiarTexto(t) {
+  try { await navigator.clipboard.writeText(t); }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+  toast('Copiado!');
+}
+
+function renderAnPosts() {
+  const p = anPerfilAtual();
+  if (!p) return;
+  const r = anCalcular(p), ord = $('an-ordem').value, tipo = $('an-tipo').value;
+  const lista = r.posts.filter(x => !tipo || x.tipoNome === tipo).sort((a, b) => ord === 'data' ? String(b.data).localeCompare(String(a.data)) : (b[ord] - a[ord]));
+  $('an-posts-grid').innerHTML = lista.length ? lista.map(x => `<div class="disc-card">
+      <a class="thumb" href="${esc(x.permalink)}" target="_blank">${x.thumbnail ? `<img src="${esc(x.thumbnail)}" referrerpolicy="no-referrer" onerror="this.outerHTML='<i class=&quot;bi bi-camera-reels&quot;></i>'">` : '<i class="bi bi-camera-reels"></i>'}</a>
+      <div class="info">
+        <div class="d-flex justify-content-between"><span class="selo selo-cinza">${esc(x.tipoNome)}</span><span class="form-text">${fmtData(x.data)}${x.dh ? ' · ' + AN_DIAS[x.dh.dia] + ' ' + x.dh.h + 'h' : ''}</span></div>
+        <div>❤ ${fmtNum(x.curtidas)} · 💬 ${fmtNum(x.comentarios)}</div>
+        <div><span class="selo ${x.engajamento >= r.engMedio * 1.5 ? 'selo-verde' : 'selo-roxo'}">${pct(x.engajamento)} engaj.${x.engajamento >= r.engMedio * 1.5 ? ' 🔥' : ''}</span></div>
+        <div class="form-text" style="max-height:48px;overflow:hidden">${esc((x.legenda || '').slice(0, 110))}</div>
+        <button class="btn btn-outline-secondary btn-sm mt-auto" onclick="anSalvarRef('${x.id}')"><i class="bi bi-bookmark-plus"></i> Salvar referência</button>
+      </div></div>`).join('') : `<div class="empty-state" style="grid-column:1/-1">${r.total ? 'Nenhum post nesse formato' : 'Analise o perfil para ver os posts'}</div>`;
+}
+async function anSalvarRef(postId) {
+  const p = anPerfilAtual();
+  if (!p) return;
+  const r = anCalcular(p), x = r.posts.find(y => y.id === postId);
+  if (!x) return;
+  if (dados.inspiracoes.some(i => i.link === x.permalink)) return toast('Essa referência já está salva.');
+  await db.collection('midias_inspiracoes').add({
+    link: x.permalink, plataforma: 'Instagram', perfilOrigem: '@' + p.username, formato: x.tipoNome === 'Imagem' ? 'Estático' : x.tipoNome === 'Vídeo' ? 'Reels' : x.tipoNome,
+    perfilDestino: PERFIS[0].u, status: 'Salva', imagemUrl: x.thumbnail || '', legenda: x.legenda || '', curtidas: x.curtidas, comentarios: x.comentarios,
+    oQueFunciona: `${pct(x.engajamento)} de engajamento (média do perfil: ${pct(r.engMedio)})`,
+    comoAdaptar: '', tags: [], criadoEm: agoraIso(), atualizadoEm: agoraIso(),
+  });
+  toast('Salvo em Inspirações → Referências!');
+}
+
+async function analisarPerfil(id, silencioso) {
+  const p = (dados.analise || []).find(x => x._id === id);
+  if (!p) return false;
+  if (p.plataforma !== 'Instagram') { if (!silencioso) toast('Só dá para puxar dados automáticos de perfis do Instagram.', 'erro'); return false; }
+  if (!contasIG.length) { toast('Para analisar, conecte pelo menos um perfil seu em "Perfis Conectados".', 'erro'); return false; }
+  const btn = $('an-btn-' + id), btnTopo = $('btn-an-analisar');
+  [btn, btnTopo].forEach(b => { if (b) { b.disabled = true; b.innerHTML = '<span class="spinner-sm"></span> Analisando...'; } });
+  try {
+    const r = await api('descobrir', { igId: contasIG[0].igId, username: p.username });
+    const posts = (r.posts || []).map(x => ({ id: x.id, legenda: String(x.legenda || '').slice(0, 2200), tipo: x.tipo, produto: x.produto, permalink: x.permalink, thumbnail: x.thumbnail, data: x.data, curtidas: x.curtidas, comentarios: x.comentarios }));
+    const seg = r.perfil.followers_count ?? null;
+    const engMedio = posts.length && seg ? anMedia(posts, x => anEng(x, seg)) : null;
+    const hist = (p.historico || []).filter(h => h.data !== hojeStr());
+    hist.push({ data: hojeStr(), seguidores: seg, totalPosts: r.perfil.media_count ?? null, engMedio: engMedio != null ? Math.round(engMedio * 100) / 100 : null });
+    await db.collection('midias_analise_perfis').doc(id).set({
+      nome: r.perfil.name || '', bio: r.perfil.biography || '', foto: r.perfil.profile_picture_url || '', seguidores: seg, seguindo: r.perfil.follows_count ?? null,
+      totalPosts: r.perfil.media_count ?? null, posts, historico: hist.slice(-60), ultimaAnalise: hojeStr(), atualizadoEm: agoraIso(),
+    }, { merge: true });
+    if (!silencioso) toast(`@${p.username} analisado: ${posts.length} posts.`);
+    return true;
+  } catch (e) {
+    toast(`@${p.username}: ${e.message}`, 'erro');
+    return false;
+  } finally {
+    renderAnalise();
+    const b2 = $('btn-an-analisar');
+    if (b2) { b2.disabled = false; b2.innerHTML = '<i class="bi bi-arrow-repeat"></i> Analisar de novo'; }
+  }
+}
+async function analisarTodos() {
+  if (anAnalisando) return;
+  const lista = (dados.analise || []).filter(p => p.plataforma === 'Instagram');
+  if (!lista.length) return toast('Nenhum perfil do Instagram para analisar.', 'erro');
+  anAnalisando = true;
+  const btn = $('btn-an-todos');
+  let ok = 0;
+  for (let i = 0; i < lista.length; i++) {
+    if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner-sm"></span> ${i + 1} de ${lista.length}...`; }
+    if (await analisarPerfil(lista[i]._id, true)) ok++;
+  }
+  anAnalisando = false;
+  atualizarAcoesTopo();
+  toast(`${ok} de ${lista.length} perfis analisados.`);
+}
+
+// Monta um resumo para colar no Claude e pedir uma análise aprofundada
+function copiarAnaliseClaude() {
+  const p = anPerfilAtual();
+  if (!p) return;
+  const r = anCalcular(p), e = p.estudo || {};
+  const n = (v, c = 1) => v == null ? '—' : Number(v).toLocaleString('pt-BR', { maximumFractionDigits: c });
+  let t = `Quero estudar o perfil @${p.username} (${p.plataforma}${p.nicho ? ', nicho: ' + p.nicho : ''}) para modelar no meu conteúdo.\n`;
+  if (p.motivo) t += `O que quero aprender com ele: ${p.motivo}\n`;
+  if (p.bio) t += `Bio: ${p.bio.replace(/\n/g, ' / ')}\n`;
+  if (r.total) {
+    t += `\nDADOS DOS ÚLTIMOS ${r.total} POSTS (puxados em ${fmtData(p.ultimaAnalise)}):\n`;
+    t += `- Seguidores: ${fmtNum(p.seguidores)} · Frequência: ${n(r.porSemana)} posts/semana · Engajamento médio: ${n(r.engMedio, 2)}%\n`;
+    t += `- Formatos: ${r.formatos.map(f => `${f.nome} ${f.qtd} posts (${n(f.eng, 2)}% engaj.)`).join(' | ')}\n`;
+    t += `- Dias: ${r.dias.filter(d => d.qtd).map(d => `${d.nome} ${d.qtd} (${n(d.eng, 2)}%)`).join(' | ')}\n`;
+    t += `- Horários: ${r.faixas.filter(f => f.qtd).map(f => `${f.nome} ${f.qtd} (${n(f.eng, 2)}%)`).join(' | ')}\n`;
+    t += `- CTAs: ${r.ctas.map(c => `${c.nome} em ${Math.round(c.pct)}% dos posts`).join(' | ')}\n`;
+    t += `- Legenda média: ${Math.round(r.legMedia)} caracteres · ${n(r.tagsPorPost)} hashtags por post\n`;
+    t += `\nTOP 10 POSTS POR ENGAJAMENTO:\n`;
+    r.top.slice(0, 10).forEach((x, i) => { t += `\n${i + 1}. [${x.tipoNome}] ${n(x.engajamento, 2)}% · ❤ ${x.curtidas} · 💬 ${x.comentarios} · ${x.permalink}\nLegenda: ${String(x.legenda || '').slice(0, 500).replace(/\n+/g, ' / ')}\n`; });
+  }
+  const notas = [['O que funciona', e.funciona], ['Ganchos que anotei', e.ganchos], ['Padrão visual', e.visual], ['Linha editorial', e.linha], ['O que não combina comigo', e.evitar], ['Minhas ideias', e.ideias]].filter(([, v]) => v);
+  if (notas.length) t += `\nMINHAS ANOTAÇÕES:\n${notas.map(([k, v]) => `- ${k}: ${v}`).join('\n')}\n`;
+  t += `\nMe entregue: 1) o padrão de conteúdo desse perfil (pilares, ganchos, estrutura, CTA); 2) o que explica os posts que mais engajaram; 3) o que eu posso modelar para os meus perfis (@meulugardecura, @ellatemfe) no meu tom acolhedor, sem copiar; 4) 5 ideias de post prontas com gancho.`;
+  copiar(t);
+}
+
+function preencherEstudo() {
+  const e = (anPerfilAtual() || {}).estudo || {};
+  ['funciona', 'ganchos', 'visual', 'linha', 'evitar', 'ideias'].forEach(k => { $('ae-' + k).value = e[k] || ''; });
+  const p = anPerfilAtual() || {};
+  $('ae-salvo').textContent = p.estudoEm ? 'Salvo em ' + fmtDataHora(p.estudoEm) : '';
+}
+async function salvarEstudo() {
+  if (!anAtual) return;
+  const estudo = {};
+  ['funciona', 'ganchos', 'visual', 'linha', 'evitar', 'ideias'].forEach(k => { estudo[k] = $('ae-' + k).value.trim(); });
+  const quando = agoraIso();
+  await db.collection('midias_analise_perfis').doc(anAtual).set({ estudo, estudoEm: quando }, { merge: true });
+  $('ae-salvo').textContent = 'Salvo em ' + fmtDataHora(quando);
+  toast('Caderno salvo!');
+}
+async function estudoParaIdeia() {
+  const p = anPerfilAtual();
+  if (!p) return;
+  const ideias = $('ae-ideias').value.split('\n').map(s => s.replace(/^[-•*\d.)\s]+/, '').trim()).filter(Boolean);
+  if (!ideias.length) return toast('Escreva as ideias no campo "Ideias para os meus perfis", uma por linha.', 'erro');
+  if (!confirm(`Criar ${ideias.length} ideia(s) no banco de Ideias e Roteiros?`)) return;
+  await salvarEstudo();
+  const batch = db.batch();
+  ideias.forEach(titulo => batch.set(db.collection('midias_ideias').doc(), { titulo, gancho: '', perfil: PERFIS[0].u, formato: 'Reels', objetivo: 'Conectar', status: 'Nova', roteiro: `Inspirado no estudo de @${p.username}`, tags: ['analise', p.username], criadoEm: agoraIso(), atualizadoEm: agoraIso() }));
+  await batch.commit();
+  toast(`${ideias.length} ideia(s) criada(s) em Ideias e Roteiros!`);
+}
+
+function preencherModalAnPerfil(p) {
+  $('ma-id').value = p._id || '';
+  $('ma-username').value = p.username ? '@' + p.username : '';
+  $('ma-plataforma').innerHTML = opts(PLATAFORMAS, p.plataforma || 'Instagram');
+  $('ma-nicho').value = p.nicho || '';
+  $('ma-motivo').value = p.motivo || '';
+  $('ma-grupo').value = p.grupo || '';
+  $('ma-grupos').innerHTML = [...new Set((dados.analise || []).map(x => x.grupo).filter(Boolean))].map(g => `<option value="${esc(g)}">`).join('');
+  $('ma-titulo-modal').textContent = p._id ? 'Editar perfil em estudo' : 'Novo perfil para estudar';
+  modal('modalAnPerfil').show();
+}
+function novoAnPerfil() { preencherModalAnPerfil({}); }
+function editarAnPerfil(id) { const p = (dados.analise || []).find(x => x._id === id); if (p) preencherModalAnPerfil(p); }
+async function salvarAnPerfil() {
+  const u = anUser($('ma-username').value);
+  if (!u) return alert('Informe o @ do perfil.');
+  const id = $('ma-id').value, plataforma = $('ma-plataforma').value;
+  if ((dados.analise || []).some(x => x._id !== id && x.username.toLowerCase() === u.toLowerCase() && x.plataforma === plataforma)) return alert('Esse perfil já está na sua lista de estudo.');
+  const obj = { username: u, plataforma, nicho: $('ma-nicho').value.trim(), motivo: $('ma-motivo').value.trim(), grupo: $('ma-grupo').value.trim(), atualizadoEm: agoraIso() };
+  let novoId = id;
+  if (id) await db.collection('midias_analise_perfis').doc(id).set(obj, { merge: true });
+  else { obj.criadoEm = agoraIso(); novoId = (await db.collection('midias_analise_perfis').add(obj)).id; }
+  modal('modalAnPerfil').hide();
+  toast('Perfil salvo!');
+  if (!id && plataforma === 'Instagram' && contasIG.length) setTimeout(() => analisarPerfil(novoId), 400);
+}
+async function excluirAnPerfil(id) {
+  if (!confirm('Tirar este perfil da análise? O caderno de estudo dele também será apagado.')) return;
+  await db.collection('midias_analise_perfis').doc(id).delete();
+  toast('Perfil removido.');
+}
+async function importarInspParaAnalise() {
+  const todos = dados.analise || [];
+  const lista = (dados.perfisInsp || []).filter(pi => !todos.some(a => a.username.toLowerCase() === String(pi.username).toLowerCase()));
+  if (!lista.length) return;
+  const batch = db.batch();
+  lista.forEach(pi => batch.set(db.collection('midias_analise_perfis').doc(), { username: pi.username, plataforma: pi.plataforma || 'Instagram', nicho: pi.nicho || '', motivo: pi.porQueInspira || '', grupo: 'Perfis de inspiração', foto: pi.foto || '', seguidores: pi.seguidores ?? null, criadoEm: agoraIso(), atualizadoEm: agoraIso() }));
+  await batch.commit();
+  toast(`${lista.length} perfil(is) trazido(s). Clique em "Analisar" em cada um.`);
 }
 
 // ============================================================
