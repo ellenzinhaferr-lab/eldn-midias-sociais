@@ -292,6 +292,14 @@ body.modo-claro{--cor-fundo:#EEF4FF;--cor-borda:#D9DEFF;background:
 [data-page="calendario"] > i{background:var(--c5)!important}
 [data-page="ideias"] > i{background:var(--c3)!important;color:#7a4b00!important}
 [data-page="inspiracoes"] > i{background:var(--c1)!important}
+[data-page="linha"] > i{background:var(--c4)!important}
+.le-doc{padding:22px 26px;line-height:1.6}
+.le-doc h5{color:var(--cor-titulo);font-weight:700;margin:26px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--cor-borda)}
+.le-doc h5:first-child{margin-top:0}
+.le-doc p,.le-doc li{color:var(--cor-texto);font-size:14px}
+.le-doc b{color:var(--cor-titulo)}
+.le-doc a{color:var(--cor-secundaria)}
+.le-doc .table-responsive{margin:10px 0 16px;border:1px solid var(--cor-borda);border-radius:10px}
 [data-page="analise"] > i{background:var(--c7)!important}
 [data-page="metricas"] > i{background:var(--c4)!important}
 [data-page="comentarios"] > i{background:var(--c7)!important}
@@ -417,6 +425,7 @@ body.modo-claro{--cor-numero:#5B4B8A}
       <div class="nav-grupo">Conteúdo</div>
       <div class="nav-item"><button class="nav-link" data-page="calendario" onclick="showPage('calendario')"><i class="bi bi-calendar3"></i> Calendário</button></div>
       <div class="nav-item"><button class="nav-link" data-page="ideias" onclick="showPage('ideias')"><i class="bi bi-lightbulb"></i> Ideias e Roteiros</button></div>
+      <div class="nav-item"><button class="nav-link" data-page="linha" onclick="showPage('linha')"><i class="bi bi-signpost-split"></i> Linha Editorial</button></div>
       <div class="nav-item"><button class="nav-link" data-page="inspiracoes" onclick="showPage('inspiracoes')"><i class="bi bi-stars"></i> Inspirações</button></div>
       <div class="nav-item"><button class="nav-link" data-page="analise" onclick="showPage('analise')"><i class="bi bi-search-heart"></i> Análise de Conteúdo</button></div>
       <div class="nav-grupo">Resultados</div>
@@ -534,6 +543,21 @@ body.modo-claro{--cor-numero:#5B4B8A}
         <div id="insp-perfis" style="display:none">
           <div class="dica mb-3"><i class="bi bi-lightbulb"></i> Para perfis do Instagram que sejam <b>conta comercial ou criador</b>, o botão <b>"Posts que mais engajaram"</b> mostra os posts recentes ordenados por engajamento. Daí você salva os melhores como referência com um clique.</div>
           <div class="cards-grid" id="perfis-grid"></div>
+        </div>
+      </div>
+
+      <!-- ======================= LINHA EDITORIAL ======================= -->
+      <div class="page" id="page-linha">
+        <div class="tabs-linha" id="le-tabs"></div>
+        <div id="le-aviso"></div>
+        <div id="le-ver" class="bloco le-doc"></div>
+        <div id="le-editar" style="display:none">
+          <div class="dica mb-2"><i class="bi bi-markdown"></i> Escreva em texto simples: <b>## Título</b> vira seção, <b>**negrito**</b>, <b>*itálico*</b>, linhas começando com <b>-</b> ou <b>1.</b> viram lista, e tabelas usam <b>| coluna | coluna |</b>.</div>
+          <textarea class="form-control" id="le-texto" rows="28" style="font-family:ui-monospace,Consolas,monospace;font-size:13px"></textarea>
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-primary" onclick="salvarLinha()"><i class="bi bi-check-lg"></i> Salvar linha editorial</button>
+            <button class="btn btn-outline-secondary" onclick="cancelarLinha()">Cancelar</button>
+          </div>
         </div>
       </div>
 
@@ -925,7 +949,7 @@ const EVENTOS = {
   nao_segue: ['Ainda não segue', 'selo-amarelo'], repetido: ['Já tinha recebido', 'selo-cinza'], erro: ['Erro ao enviar', 'selo-vermelho'],
 };
 
-let dados = { calendario: [], ideias: [], inspiracoes: [], perfisInsp: [], fluxos: [], analise: [] };
+let dados = { calendario: [], ideias: [], inspiracoes: [], perfisInsp: [], fluxos: [], analise: [], linhas: [] };
 let contasIG = [];
 let contasRedes = [], appsRedes = {}, redirectUri = '';
 // O login do Google volta por esta página-ponte (o ModSecurity do servidor bloqueia o retorno direto)
@@ -1077,6 +1101,7 @@ function setupListeners() {
   ouvir('midias_ideias', 'ideias', recentes);
   ouvir('midias_inspiracoes', 'inspiracoes', recentes);
   ouvir('midias_perfis_inspiracao', 'perfisInsp', (a, b) => String(a.username).localeCompare(String(b.username)));
+  ouvir('midias_linha_editorial', 'linhas');
   ouvir('midias_analise_perfis', 'analise', (a, b) => String(a.username).localeCompare(String(b.username)));
   ouvir('midias_fluxos', 'fluxos', (a, b) => String(a.nome).localeCompare(String(b.nome)));
 }
@@ -1118,6 +1143,8 @@ const PAGINAS = {
   inspiracoes: ['Inspirações', 'Referências para replicar e perfis que te inspiram', () => abaInspAtual === 'ref'
     ? `<button class="btn btn-primary btn-sm" onclick="novaRef()"><i class="bi bi-plus-lg"></i> Nova referência</button>`
     : `<button class="btn btn-primary btn-sm" onclick="novoPerfilInsp()"><i class="bi bi-plus-lg"></i> Novo perfil</button>`],
+  linha: ['Linha Editorial', 'Para quem cada perfil fala, o que promete, os quadros e o ritmo da semana', () => leEditando ? ''
+    : `<button class="btn btn-outline-secondary btn-sm" onclick="copiarLinha()"><i class="bi bi-clipboard"></i> Copiar para o Claude</button><button class="btn btn-primary btn-sm" onclick="editarLinha()"><i class="bi bi-pencil"></i> Editar</button>`],
   analise: ['Análise de Conteúdo', 'Estude os perfis que te interessam: formatos, frequência, ganchos e o que mais engaja', () => anAtual
     ? `<button class="btn btn-outline-secondary btn-sm" onclick="copiarAnaliseClaude()"><i class="bi bi-clipboard"></i> Copiar para o Claude</button><button class="btn btn-outline-secondary btn-sm" onclick="editarAnPerfil(anAtual)"><i class="bi bi-pencil"></i> Editar</button>${(anPerfilAtual() || {}).plataforma === 'Instagram' ? `<button class="btn btn-primary btn-sm" id="btn-an-analisar" onclick="analisarPerfil(anAtual)"><i class="bi bi-arrow-repeat"></i> Analisar de novo</button>` : ''}`
     : `${(dados.analise || []).some(p => p.plataforma === 'Instagram') ? `<button class="btn btn-outline-secondary btn-sm" id="btn-an-todos" onclick="analisarTodos()"><i class="bi bi-arrow-repeat"></i> Analisar todos</button>` : ''}<button class="btn btn-primary btn-sm" onclick="novoAnPerfil()"><i class="bi bi-plus-lg"></i> Novo perfil</button>`],
@@ -1153,6 +1180,7 @@ function renderPaginaAtual(abrindo) {
   else if (p === 'calendario') { renderCalendario(); if (abrindo) atualizarPostsCal(); }
   else if (p === 'ideias') renderIdeias();
   else if (p === 'inspiracoes') { renderReferencias(); renderPerfisInsp(); }
+  else if (p === 'linha') renderLinha();
   else if (p === 'analise') { if (!anAnalisando) atualizarAcoesTopo(); renderAnalise(); }
   else if (p === 'metricas') carregarDadosMetricas().then(renderMetricas);
   else if (p === 'automacoes') { renderFluxos(); carregarLogs(abrindo); }
@@ -2305,6 +2333,109 @@ async function salvarPostComoRef(postId) {
     comoAdaptar: '', tags: [], criadoEm: agoraIso(), atualizadoEm: agoraIso(),
   });
   toast('Salvo nas referências!');
+}
+
+// ============================================================
+// LINHA EDITORIAL (uma por perfil, editável)
+// ============================================================
+// Versão inicial do @elnsantana (criada com o Claude em 22/11/2026). Vale até a Ellen salvar a primeira edição no sistema
+const LINHA_PADRAO = { elnsantana: "## Para quem e o que o perfil promete\n\nO perfil fala com **a mãe e dona de casa que quer ganhar o próprio dinheiro sem sair de casa**, enquanto cuida da família. A base começa do zero: os seguidores de hoje (parentes, conhecidos e algumas compradoras do devocional) não entram na conta.\n\n**O que ela sente hoje:** quer ajudar em casa com dinheiro, mas tem medo de golpe e de promessa de guru. Tem pouco tempo, pouco dinheiro pra investir e quase nenhuma experiência com vendas.\n\n**Promessa do perfil:** *Estou descobrindo fontes de renda que dá pra fazer de casa, testando cada uma de verdade e te mostrando o que funciona, o que não funciona e quanto tempo leva.*\n\n**Por que me seguir:** porque eu sou uma de vocês, faço junto, mostro os dias sem venda também e não prometo renda que eu não tenho.\n\nNome no perfil: **Ellen Santana | Renda de casa** (ou manter \"Empreendedorismo Digital\"; \"renda de casa\" é o que essa mulher digita na busca).\n\n## Bandeira e regras fixas\n\n**Bandeira (proposta, falta você confirmar):** *\"Fazer o certo na internet vende menos. E eu continuo escolhendo isso.\"* O inimigo comum não é uma pessoa: é a promessa de dinheiro fácil que essa mãe já viu e em que não confia. Essa frase já prendeu público frio quando foi impulsionada.\n\n**Regras que valem pra todo conteúdo:**\n\n1. Nunca prometo valor de renda. Mostro o que aconteceu comigo, com os dias bons e os ruins.\n2. Mostro o processo e o resultado; escondo o nicho e o valor dos produtos que não revelo.\n3. A casa pode aparecer (a mesa da cozinha, a lancheira, a louça esperando); o rosto e o nome dos filhos não.\n4. A fé aparece como lente: gratidão, honestidade, descanso. Nunca como sermão ou cobrança.\n5. Tudo que eu ensino, eu testei antes. O que ainda estou aprendendo, digo que estou aprendendo.\n\n## Temão, tema e teminha\n\n- **Temão (70%): Descobrindo fontes de renda de casa.** Achadinhos e afiliada Shopee (aprendendo em público), produtos de ticket baixo e o meu livro vendido em vários lugares.\n- **Tema (20%): Ferramentas grátis pras primeiras vendas.** O que eu uso de graça, no celular, pra criar, divulgar e vender.\n- **Teminha (10%): A vida real de quem é a empresa inteira.** Humor, cansaço, a venda que caiu na hora da janta, fé.\n\n| Linha | Quadro | O que mostra | Formato | Funil | CTA |\n| --- | --- | --- | --- | --- | --- |\n| Temão | Diário de afiliada | \"Dia 12 como afiliada: o que eu aprendi hoje\", com print do painel | Reels | Topo | Manda pra amiga que também quer começar |\n| Temão | Achadinho testado | \"Comprei pra testar antes de indicar\": o produto na casa, de verdade | Reels | Topo | Comenta ACHADO que eu te mando o link |\n| Temão | Testei por 7 dias | Uma fonte de renda testada: tempo gasto, o que deu, se vale pra quem tem pouco tempo | Carrossel | Meio | Salva pra decidir depois |\n| Temão | Mesmo produto, várias vitrines | Meu livro no Instagram, na Shopee e no Mercado Livre: onde vende e por quê | Reels | Meio | Salva |\n| Temão | Placar de sexta | Quantos dias da semana tiveram venda ou comissão, sem valor em R$ | Carrossel | Meio | Comenta sua aposta pra semana que vem |\n| Tema | Ferramenta grátis da semana | Tela gravada no celular: Canva, CapCut, IA grátis, painel de afiliado | Reels | Topo | Salva pra usar hoje |\n| Tema | Fiz no celular em 10 minutos | Um criativo, uma descrição ou um link prontos, do zero | Reels | Topo | Manda pra amiga |\n| Teminha | POV mãe que empreende | \"Eu sou a CEO, a designer, o SAC e quem faz a janta\" | Reels | Topo | Marca uma amiga que é a empresa inteira |\n| Teminha | Fé e operação | Gratidão, cansaço, por que eu escolho fazer certo | Carrossel ou foto | Conexão | Comenta |\n\n**Mistura do funil:** cerca de metade topo (pra ser enviado e trazer gente nova), quase metade meio (salvar e comentar) e pouco fundo. O fundo agora é o livro, de forma sutil, e o convite pro canal de transmissão; depois, o produto próprio.\n\n## Stories e ritmo da semana\n\n**Feed:** segunda e quarta são Reels (pra alcançar quem não te segue); sexta é carrossel (o placar). Mais 2 Trial Reels por semana, testando ganchos diferentes só com não seguidores.\n\n| Quando | Stories |\n| --- | --- |\n| Todo dia, manhã | O plano do dia: \"hoje eu vou...\" com a mesa, o café, o celular |\n| Todo dia, tarde | A ação do dia: link gerado, achadinho filmado, anúncio editado |\n| Todo dia, noite | O placar do dia (teve venda ou comissão?) + enquete \"amanhã vai ser verde?\" |\n| Segunda | O que eu vou testar na semana |\n| Quarta | Bastidor de erro ou de venda, com a reação de verdade |\n| Sexta | Caixinha \"me pergunta sobre começar a vender de casa\" |\n| Domingo | Folga ou fé, sem operação |\n\n## Desafio: Vamos virar afiliadas da Shopee juntas\n\n**A ideia:** eu começo agora, um passo à frente, e documento tudo. Em janeiro abro o desafio gratuito e você faz comigo, com o caminho que eu já testei. A promessa é **a primeira comissão**, nunca uma renda.\n\n**Por que funciona pra essa seguidora:** é de graça e dá pra fazer do celular. Pelo que as fontes de 2026 descrevem, o cadastro pede 18 anos ou mais, conta de compradora na Shopee e um perfil em rede social, sem mínimo de seguidores, e passa por aprovação por e-mail ([Shopee](https://shopee.com.br/blog/programa-de-afiliados-shopee/), [Techload](https://techload.com.br/?p=5126)). A comissão muda por categoria, então o valor certo eu confirmo no meu painel antes de falar de qualquer número.\n\n**Como roda (4 semanas, uma tarefa por dia):**\n\n1. Semana 1: cadastro, aprovação e primeiro link gerado.\n2. Semana 2: escolher um tema de achadinhos que combine com a vida de mãe (casa, cozinha, escola, organização) e fazer o primeiro conteúdo.\n3. Semana 3: rotina de divulgação com stories, status do WhatsApp e um Reels.\n4. Semana 4: primeira comissão (ou o que faltou pra ela) e balanço honesto.\n\n**Mecânica pra engajar** (Valeska, Influência, movimento e desafios): contador \"Dia 8/28\", compromisso público (comentar EU VOU), ritual diário, repost de quem participa, grupo ou canal com data pra acabar e um prêmio simples pra quem for até o fim. Mesmo que pouca gente entre, são 4 semanas de conteúdo pronto.\n\n**Calendário:** dezembro eu faço sozinha e mostro (é o Diário de afiliada); fim de dezembro tem o teaser; o desafio abre em janeiro.\n\n**Honestidade obrigatória:** eu vou estar só um mês à frente. Isso é parte da proposta (\"aprendendo junto\") e precisa ser dito, não escondido.\n\n## Caminho até o produto e pontos de atenção\n\n**Caminho:**\n\n1. Dezembro: documentar o início como afiliada e as outras fontes. Abrir o canal de transmissão.\n2. Janeiro: desafio gratuito. Anotar onde as participantes travam.\n3. Depois do desafio: o produto de R$ 200 a 300 nasce desses travamentos (algo como \"montar suas fontes de renda de casa\"), já com lista de interessadas.\n\n**Pontos de atenção:**\n\n- **Esse nicho é lotado e cheio de golpe.** A sua honestidade é o diferencial. Nada de print de ganho de outras pessoas, nem número que não seja seu.\n- **A comissão no começo costuma ser pequena.** O conteúdo precisa preparar a expectativa, ou a seguidora se frustra e vai embora.\n- **Os produtos que você vende em perfis escondidos.** Um deles é um app de renda extra. Se a seguidora descobrir isso num perfil anônimo enquanto você fala de transparência, a confiança cai. Decida antes o que vai contar sobre ele. Essas frentes viram bastidor ocasional, não o centro: tráfego pago é avançado demais pra quem está começando.\n- **O livro continua.** Ele fala com a mesma mulher cansada. Aparece como \"meu produto próprio\" e, às vezes, como cuidado com ela.\n- **O cronograma atual foi feito pra outro foco** e precisa ser refeito com esta linha.\n\n**Falta você decidir:** se a bandeira \"fazer o certo vende menos\" fica, e qual nome vai no perfil.\n" };
+let lePerfil = PERFIS[0].u, leEditando = false;
+try { lePerfil = localStorage.getItem('ms-linha-perfil') || lePerfil; } catch (e) {}
+
+function leTexto(u) {
+  const d = (dados.linhas || []).find(x => x._id === u);
+  return d ? (d.markdown || '') : (LINHA_PADRAO[u] || '');
+}
+function abaLinha(u) {
+  if (leEditando && !confirm('Sair sem salvar o que você editou?')) return;
+  lePerfil = u; leEditando = false;
+  try { localStorage.setItem('ms-linha-perfil', u); } catch (e) {}
+  atualizarAcoesTopo();
+  renderLinha();
+}
+function renderLinha() {
+  if (!PERFIS.some(p => p.u === lePerfil)) lePerfil = PERFIS[0].u;
+  $('le-tabs').innerHTML = PERFIS.map(p => `<button class="${p.u === lePerfil ? 'ativo' : ''}" onclick="abaLinha('${p.u}')"><i class="bi bi-instagram"></i> @${p.u}</button>`).join('');
+  const d = (dados.linhas || []).find(x => x._id === lePerfil), txt = leTexto(lePerfil);
+  $('le-ver').style.display = leEditando ? 'none' : '';
+  $('le-editar').style.display = leEditando ? '' : 'none';
+  $('le-aviso').innerHTML = leEditando ? '' : d
+    ? `<div class="form-text mb-2">Atualizada em ${fmtDataHora(d.atualizadoEm)}</div>`
+    : txt ? `<div class="form-text mb-2">Versão criada com o Claude em 22/11/2026. Clique em <b>Editar</b> para ajustar.</div>` : '';
+  if (leEditando) return;
+  $('le-ver').innerHTML = txt ? mdParaHtml(txt) : `<div class="empty-state"><i class="bi bi-journal-richtext"></i>Ainda não tem linha editorial para @${esc(lePerfil)}.<br><button class="btn btn-primary btn-sm mt-3" onclick="editarLinha()">Escrever agora</button></div>`;
+}
+function editarLinha() {
+  leEditando = true;
+  $('le-texto').value = leTexto(lePerfil);
+  atualizarAcoesTopo();
+  renderLinha();
+  $('le-texto').focus();
+}
+function cancelarLinha() { leEditando = false; atualizarAcoesTopo(); renderLinha(); }
+async function salvarLinha() {
+  const markdown = $('le-texto').value;
+  await db.collection('midias_linha_editorial').doc(lePerfil).set({ perfil: lePerfil, markdown, atualizadoEm: agoraIso() }, { merge: true });
+  leEditando = false;
+  atualizarAcoesTopo();
+  renderLinha();
+  toast('Linha editorial salva!');
+}
+function copiarLinha() { copiar(`Linha editorial do perfil @${lePerfil}:\n\n${leTexto(lePerfil)}`); }
+// Cada linha da tabela de quadros vira um atalho para criar ideia já com o quadro e o formato
+function quadroParaIdeia(btn) {
+  const tr = btn.closest('tr'), th = [...tr.closest('table').querySelectorAll('th')].map(x => x.textContent.trim().toLowerCase());
+  const cel = nome => { const i = th.indexOf(nome); return i >= 0 ? tr.children[i].textContent.trim() : ''; };
+  const fmt = cel('formato'), formato = FORMATOS.find(f => fmt.toLowerCase().startsWith(f.toLowerCase())) || 'Reels';
+  const funil = cel('funil').toLowerCase();
+  novaIdeia({ titulo: cel('quadro'), gancho: '', perfil: lePerfil, formato, objetivo: funil === 'topo' ? 'Ganhar seguidores' : funil === 'fundo' ? 'Vender' : 'Conectar',
+    roteiro: [cel('o que mostra') && `O que mostra: ${cel('o que mostra')}`, cel('cta') && `CTA: ${cel('cta')}`, cel('linha') && `Linha: ${cel('linha')}`].filter(Boolean).join('\n'), tags: ['linha-editorial'] });
+}
+
+// Conversor simples de Markdown (títulos, negrito, itálico, links, listas e tabelas)
+function mdInline(s) {
+  return esc(s)
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+    .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<i>$2</i>');
+}
+function mdParaHtml(md) {
+  const linhas = String(md).replace(/\r/g, '').split('\n');
+  let html = '', i = 0;
+  const celulas = l => l.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+  while (i < linhas.length) {
+    const l = linhas[i];
+    if (!l.trim()) { i++; continue; }
+    let m;
+    if ((m = l.match(/^(#{1,4})\s+(.*)$/))) { const n = Math.min(6, m[1].length + 3); html += `<h${n}>${mdInline(m[2])}</h${n}>`; i++; continue; }
+    if (/^\s*\|/.test(l) && i + 1 < linhas.length && /^\s*\|?\s*:?-{2,}/.test(linhas[i + 1])) {
+      const cab = celulas(l), temQuadro = cab.some(c => c.toLowerCase() === 'quadro');
+      i += 2;
+      let corpo = '';
+      while (i < linhas.length && /^\s*\|/.test(linhas[i])) {
+        corpo += `<tr>${celulas(linhas[i]).map(c => `<td>${mdInline(c)}</td>`).join('')}${temQuadro ? `<td><button class="btn btn-outline-secondary btn-sm" title="Criar ideia com este quadro" onclick="quadroParaIdeia(this)"><i class="bi bi-lightbulb"></i></button></td>` : ''}</tr>`;
+        i++;
+      }
+      html += `<div class="table-responsive"><table class="gestao"><thead><tr>${cab.map(c => `<th>${mdInline(c)}</th>`).join('')}${temQuadro ? '<th></th>' : ''}</tr></thead><tbody>${corpo}</tbody></table></div>`;
+      continue;
+    }
+    if (/^\s*[-*]\s+/.test(l)) {
+      html += '<ul>';
+      while (i < linhas.length && /^\s*[-*]\s+/.test(linhas[i])) { html += `<li>${mdInline(linhas[i].replace(/^\s*[-*]\s+/, ''))}</li>`; i++; }
+      html += '</ul>'; continue;
+    }
+    if (/^\s*\d+[.)]\s+/.test(l)) {
+      html += '<ol>';
+      while (i < linhas.length && /^\s*\d+[.)]\s+/.test(linhas[i])) { html += `<li>${mdInline(linhas[i].replace(/^\s*\d+[.)]\s+/, ''))}</li>`; i++; }
+      html += '</ol>'; continue;
+    }
+    const p = [l];
+    i++;
+    while (i < linhas.length && linhas[i].trim() && !/^(#{1,4}\s|\s*\||\s*[-*]\s+|\s*\d+[.)]\s+)/.test(linhas[i])) { p.push(linhas[i]); i++; }
+    html += `<p>${p.map(mdInline).join('<br>')}</p>`;
+  }
+  return html;
 }
 
 // ============================================================
